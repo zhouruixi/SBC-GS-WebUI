@@ -1,0 +1,4 @@
+altitude_limit: '100'
+drone_id: DR001
+return_to_home: 'true'
+speed_limit: '500'
