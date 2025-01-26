@@ -1,0 +1,22 @@
+gs_config_files:
+  - name: gs
+    path: /etc/gs.conf
+    format: ini
+  - name: wfb
+    path: /etc/wifibroadcast.cfg
+    format: ini
+
+drone_config_files:
+  - name: wfb
+    path: "/etc/wfb.conf"
+    format: ini
+  - name: majestic
+    path: "/etc/majestic.yaml"
+    format: yaml
+  - name: datalink
+    path: "/etc/datalink.conf"
+    format: ini
+  - name: telemetry
+    path: "/etc/telemetry.conf"
+    format: ini
+
