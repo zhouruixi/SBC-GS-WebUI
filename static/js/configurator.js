@@ -1,5 +1,30 @@
 // scripts.js
 $(document).ready(function () {
+    // 加载 GS 配置，只有在 "GS 配置" 标签页激活时执行
+    function loadGSConfig() {
+        if ($("#gsconfig").hasClass("active")) { // 检查标签页是否处于激活状态
+            $.get("/load_gs_config", function (data) {
+                const container = $("#gs-config-container");
+                container.empty(); // 清空容器
+
+                // 动态生成配置表单
+                for (const [key, value] of Object.entries(data)) {
+                    const row = `
+                        <div class="mb-3">
+                            <label class="form-label">${key}</label>
+                            <input type="text" class="form-control config-input" data-key="${key}" value="${value}" placeholder="${value}">
+                        </div>`;
+                    container.append(row);
+                }
+                const resultDiv = $("#save-result-gs");
+                resultDiv.html(`<div class="alert alert-success">读取配置成功！</div>`);
+                // alert("加载配置成功！");
+            }).fail(function () {
+                alert("加载配置失败！");
+            });
+        }
+    }
+
     // 加载 Drone 配置，只有在 "Drone 配置" 标签页激活时执行
     function loadDroneConfig() {
         if ($("#droneconf").hasClass("active")) { // 检查标签页是否处于激活状态
@@ -56,7 +81,12 @@ $(document).ready(function () {
     }
 
     // 初始化页面时加载 Drone 配置（只会在 "Drone 配置" 标签页激活时加载）
-    loadDroneConfig(); // 页面加载时默认加载配置，只有当 "Drone 配置" 标签页激活时才执行
+    // loadDroneConfig(); // 页面加载时默认加载配置，只有当 "Drone 配置" 标签页激活时才执行
+
+    // 点击 "读取配置" 按钮时重新加载 GS 配置
+    $("#reload-button-gs").on("click", function () {
+        loadGSConfig(); // 仅在 "GS 配置" 标签页激活时重新加载
+    });
 
     // 点击 "读取配置" 按钮时重新加载 Drone 配置
     $("#reload-button").on("click", function () {

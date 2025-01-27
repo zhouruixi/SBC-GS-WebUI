@@ -84,6 +84,15 @@ def home():
     return render_template('index.html')
 
 
+@app.route('/load_gs_config', methods=['GET'])
+def load_gs_config():
+    data = load_all_configs('gs')
+    # data = load_yaml()
+    print(type(data))
+    print(data)
+    return jsonify(data['gs'])
+
+
 @app.route('/load_drone_config', methods=['GET'])
 def load_drone_config():
     # data = load_all_configs('drone')
