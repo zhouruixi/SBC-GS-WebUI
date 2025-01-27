@@ -88,24 +88,34 @@ def home():
 def load_gs_config():
     data = load_all_configs('gs')
     # data = load_yaml()
-    print(type(data))
-    print(data)
+    # print(type(data))
+    # print(data)
     return jsonify(data['gs'])
+
+
+@app.route('/save_gs_config', methods=['POST'])
+def save_gs_config():
+    try:
+        data = request.json  # 获取前端传来的 JSON 数据
+        save_yaml(data) # ~~~~~~~~~~~~~~~~~~~~
+        return jsonify({"success": True, "message": "配置已保存！"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
 
 
 @app.route('/load_drone_config', methods=['GET'])
 def load_drone_config():
-    # data = load_all_configs('drone')
-    data = load_yaml()
+    data = load_all_configs('drone')
+    # data = load_yaml()
     # print(data)
-    return jsonify(data)
+    return jsonify(data['wfb'])
 
 
 @app.route('/save_drone_config', methods=['POST'])
 def save_drone_config():
     try:
         data = request.json  # 获取前端传来的 JSON 数据
-        save_yaml(data)
+        save_yaml(data) # ~~~~~~~~~~~~~~~~~~~~
         return jsonify({"success": True, "message": "配置已保存！"})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})

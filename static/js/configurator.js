@@ -25,6 +25,36 @@ $(document).ready(function () {
         }
     }
 
+    // 保存 GS 配置，只有在 "GS 配置" 标签页激活时执行
+    function saveGSConfig() {
+        if ($("#gsconfig").hasClass("active")) { // 检查标签页是否处于激活状态
+            const data = {};
+            $(".config-input").each(function () {
+                const key = $(this).data("key");
+                const value = $(this).val();
+                data[key] = value;
+            });
+
+            $.ajax({
+                url: "/save_gs_config",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function (response) {
+                    const resultDiv = $("#save-result-gs");
+                    if (response.success) {
+                        resultDiv.html(`<div class="alert alert-success">${response.message}</div>`);
+                    } else {
+                        resultDiv.html(`<div class="alert alert-danger">${response.message}</div>`);
+                    }
+                },
+                error: function () {
+                    alert("保存配置失败！");
+                },
+            });
+        }
+    }
+
     // 加载 Drone 配置，只有在 "Drone 配置" 标签页激活时执行
     function loadDroneConfig() {
         if ($("#droneconf").hasClass("active")) { // 检查标签页是否处于激活状态
@@ -86,6 +116,11 @@ $(document).ready(function () {
     // 点击 "读取配置" 按钮时重新加载 GS 配置
     $("#reload-button-gs").on("click", function () {
         loadGSConfig(); // 仅在 "GS 配置" 标签页激活时重新加载
+    });
+
+    // 点击 "保存配置" 按钮时保存 GS 配置
+    $("#save-button-gs").on("click", function () {
+        saveGSConfig(); // 仅在 "GS 配置" 标签页激活时保存配置
     });
 
     // 点击 "读取配置" 按钮时重新加载 Drone 配置
