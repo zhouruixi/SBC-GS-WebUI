@@ -16,6 +16,9 @@ $(document).ready(function () {
                         </div>`;
                     container.append(row);
                 }
+                const resultDiv = $("#save-result");
+                resultDiv.html(`<div class="alert alert-success">读取配置成功！</div>`);
+                // alert("加载配置成功！");
             }).fail(function () {
                 alert("加载配置失败！");
             });
