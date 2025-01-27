@@ -71,7 +71,7 @@ $(document).ready(function () {
                         </div>`;
                     container.append(row);
                 }
-                const resultDiv = $("#save-result");
+                const resultDiv = $("#save-result-drone");
                 resultDiv.html(`<div class="alert alert-success">读取配置成功！</div>`);
                 // alert("加载配置成功！");
             }).fail(function () {
@@ -96,7 +96,7 @@ $(document).ready(function () {
                 contentType: "application/json",
                 data: JSON.stringify(data),
                 success: function (response) {
-                    const resultDiv = $("#save-result");
+                    const resultDiv = $("#save-result-drone");
                     if (response.success) {
                         resultDiv.html(`<div class="alert alert-success">${response.message}</div>`);
                     } else {
@@ -124,12 +124,12 @@ $(document).ready(function () {
     });
 
     // 点击 "读取配置" 按钮时重新加载 Drone 配置
-    $("#reload-button").on("click", function () {
+    $("#reload-button-drone").on("click", function () {
         loadDroneConfig(); // 仅在 "Drone 配置" 标签页激活时重新加载
     });
 
     // 点击 "保存配置" 按钮时保存 Drone 配置
-    $("#save-button").on("click", function () {
+    $("#save-button-drone").on("click", function () {
         saveDroneConfig(); // 仅在 "Drone 配置" 标签页激活时保存配置
     });
 
