@@ -202,6 +202,13 @@ def load_drone_config(filename):
         print("Downloading file...")
         ssh.download_file(config_file_remote, config_file_local)
         print("File downloaded successfully.")
+    except EOFError as e:
+        # 捕捉EOFError并记录错误
+        print(f"EOFError: 网络连接中断或远程服务器关闭连接: {str(e)}")
+        # 可以选择重试逻辑或者其他恢复策略
+    except Exception as e:
+        # 捕捉其他所有异常并记录
+        print(f"发生了其他错误: {str(e)}")
     finally:
         ssh.close()
 
