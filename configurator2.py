@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+
+# pip install flask configobj paramiko scp
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from configobj import ConfigObj
 import yaml
@@ -81,14 +84,14 @@ class SSHClient:
             raise
         except paramiko.AuthenticationException:
             print(
-                f"Authentication failed when connecting to {self.hostname}. Please check your username/password or key file."
+                f"Authentication failed when connecting to {self.host}. Please check your username/password or key file."
             )
             raise
         except paramiko.SSHException as e:
-            print(f"SSH connection failed to {self.hostname}. SSH error: {str(e)}")
+            print(f"SSH connection failed to {self.host}. SSH error: {str(e)}")
             raise
         except Exception as e:
-            print(f"Failed to connect to {self.hostname}. Error: {str(e)}")
+            print(f"Failed to connect to {self.host}. Error: {str(e)}")
             raise
 
     def execute_command(self, command):
