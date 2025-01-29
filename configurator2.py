@@ -264,6 +264,22 @@ def save_drone_config(filename):
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
 
+@app.route('/exec_button_function', methods=['POST'])
+def exec_button_function():
+    # 获取前端发送的数据
+    data = request.get_json()
+    function_name = data.get('button_id')
+
+    # 打印接收到的按钮ID
+    print(f"收到按钮指令: {function_name}")
+    button_command = f"/gs/button.sh {function_name}"
+    print(f"执行命令：{button_command}")
+    button_command_result = subprocess.run(button_command, shell=True, capture_output=True, text=True)
+    if button_command_result.returncode != 0:
+        raise ValueError("执行按钮命令出错")  # 主动抛出异常
+    # 返回按钮 ID
+    return jsonify({'status': 'success', 'button_id': function_name})
+
 
 if __name__ == "__main__":
     config_info_file = "/gs/webui/configs/config_files.yaml"

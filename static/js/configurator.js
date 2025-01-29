@@ -1,5 +1,39 @@
 // scripts.js
 $(document).ready(function () {
+
+    // 发送按钮 ID 到后端
+    function sendButtonFunctionToBackend(function_name) {
+        fetch('/exec_button_function', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ button_id: function_name })
+        })
+            .then(response => response.json())
+            .then(data => {
+                // console.log('服务器响应:', data);
+                alert(`按钮指令 ${function_name} 已发送`);
+            })
+            .catch(error => {
+                console.error('发生错误:', error);
+            });
+    }
+
+    // 监听所有 id 以 gs_btn_ 开头的按钮
+    function listenToButtons() {
+        const buttons = document.querySelectorAll('[id^="gs_btn_"]');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                // 获取按钮的 id 并调用发送请求的函数
+                const buttonId = button.id;
+                const function_name = buttonId.slice(7)
+                sendButtonFunctionToBackend(function_name);
+            });
+        });
+    }
+
     // 加载 GS 配置
     function loadGSConfig() {
         // if ($("#gsconfig").hasClass("active")) {
@@ -150,6 +184,9 @@ $(document).ready(function () {
     loadGSConfig();
     loadDroneConfig("wfb");
     loadDroneConfig("majestic");
+
+    // 初始化按钮监听
+    listenToButtons();
 
     // 加载 gs 配置
     $("#reload-button-gs").on("click", function () {
