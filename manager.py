@@ -26,8 +26,8 @@ def format_size(size):
     return f"{size:.2f} TB"
 
 
-@app.route("/")
-@app.route("/<path:subpath>")
+@app.route("/filemanager/")
+@app.route("/filemanager/<path:subpath>")
 def index(subpath=""):
     base_path = os.path.join(UPLOAD_FOLDER, subpath)
     if not os.path.exists(base_path):
@@ -56,9 +56,9 @@ def index(subpath=""):
         files.append(item_info)
 
     # 生成面包屑导航
-    breadcrumb = [{"name": "Home", "path": ""}]
+    breadcrumb = [{"name": "Home", "path": "filemanager"}]
     path_parts = subpath.split("/") if subpath else []
-    cumulative_path = ""
+    cumulative_path = "filemanager"
     for part in path_parts:
         cumulative_path = os.path.join(cumulative_path, part)
         breadcrumb.append({"name": part, "path": cumulative_path})

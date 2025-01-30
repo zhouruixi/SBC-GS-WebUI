@@ -71,7 +71,7 @@
                 {% if current_path %}
                 <tr>
                     <td colspan="5">
-                        <a href="/{{ parent_path }}" class="btn btn-light">返回上一层</a>
+                        <a href="/filemanager/{{ parent_path }}" class="btn btn-light">返回上一层</a>
                     </td>
                 </tr>
                 {% endif %}
@@ -80,7 +80,7 @@
                 <tr>
                     <td>
                         {% if file.is_dir %}
-                        📁 <a href="/{{ file.path }}">{{ file.name }}</a>
+                        📁 <a href="/filemanager/{{ file.path }}">{{ file.name }}</a>
                         {% else %}
                         📄 {{ file.name }}
                         {% endif %}
