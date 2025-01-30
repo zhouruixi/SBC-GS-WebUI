@@ -154,7 +154,9 @@ app.json.sort_keys = False  # 禁用 jsonify 自动排序
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    server_host = request.headers.get("host")
+    server_ip = server_host.split(":")[0]
+    return render_template("index.html", server_ip=server_ip)
 
 
 @app.route("/load_gs_config/<filename>", methods=["GET"])
@@ -398,7 +400,7 @@ if __name__ == "__main__":
     config_info_file = "/gs/webui/configs/config_files.yaml"
     config_info = load_yaml_config(config_info_file)
     ssh = SSHClient(config_info["drone_config"])
-    Videos_dir = load_config(config_info, "gs", 'gs')['rec_dir']
+    Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
     MANAGER_FOLDER = Videos_dir
     # os.makedirs(MANAGER_FOLDER, exist_ok=True)
     app.run(host="0.0.0.0", port=5000, debug=True)
