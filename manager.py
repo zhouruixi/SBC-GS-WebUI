@@ -1,116 +1,119 @@
-# app.py
+from flask import (
+    Flask,
+    render_template,
+    request,
+    send_from_directory,
+    redirect,
+    url_for,
+)
 import os
+import shutil
 import mimetypes
-from flask import Flask, render_template, request, send_file, redirect, url_for, abort
-from werkzeug.utils import secure_filename
+import time
+from pathlib import Path
 
 app = Flask(__name__)
-app.config['UPLOAD_ROOT'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB限制
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-def get_file_type(filename):
-    type_, _ = mimetypes.guess_type(filename)
-    return (type_ or '').split('/')[0]
 
-def is_safe_path(base, path):
-    return os.path.abspath(path).startswith(os.path.abspath(base))
+def format_size(size):
+    """将字节大小转换为 KB、MB、GB"""
+    for unit in ["B", "KB", "MB", "GB"]:
+        if size < 1024.0:
+            return f"{size:.2f} {unit}"
+        size /= 1024.0
+    return f"{size:.2f} TB"
 
-@app.route('/')
-@app.route('/browse/<path:subpath>')
-def index(subpath=''):
-    current_path = os.path.join(app.config['UPLOAD_ROOT'], subpath)
-    
-    if not is_safe_path(app.config['UPLOAD_ROOT'], current_path):
-        abort(403)
-    
-    if not os.path.exists(current_path):
-        os.makedirs(current_path, exist_ok=True)
-    
-    items = []
-    parent_dir = os.path.dirname(subpath)
-    if subpath:
-        items.append({
-            'name': '..',
-            'is_dir': True,
-            'path': parent_dir if parent_dir != subpath else ''
-        })
-    
-    for name in os.listdir(current_path):
-        full_path = os.path.join(current_path, name)
-        rel_path = os.path.join(subpath, name)
+
+@app.route("/")
+@app.route("/<path:subpath>")
+def index(subpath=""):
+    base_path = os.path.join(UPLOAD_FOLDER, subpath)
+    if not os.path.exists(base_path):
+        return redirect("/")
+
+    files = []
+    for item in os.listdir(base_path):
+        full_path = os.path.join(base_path, item)
         is_dir = os.path.isdir(full_path)
-        items.append({
-            'name': name,
-            'size': os.path.getsize(full_path) if not is_dir else 0,
-            'is_dir': is_dir,
-            'path': rel_path if is_dir else '',
-            'file_type': get_file_type(name) if not is_dir else 'dir'
-        })
-    
-    return render_template('index.html', 
-                         items=items,
-                         current_path=subpath)
+        rel_path = os.path.join(subpath, item) if subpath else item
+        file_size = os.path.getsize(full_path) if not is_dir else 0
+        file_type, _ = mimetypes.guess_type(full_path)
+        file_type = file_type if file_type else "Unknown"
+        created_time = time.strftime(
+            "%Y-%m-%d %H:%M:%S", time.localtime(os.path.getctime(full_path))
+        )
 
-@app.route('/upload/<path:subpath>', methods=['POST'])
-def upload_file(subpath=''):
-    current_path = os.path.join(app.config['UPLOAD_ROOT'], subpath)
-    
-    if not is_safe_path(app.config['UPLOAD_ROOT'], current_path):
-        abort(403)
-    
-    if 'file' not in request.files:
-        return redirect(url_for('index', subpath=subpath))
-    
-    file = request.files['file']
-    if file.filename == '':
-        return redirect(url_for('index', subpath=subpath))
-    
+        item_info = {
+            "name": item,
+            "path": rel_path,
+            "is_dir": is_dir,
+            "size": format_size(file_size),
+            "type": "Folder" if is_dir else file_type,
+            "created": created_time,
+        }
+        files.append(item_info)
+
+    # 生成面包屑导航
+    breadcrumb = [{"name": "Home", "path": ""}]
+    path_parts = subpath.split("/") if subpath else []
+    cumulative_path = ""
+    for part in path_parts:
+        cumulative_path = os.path.join(cumulative_path, part)
+        breadcrumb.append({"name": part, "path": cumulative_path})
+
+    return render_template(
+        "filemanager.html",
+        files=files,
+        current_path=subpath,
+        parent_path=os.path.dirname(subpath),
+        breadcrumb=breadcrumb,
+    )
+
+
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    file = request.files["file"]
+    subpath = request.form.get("current_path", "")
     if file:
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(current_path, filename))
-    
-    return redirect(url_for('index', subpath=subpath))
+        save_path = os.path.join(UPLOAD_FOLDER, subpath, file.filename)
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        file.save(save_path)
+    return redirect(url_for("index", subpath=subpath))
 
-@app.route('/download/<path:filename>')
-def download_file(filename):
-    full_path = os.path.join(app.config['UPLOAD_ROOT'], filename)
-    
-    if not is_safe_path(app.config['UPLOAD_ROOT'], full_path):
-        abort(403)
-    
-    if os.path.isdir(full_path):
-        abort(400, "Cannot download directories")
-    
-    return send_file(full_path, as_attachment=True)
 
-@app.route('/delete/<path:filename>')
-def delete_file(filename):
-    full_path = os.path.join(app.config['UPLOAD_ROOT'], filename)
-    
-    if not is_safe_path(app.config['UPLOAD_ROOT'], full_path):
-        abort(403)
-    
+@app.route("/create_folder", methods=["POST"])
+def create_folder():
+    folder_name = request.form["folder_name"]
+    subpath = request.form.get("current_path", "")
+    new_folder = os.path.join(UPLOAD_FOLDER, subpath, folder_name)
+    os.makedirs(new_folder, exist_ok=True)
+    return redirect(url_for("index", subpath=subpath))
+
+
+@app.route("/delete/<path:filepath>")
+def delete_file(filepath):
+    full_path = os.path.join(UPLOAD_FOLDER, filepath)
+    parent_dir = os.path.dirname(filepath)
     if os.path.isdir(full_path):
-        os.rmdir(full_path)
+        shutil.rmtree(full_path)
     else:
         os.remove(full_path)
-    
-    parent_dir = os.path.dirname(filename)
-    return redirect(url_for('index', subpath=parent_dir))
+    return redirect(url_for("index", subpath=parent_dir))
 
-@app.route('/new_folder/<path:subpath>', methods=['POST'])
-def new_folder(subpath=''):
-    current_path = os.path.join(app.config['UPLOAD_ROOT'], subpath)
-    folder_name = secure_filename(request.form.get('folder_name', ''))
-    
-    if not folder_name:
-        return redirect(url_for('index', subpath=subpath))
-    
-    new_folder_path = os.path.join(current_path, folder_name)
-    os.makedirs(new_folder_path, exist_ok=True)
-    
-    return redirect(url_for('index', subpath=subpath))
 
-if __name__ == '__main__':
-    os.makedirs(app.config['UPLOAD_ROOT'], exist_ok=True)
-    app.run(debug=True)
+@app.route("/download/<path:filepath>")
+def download_file(filepath):
+    """修复 302 错误，确保下载正常"""
+    return send_from_directory(UPLOAD_FOLDER, filepath, as_attachment=True)
+
+
+@app.route("/preview/<path:filepath>")
+def preview_file(filepath):
+    """支持图片和视频预览"""
+    return send_from_directory(UPLOAD_FOLDER, filepath)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -1,148 +1,160 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .preview-media {
+        /* 限制视频宽度，适配模态框 */
+        #videoPreview {
             max-width: 100%;
-            max-height: 80vh;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* 让模态框更宽，避免视频过于压缩 */
+        .modal-lg {
+            max-width: 80%;
         }
     </style>
 </head>
+
 <body>
-    <div class="container mt-5">
-        <!-- 路径导航 -->
-        <nav aria-label="breadcrumb" class="mb-4">
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                {% set path_parts = current_path.split('/') %}
-                {% for part in path_parts if part %}
-                    <li class="breadcrumb-item">
-                        <a href="{{ url_for('index', subpath='/'.join(path_parts[:loop.index])) }}">
-                            {{ part }}
-                        </a>
-                    </li>
+                {% for crumb in breadcrumb %}
+                {% if loop.last %}
+                <li class="breadcrumb-item active">{{ crumb.name }}</li>
+                {% else %}
+                <li class="breadcrumb-item"><a href="/{{ crumb.path }}">{{ crumb.name }}</a></li>
+                {% endif %}
                 {% endfor %}
             </ol>
         </nav>
 
-        <h1 class="mb-4">文件管理器</h1>
-        
-        <!-- 操作按钮组 -->
-        <div class="mb-4">
-            <form method="post" enctype="multipart/form-data" action="/upload/{{ current_path }}">
-                <div class="input-group mb-3">
-                    <input type="file" class="form-control" name="file" required>
-                    <button class="btn btn-primary" type="submit">上传文件</button>
-                </div>
-            </form>
-            
-            <form method="post" action="/new_folder/{{ current_path }}">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="folder_name" 
-                           placeholder="新文件夹名称" required>
-                    <button class="btn btn-secondary" type="submit">新建文件夹</button>
-                </div>
-            </form>
+        <!-- 上传和创建文件夹 -->
+        <div class="row mb-3">
+            <div class="col">
+                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="current_path" value="{{ current_path }}">
+                    <div class="input-group">
+                        <input type="file" class="form-control" name="file">
+                        <button class="btn btn-primary" type="submit">Upload</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col">
+                <form action="{{ url_for('create_folder') }}" method="post">
+                    <input type="hidden" name="current_path" value="{{ current_path }}">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="folder_name" placeholder="New Folder Name">
+                        <button class="btn btn-secondary" type="submit">Create Folder</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- 文件列表 -->
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>名称</th>
-                    <th>类型</th>
-                    <th>大小（字节）</th>
+                    <th>文件名</th>
+                    <th>文件大小</th>
+                    <th>文件类型</th>
+                    <th>创建时间</th>
                     <th>操作</th>
                 </tr>
             </thead>
             <tbody>
-                {% for item in items %}
+                {% for file in files %}
                 <tr>
                     <td>
-                        {% if item.is_dir %}
-                            ������ <a href="{{ url_for('index', subpath=item.path) }}">{{ item.name }}</a>
+                        {% if file.is_dir %}
+                        <i class="fas fa-folder"></i>
+                        <a href="/{{ file.path }}">{{ file.name }}</a>
                         {% else %}
-                            ������ {{ item.name }}
+                        <i class="fas fa-file"></i>
+                        {{ file.name }}
                         {% endif %}
                     </td>
-                    <td>{{ item.file_type }}</td>
-                    <td>{{ item.size }}</td>
+                    <td>{{ file.size }}</td>
+                    <td>{{ file.type }}</td>
+                    <td>{{ file.created }}</td>
                     <td>
-                        {% if not item.is_dir %}
-                            {% if item.file_type in ['image', 'video'] %}
-                                <button class="btn btn-sm btn-info preview-btn" 
-                                        data-url="{{ url_for('download_file', filename=item.path) }}"
-                                        data-type="{{ item.file_type }}">
-                                    预览
-                                </button>
-                            {% endif %}
-                            <a href="{{ url_for('download_file', filename=item.path) }}" 
-                               class="btn btn-sm btn-success">
-                               下载
-                            </a>
+                        {% if file.type.startswith('image') %}
+                        <button class="btn btn-sm btn-info" onclick="previewFile('{{ file.path }}', 'image')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        {% elif file.type.startswith('video') %}
+                        <button class="btn btn-sm btn-info" onclick="previewFile('{{ file.path }}', 'video')">
+                            <i class="fas fa-play"></i>
+                        </button>
                         {% endif %}
-                        <a href="{{ url_for('delete_file', filename=item.path) }}" 
-                           class="btn btn-sm btn-danger" 
-                           onclick="return confirm('确定要删除吗？')">
-                           删除
+                        <a href="/download/{{ file.path }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-download"></i>
+                        </a>
+                        <a href="{{ url_for('delete_file', filepath=file.path) }}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
                         </a>
                     </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="4" class="text-center">当前目录为空</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
 
-        <!-- 预览模态框 -->
-        <div class="modal fade" id="previewModal" tabindex="-1">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">文件预览</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                        <img id="imagePreview" class="preview-media d-none">
-                        <video id="videoPreview" class="preview-media d-none" controls></video>
-                    </div>
+    <!-- 预览模态框 -->
+    <div class="modal fade" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">文件预览</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="imagePreview" class="img-fluid d-none">
+                    <video id="videoPreview" class="d-none" controls>
+                        Your browser does not support the video tag.
+                    </video>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        document.querySelectorAll('.preview-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const url = btn.dataset.url;
-                const type = btn.dataset.type;
-                const modal = new bootstrap.Modal('#previewModal');
-                
-                document.getElementById('imagePreview').classList.add('d-none');
-                document.getElementById('videoPreview').classList.add('d-none');
-                
-                if(type === 'image') {
-                    const img = document.getElementById('imagePreview');
-                    img.src = url;
-                    img.classList.remove('d-none');
-                }
-                else if(type === 'video') {
-                    const video = document.getElementById('videoPreview');
-                    video.innerHTML = `<source src="${url}" type="video/mp4">`;
-                    video.classList.remove('d-none');
-                    video.load();
-                }
-                
-                modal.show();
-            });
+        function previewFile(path, type) {
+            const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+            const imagePreview = document.getElementById('imagePreview');
+            const videoPreview = document.getElementById('videoPreview');
+
+            // 先隐藏所有预览内容
+            imagePreview.classList.add('d-none');
+            videoPreview.classList.add('d-none');
+
+            if (type === 'image') {
+                imagePreview.src = '/preview/' + path;
+                imagePreview.classList.remove('d-none');
+            } else if (type === 'video') {
+                videoPreview.src = '/preview/' + path;
+                videoPreview.classList.remove('d-none');
+                videoPreview.play();
+            }
+
+            modal.show();
+        }
+
+        // 监听模态框关闭事件，暂停视频播放，并重置 src
+        document.getElementById('previewModal').addEventListener('hidden.bs.modal', function () {
+            const videoPreview = document.getElementById('videoPreview');
+            videoPreview.pause();  // 暂停播放
+            videoPreview.src = '';  // 重置 src，防止继续播放
         });
     </script>
 </body>
+
 </html>
