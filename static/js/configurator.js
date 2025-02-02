@@ -1,5 +1,20 @@
 // scripts.js
 $(document).ready(function () {
+    // 使用 Fetch API 发送 POST 请求到服务器备份文件
+    // 在html中调用js文件中的函数需要这样写
+    backupFile = function (filename) {
+        fetch(`/backup/${filename}`, {
+            method: 'POST',
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);  // 弹出备份成功的提示
+            })
+            .catch(error => {
+                console.error('Error backing up file:', error);
+                alert('Error backing up file');
+            });
+    }
 
     // 发送按钮 ID 到后端
     function sendButtonFunctionToBackend(function_name) {

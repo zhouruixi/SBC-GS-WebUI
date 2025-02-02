@@ -9,6 +9,7 @@ from flask import (
     url_for,
     jsonify,
     send_from_directory,
+    render_template_string,
 )
 from configobj import ConfigObj
 import yaml
@@ -156,7 +157,13 @@ app.json.sort_keys = False  # 禁用 jsonify 自动排序
 def home():
     server_host = request.headers.get("host")
     server_ip = server_host.split(":")[0]
-    return render_template("index.html", server_ip=server_ip)
+    gs_config_files_path = [
+        item["path"] for item in config_info["gs_config_files"].values()
+    ]
+    gs_config_files_path.append(config_info_file)
+    return render_template(
+        "index.html", server_ip=server_ip, gs_config_files_path=gs_config_files_path
+    )
 
 
 @app.route("/load_gs_config/<filename>", methods=["GET"])
@@ -396,11 +403,57 @@ def preview_file(filepath):
     return send_from_directory(MANAGER_FOLDER, filepath)
 
 
+@app.route("/edit/<path:filepath>", methods=["GET", "POST"])
+def edit_file(filepath):
+    filepath = os.path.join("/", filepath)
+    if request.method == "GET":
+        # 打开文件并读取内容
+        with open(filepath, "r") as f:
+            content = f.read()
+        return render_template("editor.html", content=content, filename=filepath)
+
+    elif request.method == "POST":
+        # 获取编辑器内容并保存到文件
+        content = request.form["content"].replace("\r\n", "\n") + "\n"
+        with open(filepath, "w") as f:
+            f.write(content)
+        # return redirect(url_for("index"))  # 保存后返回文件列表页面
+        # 保存后关闭页面
+        return render_template_string(
+            """
+        <html>
+        <head>
+            <script type="text/javascript">
+                window.close();  // 关闭当前窗口
+            </script>
+        </head>
+        <body>
+            <p>页面正在关闭...</p>
+        </body>
+        </html>
+    """
+        )
+
+
+@app.route("/backup/<path:filepath>", methods=["POST"])
+def backup_file(filepath):
+    filepath = os.path.join("/", filepath)
+    backup_filepath = f"{filepath}.bak"
+    # 复制文件到新的备份文件路径
+    shutil.copy(filepath, backup_filepath)
+    return jsonify(
+        {
+            "status": "success",
+            "message": f"File '{filepath}' backed up to {backup_filepath}.",
+        }
+    )
+
+
 if __name__ == "__main__":
     config_info_file = "/gs/webui/configs/config_files.yaml"
     config_info = load_yaml_config(config_info_file)
     ssh = SSHClient(config_info["drone_config"])
     Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
-    MANAGER_FOLDER = Videos_dir
+    MANAGER_FOLDER = "/"
     # os.makedirs(MANAGER_FOLDER, exist_ok=True)
     app.run(host="0.0.0.0", port=5000, debug=True)
