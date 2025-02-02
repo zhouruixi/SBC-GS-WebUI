@@ -181,7 +181,7 @@
                             <td>配置文件</td>
                             <td>
                                 <a href="/download/{{ config_file }}" class="btn btn-sm btn-success">下载</a>
-                                <a href="/edit/{{ config_file }}" class="btn btn-sm btn-danger" target="_blank">编辑</a>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="editFile('{{ config_file }}')">编辑</button>
                                 <button type="button" class="btn btn-sm btn-warning" onclick="backupFile('{{ config_file }}')">备份</button>
                             </td>
                         </tr>
@@ -190,6 +190,24 @@
                 </table>
                 <!-- <textarea class="form-control" rows="10" placeholder="在此输入文本..."></textarea>
                 <button class="btn btn-primary mt-3">保存文件</button> -->
+            </div>
+            <!-- 文件编辑模态框 -->
+            <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel">编辑文件</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <textarea id="fileContent" class="form-control" rows="20"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="saveFileBtn">保存</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

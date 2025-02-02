@@ -406,33 +406,25 @@ def preview_file(filepath):
 @app.route("/edit/<path:filepath>", methods=["GET", "POST"])
 def edit_file(filepath):
     filepath = os.path.join("/", filepath)
+
     if request.method == "GET":
         # 打开文件并读取内容
-        with open(filepath, "r") as f:
-            content = f.read()
-        return render_template("editor.html", content=content, filename=filepath)
+        try:
+            with open(filepath, "r") as f:
+                content = f.read()
+            return jsonify({"content": content})
+        except Exception as e:
+            return jsonify({"error": f"无法读取文件: {str(e)}"}), 500
 
     elif request.method == "POST":
         # 获取编辑器内容并保存到文件
-        content = request.form["content"].replace("\r\n", "\n") + "\n"
-        with open(filepath, "w") as f:
-            f.write(content)
-        # return redirect(url_for("index"))  # 保存后返回文件列表页面
-        # 保存后关闭页面
-        return render_template_string(
-            """
-        <html>
-        <head>
-            <script type="text/javascript">
-                window.close();  // 关闭当前窗口
-            </script>
-        </head>
-        <body>
-            <p>页面正在关闭...</p>
-        </body>
-        </html>
-    """
-        )
+        content = request.json.get("content", "")
+        try:
+            with open(filepath, "w") as f:
+                f.write(content)
+            return jsonify({"success": True})
+        except Exception as e:
+            return jsonify({"error": f"保存文件失败: {str(e)}"}), 500
 
 
 @app.route("/backup/<path:filepath>", methods=["POST"])

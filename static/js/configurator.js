@@ -16,6 +16,39 @@ $(document).ready(function () {
             });
     }
 
+    // 监听文件编辑按钮，点击后加载文件内容到模态框
+    editFile = function (filename) {
+        $.get(`/edit/${filename}`, function (data) {
+            $('#fileContent').val(data.content);  // 填充文件内容
+            $('#editModal').modal('show');  // 显示模态框
+
+            // 保存按钮事件
+            $('#saveFileBtn').off('click').on('click', function () {
+                saveFile(filename);
+            });
+        }).fail(function () {
+            alert("无法加载文件内容！");
+        });
+    }
+
+    // 保存文件
+    function saveFile(filename) {
+        const content = $('#fileContent').val();
+        $.ajax({
+            url: `/edit/${filename}`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ content: content }),
+            success: function () {
+                alert('文件已保存！');
+                $('#editModal').modal('hide');
+            },
+            error: function () {
+                alert('保存文件失败！');
+            }
+        });
+    }
+
     // 发送按钮 ID 到后端
     function sendButtonFunctionToBackend(function_name) {
         fetch('/exec_button_function', {
