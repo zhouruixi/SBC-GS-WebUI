@@ -299,19 +299,50 @@ def save_drone_config(filename):
 def exec_button_function():
     # 获取前端发送的数据
     data = request.get_json()
-    function_name = data.get("button_id")
+    button_id = data.get("button_id")
+    if button_id.startswith('gs_btn_'):
+        # 地面站按钮
+        function_name = button_id.removeprefix('gs_btn_')
 
-    # 打印接收到的按钮ID
-    print(f"收到按钮指令: {function_name}")
-    button_command = f"/gs/button.sh {function_name}"
-    print(f"执行命令：{button_command}")
-    button_command_result = subprocess.run(
-        button_command, shell=True, capture_output=True, text=True
-    )
-    if button_command_result.returncode != 0:
-        raise ValueError("执行按钮命令出错")  # 主动抛出异常
-    # 返回按钮 ID
-    return jsonify({"status": "success", "button_id": function_name})
+        # 打印接收到的按钮ID
+        print(f"收到【地面站】按钮指令: {function_name}")
+        button_command = f"/gs/button.sh {function_name}"
+        print(f"执行命令：{button_command}")
+        button_command_result = subprocess.run(
+            button_command, shell=True, capture_output=True, text=True
+        )
+        if button_command_result.returncode != 0:
+            raise ValueError("执行按钮命令出错")  # 主动抛出异常
+        else:
+            # 返回按钮 ID
+            return jsonify({"status": "success", "button_id": function_name})
+    elif button_id.startswith('drone_btn_'):
+        # 天空端按钮
+        function_name = button_id.removeprefix('drone_btn_')
+        # 函数名和命令映射字典
+        drone_function_command = {
+            "reboot_drone": "reboot",
+            "shutdown_drone": "poweroff",
+            "restart_majestic": "killall -1 majestic",
+            "restart_wfb": "/etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &",
+            "firstboot_drone": "firstboot &",
+            "test": "echo test drone",
+        }
+
+        # 打印接收到的按钮ID
+        print(f"收到【天空端】按钮指令: {function_name}")
+        button_command = drone_function_command[function_name]
+        print(f"执行命令：{button_command}")
+        try:
+            ssh.connect()
+            print("Executing remote command...")
+            output = ssh.execute_command(button_command)
+            print(f"Command Output: {output}")
+            return jsonify({"success": True, "message": "命令已执行！"})
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)})
+        finally:
+            ssh.close()
 
 
 @app.route("/filemanager/")
@@ -454,7 +485,6 @@ def list_video_files():
     return jsonify(files)
 
 
-
 @app.route("/download_video/<filename>")
 def download_video_file(filename):
     """提供文件下载"""
@@ -475,8 +505,8 @@ def delete_video_file(filename):
 def gs_systeminfo():
     cat_gs_release = "cat /etc/gs-release"
     command_result = subprocess.run(
-                cat_gs_release, shell=True, capture_output=True, text=True
-            )
+        cat_gs_release, shell=True, capture_output=True, text=True
+    )
     return jsonify(command_result.stdout)
 
 

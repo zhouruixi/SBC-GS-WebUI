@@ -51,34 +51,33 @@ $(document).ready(function () {
     }
 
     // 发送按钮 ID 到后端
-    function sendButtonFunctionToBackend(function_name) {
+    function sendButtonFunctionToBackend(buttonId) {
         fetch('/exec_button_function', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ button_id: function_name })
+            body: JSON.stringify({ button_id: buttonId })
         })
             .then(response => response.json())
             .then(data => {
                 // console.log('服务器响应:', data);
-                alert(`按钮指令 ${function_name} 已发送`);
+                alert(`按钮指令 ${buttonId} 已发送`);
             })
             .catch(error => {
                 console.error('发生错误:', error);
             });
     }
 
-    // 监听所有 id 以 gs_btn_ 开头的按钮
+    // 监听所有 gs_btn_ 或 drone_btn_ 开头的控制指令按钮
     function listenToButtons() {
-        const buttons = document.querySelectorAll('[id^="gs_btn_"]');
+        const buttons = document.querySelectorAll('[id^="gs_btn_"], [id^="drone_btn_"]');
 
         buttons.forEach(button => {
             button.addEventListener('click', function () {
                 // 获取按钮的 id 并调用发送请求的函数
                 const buttonId = button.id;
-                const function_name = buttonId.slice(7)
-                sendButtonFunctionToBackend(function_name);
+                sendButtonFunctionToBackend(buttonId);
             });
         });
     }
@@ -110,8 +109,6 @@ $(document).ready(function () {
             setTimeout(function () {
                 $('#load-result-gs-success-alert').alert('close');
             }, 2000);
-            // resultDiv.html(`<div class="alert alert-success">读取配置成功！</div>`);
-            // alert("加载配置成功！");
         }).fail(function () {
             alert("加载 gs 配置失败，请手动重新加载！");
         });
@@ -120,7 +117,6 @@ $(document).ready(function () {
 
     // 保存 GS 配置
     function saveGSConfig() {
-        // if ($("#gsconfig").hasClass("active")) {
         const data = {};
         $(".config-input").each(function () {
             const key = $(this).data("key");
@@ -152,7 +148,6 @@ $(document).ready(function () {
                 alert("保存 gs 配置失败！");
             },
         });
-        // }
     }
 
     // 加载 Drone 配置
@@ -186,8 +181,6 @@ $(document).ready(function () {
             setTimeout(function () {
                 $(`#load-result-drone-${config_name}-success-alert`).alert('close');
             }, 2000);
-            // resultDiv.html(`<div class="alert alert-success">读取配置成功！</div>`);
-            // alert("加载配置成功！");
         }).fail(function () {
             alert(`加载 Drone ${config_name} 配置失败，请手动重新加载！`);
         });
@@ -226,7 +219,6 @@ $(document).ready(function () {
                 alert(`保存 Drone ${config_name} 配置失败！`);
             },
         });
-        // }
     }
 
     function loadVideoFiles() {
@@ -327,7 +319,7 @@ $(document).ready(function () {
     loadVideoFiles();  // 加载DVR文件列表
     loadSystenInfo();  // 加载系统信息
 
-    // 初始化按钮监听
+    // 监听WEB按钮（代替物理按钮）
     listenToButtons();
 
     // 加载 gs 配置
@@ -350,6 +342,12 @@ $(document).ready(function () {
         saveDroneConfig("wfb");
     });
 
+    // 保存并应用 Drone wfb 配置
+    $("#apply-button-drone-wfb").on("click", function () {
+        saveDroneConfig("wfb");
+        sendButtonFunctionToBackend("drone_btn_restart_wfb");
+    });
+
     // 加载 Drone majestic 配置
     $("#reload-button-drone-majestic").on("click", function () {
         loadDroneConfig("majestic");
@@ -358,6 +356,12 @@ $(document).ready(function () {
     // 保存 Drone majestic 配置
     $("#save-button-drone-majestic").on("click", function () {
         saveDroneConfig("majestic");
+    });
+
+    // 保存并应用 Drone majestic 配置
+    $("#apply-button-drone-majestic").on("click", function () {
+        saveDroneConfig("majestic");
+        sendButtonFunctionToBackend("drone_btn_restart_majestic");
     });
 
     // 监听标签页切换事件

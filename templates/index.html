@@ -62,7 +62,7 @@
                         <button class="btn btn-success w-100" id="gs_btn_scan_wfb_channel">scan_wfb_channel</button>
                     </div>
                     <div class="col-12 col-md-4">
-                        <button class="btn btn-info w-100" id="gs_btn_null">null</button>
+                        <button class="btn btn-primary w-100" id="gs_btn_null">null</button>
                     </div>
                     <!-- info 按钮 -->
                     <div class="col-12 col-md-4">
@@ -100,6 +100,26 @@
 
                 <div class="row g-3">
                     <div class="col-12 col-md-4">
+                        <button class="btn btn-success w-100" id="drone_btn_test">test</button>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <button class="btn btn-warning w-100" id="drone_btn_restart_majestic">restart_majestic</button>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <button class="btn btn-warning w-100" id="drone_btn_restart_wfb">restart_wfb</button>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <button class="btn btn-danger w-100" id="drone_btn_shutdown_drone">shutdown_drone</button>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <button class="btn btn-danger w-100" id="drone_btn_reboot_drone">reboot_drone</button>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <button class="btn btn-danger w-100" id="drone_btn_firstboot_drone">firstboot_drone</button>
+                    </div>
+
+                    <div class="col-12 col-md-4">
                         <button class="btn btn-primary w-100">btn-primary</button>
                     </div>
                     <div class="col-12 col-md-4">
@@ -135,7 +155,8 @@
                     <!-- 按钮组 -->
                     <div>
                         <button class="btn btn-secondary" id="reload-button-drone-wfb">读取配置</button>
-                        <button class="btn btn-success" id="save-button-drone-wfb">保存配置</button>
+                        <button class="btn btn-warning" id="save-button-drone-wfb">保存配置</button>
+                        <button class="btn btn-danger" id="apply-button-drone-wfb">保存并应用配置</button>
                     </div>
                 </div>
                 <div class="mt-3" id="save-result-drone-wfb"></div>
@@ -151,7 +172,8 @@
                     <!-- 按钮组 -->
                     <div>
                         <button class="btn btn-secondary" id="reload-button-drone-majestic">读取配置</button>
-                        <button class="btn btn-success" id="save-button-drone-majestic">保存配置</button>
+                        <button class="btn btn-warning" id="save-button-drone-majestic">保存配置</button>
+                        <button class="btn btn-danger" id="apply-button-drone-majestic">保存并应用配置</button>
                     </div>
                 </div>
                 <div class="mt-3" id="save-result-drone-majestic"></div>
