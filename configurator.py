@@ -393,7 +393,6 @@ def delete_file(filepath):
 
 @app.route("/download/<path:filepath>")
 def download_file(filepath):
-    """修复 302 错误，确保下载正常"""
     return send_from_directory(MANAGER_FOLDER, filepath, as_attachment=True)
 
 
@@ -439,6 +438,43 @@ def backup_file(filepath):
             "message": f"File '{filepath}' backed up to {backup_filepath}.",
         }
     )
+
+
+@app.route("/videomg")
+def videomg():
+    """渲染文件管理页面"""
+    return render_template("videomg.html")
+
+
+@app.route("/list_video_files")
+def list_video_files():
+    """返回文件列表（文件名 & 文件大小），不包括文件夹"""
+    files = [
+        {
+            "name": f,
+            "size": format_size(os.path.getsize(os.path.join(Videos_dir, f))),
+        }
+        for f in os.listdir(Videos_dir)
+        if os.path.isfile(os.path.join(Videos_dir, f))
+    ]
+    return jsonify(files)
+
+
+
+@app.route("/download_video/<filename>")
+def download_video_file(filename):
+    """提供文件下载"""
+    return send_from_directory(Videos_dir, filename, as_attachment=True)
+
+
+@app.route("/delete_video/<filename>", methods=["POST"])
+def delete_video_file(filename):
+    """删除指定文件"""
+    file_path = os.path.join(Videos_dir, filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error", "message": "File not found"}), 404
 
 
 if __name__ == "__main__":
