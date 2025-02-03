@@ -21,6 +21,7 @@ import mimetypes
 import time
 from pathlib import Path
 import shutil
+import threading
 
 
 # load_yaml_config
@@ -79,33 +80,40 @@ class SSHClient:
         self.password = host_conf["password"]
         self.port = host_conf["port"]
         self.client = None
+        self.last_activity_time = None  # 记录最后一次活动的时间
+        self.close_timer = None  # 用于记录定时器
 
     def connect(self):
-        self.client = paramiko.SSHClient()
-        # 自动接受未验证的主机密钥
-        self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        try:
-            self.client.connect(
-                self.host,
-                username=self.username,
-                password=self.password,
-                port=self.port,
-                timeout=5,
-            )
-        except paramiko.ssh_exception.NoValidConnectionsError:
-            print("无法连接到目标主机")
-            raise
-        except paramiko.AuthenticationException:
-            print(
-                f"Authentication failed when connecting to {self.host}. Please check your username/password or key file."
-            )
-            raise
-        except paramiko.SSHException as e:
-            print(f"SSH connection failed to {self.host}. SSH error: {str(e)}")
-            raise
-        except Exception as e:
-            print(f"Failed to connect to {self.host}. Error: {str(e)}")
-            raise
+        if self.client is None:  # 如果client没有被初始化，才建立连接
+            self.client = paramiko.SSHClient()
+            # 自动接受未验证的主机密钥
+            self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            try:
+                self.client.connect(
+                    self.host,
+                    username=self.username,
+                    password=self.password,
+                    port=self.port,
+                    timeout=5,
+                )
+                self.last_activity_time = time.time()  # 记录连接后的活动时间
+                print(f"Connected to {self.host}")
+            except paramiko.ssh_exception.NoValidConnectionsError:
+                print("无法连接到目标主机")
+                raise
+            except paramiko.AuthenticationException:
+                print(
+                    f"Authentication failed when connecting to {self.host}. Please check your username/password or key file."
+                )
+                raise
+            except paramiko.SSHException as e:
+                print(f"SSH connection failed to {self.host}. SSH error: {str(e)}")
+                raise
+            except Exception as e:
+                print(f"Failed to connect to {self.host}. Error: {str(e)}")
+                raise
+        else:
+            print(f"Already connected to {self.host}. No need to reconnect.")
 
     def execute_command(self, command):
         if not self.client:
@@ -117,27 +125,64 @@ class SSHClient:
         error = stderr.read().decode("utf-8")
         if error:
             raise Exception(f"Error executing command: {error}")
+        
+        # 更新最后活动时间
+        self.last_activity_time = time.time()
+        print(output)
+
+        # 设置5分钟后自动关闭连接
+        self._reset_close_timer()
+
         return output
 
     def download_file(self, remote_path, local_path):
         """下载文件"""
         if not self.client:
-            raise ValueError(
-                "SSH connection not established. Please call connect() first."
-            )
-        with SCPClient(self.client.get_transport()) as scp:
-            try:
+            print("SSH connection not established. Trying to reconnect...")
+            self.connect()  # 如果连接没有建立，尝试重新连接
+        
+        if self.client.get_transport() is None or not self.client.get_transport().is_active():
+            print("SSH connection is not active. Reconnecting...")
+            self.connect()  # 如果连接不活跃，重新连接
+        
+        if not os.path.isdir(os.path.dirname(local_path)):
+            raise ValueError(f"Local path directory does not exist: {os.path.dirname(local_path)}")
+
+        # 检查get_transport()是否有效
+        if self.client.get_transport() is None:
+            raise ValueError(f"Failed to obtain SSH transport. Connection may be closed.")
+
+        try:
+            with SCPClient(self.client.get_transport()) as scp:
                 scp.get(remote_path, local_path)
                 print(f"File downloaded from {remote_path} to {local_path}.")
-            except Exception as e:
-                print(f"Failed to download file from {remote_path}. Error: {str(e)}")
-                raise
+        except Exception as e:
+            print(f"Failed to download file from {remote_path}. Error: {str(e)}")
+            raise
+        
+        # 更新最后活动时间
+        self.last_activity_time = time.time()
+
+        # 设置5分钟后自动关闭连接
+        self._reset_close_timer()
+
+    def _reset_close_timer(self):
+        """重置5分钟后关闭连接的定时器"""
+        if self.close_timer:
+            self.close_timer.cancel()  # 取消之前的定时器
+
+        # 创建一个新的定时器，在5分钟后调用close方法
+        self.close_timer = threading.Timer(300, self.close)  # 300秒 = 5分钟
+        self.close_timer.start()
 
     def close(self):
         """关闭SSH连接"""
         if self.client:
             self.client.close()
             print("SSH connection closed.")
+            self.client = None  # 确保关闭连接后清除client对象
+            if self.close_timer:
+                self.close_timer.cancel()  # 关闭连接时取消定时器
 
 
 def format_size(size):
@@ -232,20 +277,22 @@ def load_drone_config(filename):
         print("Downloading file...")
         ssh.download_file(config_file_remote, config_file_local)
         print("File downloaded successfully.")
+
+        config_drone = load_yaml_config(config_file_local)
+        os.remove(config_file_local)
+        return jsonify(config_drone)
     except EOFError as e:
         # 捕捉EOFError并记录错误
         print(f"EOFError: 网络连接中断或远程服务器关闭连接: {str(e)}")
         # 可以选择重试逻辑或者其他恢复策略
+        return jsonify({"error": "Failed to load configuration."}), 400
     except Exception as e:
         # 捕捉其他所有异常并记录
         print(f"发生了其他错误: {str(e)}")
+        return jsonify({"error": "Failed to load configuration."}), 400
     finally:
-        ssh.close()
-
-    # config_drone = load_config(config_info, "drone", config_file)
-    # config_drone = yaml.safe_load(config_drone_str)
-    config_drone = load_yaml_config(config_file_local)
-    return jsonify(config_drone)
+        # ssh.close()
+        pass
 
 
 @app.route("/save_drone_config/<filename>", methods=["POST"])
@@ -289,7 +336,8 @@ def save_drone_config(filename):
             output = ssh.execute_command(update_command)
             print(f"Command Output: {output}")
         finally:
-            ssh.close()
+            # ssh.close()
+            pass
         return jsonify({"success": True, "message": "配置已保存！"})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
@@ -300,9 +348,9 @@ def exec_button_function():
     # 获取前端发送的数据
     data = request.get_json()
     button_id = data.get("button_id")
-    if button_id.startswith('gs_btn_'):
+    if button_id.startswith("gs_btn_"):
         # 地面站按钮
-        function_name = button_id.removeprefix('gs_btn_')
+        function_name = button_id.removeprefix("gs_btn_")
 
         # 打印接收到的按钮ID
         print(f"收到【地面站】按钮指令: {function_name}")
@@ -316,9 +364,9 @@ def exec_button_function():
         else:
             # 返回按钮 ID
             return jsonify({"status": "success", "button_id": function_name})
-    elif button_id.startswith('drone_btn_'):
+    elif button_id.startswith("drone_btn_"):
         # 天空端按钮
-        function_name = button_id.removeprefix('drone_btn_')
+        function_name = button_id.removeprefix("drone_btn_")
         # 函数名和命令映射字典
         drone_function_command = {
             "reboot_drone": "reboot",
@@ -342,7 +390,8 @@ def exec_button_function():
         except Exception as e:
             return jsonify({"success": False, "message": str(e)})
         finally:
-            ssh.close()
+            # ssh.close()
+            pass
 
 
 @app.route("/filemanager/")
