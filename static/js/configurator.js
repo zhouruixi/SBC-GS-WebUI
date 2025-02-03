@@ -229,10 +229,96 @@ $(document).ready(function () {
         // }
     }
 
-    // 初始化页面时加载 Drone 配置
-    loadGSConfig();
+    function loadVideoFiles() {
+        fetch('/list_video_files')
+            .then(response => response.json())
+            .then(files => {
+                const fileList = document.getElementById("fileList");
+                fileList.innerHTML = "";
+
+                files.forEach(file => {
+                    const row = document.createElement("tr");
+
+                    const nameCell = document.createElement("td");
+                    nameCell.textContent = file.name;
+                    row.appendChild(nameCell);
+
+                    const sizeCell = document.createElement("td");
+                    sizeCell.textContent = file.size;
+                    row.appendChild(sizeCell);
+
+                    const actionsCell = document.createElement("td");
+
+                    const downloadBtn = document.createElement("a");
+                    downloadBtn.href = `/download_video/${encodeURIComponent(file.name)}`;
+                    downloadBtn.className = "btn btn-success btn-sm";
+                    downloadBtn.textContent = "下载";
+                    actionsCell.appendChild(downloadBtn);
+
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.className = "btn btn-danger btn-sm ms-1";
+                    deleteBtn.textContent = "删除";
+                    deleteBtn.onclick = function () { deleteVideoFile(file.name); };
+                    actionsCell.appendChild(deleteBtn);
+
+                    if (file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || file.name.endsWith('.gif') || file.name.endsWith('.mp4') || file.name.endsWith('.avi')) {
+                        const previewBtn = document.createElement("button");
+                        previewBtn.className = "btn btn-info btn-sm ms-1";
+                        previewBtn.textContent = "预览";
+                        previewBtn.onclick = function () { previewVideoFile(file.name); };
+                        actionsCell.appendChild(previewBtn);
+                    }
+
+                    row.appendChild(actionsCell);
+                    fileList.appendChild(row);
+                });
+            });
+    }
+
+    function previewVideoFile(filename) {
+        const fileUrl = `/download_video/${encodeURIComponent(filename)}`;
+        const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        const img = document.getElementById('previewImage');
+        const video = document.getElementById('previewVideo');
+        const videoSource = document.getElementById('previewVideoSource');
+
+        img.classList.add('d-none');
+        video.classList.add('d-none');
+
+        fetch(fileUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('File not found');
+                if (filename.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                    img.src = fileUrl;
+                    img.classList.remove('d-none');
+                } else if (filename.match(/\.(mp4|avi)$/i)) {
+                    videoSource.src = fileUrl;
+                    video.load();
+                    video.classList.remove('d-none');
+                }
+                modal.show();
+            })
+            .catch(() => alert("预览失败，文件可能已被删除或路径错误"));
+    }
+
+    function deleteVideoFile(filename) {
+        if (!confirm(`确定要删除 ${filename} 吗？`)) return;
+
+        fetch(`/delete_video/${encodeURIComponent(filename)}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    loadVideoFiles();
+                } else {
+                    alert("删除失败: " + data.message);
+                }
+            });
+    }
+
+    loadGSConfig();  // 初始化页面时加载 Drone 配置
     loadDroneConfig("wfb");
     loadDroneConfig("majestic");
+    loadVideoFiles();  // 加载DVR文件列表
 
     // 初始化按钮监听
     listenToButtons();
@@ -273,4 +359,12 @@ $(document).ready(function () {
             loadGSConfig();
         }
     });
+
+    // 监听模态框关闭事件，停止视频播放
+    document.getElementById('previewModal').addEventListener('hidden.bs.modal', function () {
+        const video = document.getElementById('previewVideo');
+        video.pause();
+        video.currentTime = 0;
+    });
 });
+

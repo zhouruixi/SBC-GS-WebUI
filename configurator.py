@@ -440,12 +440,6 @@ def backup_file(filepath):
     )
 
 
-@app.route("/videomg")
-def videomg():
-    """渲染文件管理页面"""
-    return render_template("videomg.html")
-
-
 @app.route("/list_video_files")
 def list_video_files():
     """返回文件列表（文件名 & 文件大小），不包括文件夹"""
