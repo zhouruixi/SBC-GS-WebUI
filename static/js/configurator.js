@@ -315,10 +315,17 @@ $(document).ready(function () {
             });
     }
 
+    function loadSystenInfo() {
+        $.get(`/systeminfo`, function (data) {
+            document.getElementById('systemInfoText').innerText = data;
+        });
+    }
+
     loadGSConfig();  // 初始化页面时加载 Drone 配置
     loadDroneConfig("wfb");
     loadDroneConfig("majestic");
     loadVideoFiles();  // 加载DVR文件列表
+    loadSystenInfo();  // 加载系统信息
 
     // 初始化按钮监听
     listenToButtons();

@@ -471,11 +471,20 @@ def delete_video_file(filename):
     return jsonify({"status": "error", "message": "File not found"}), 404
 
 
+@app.route("/systeminfo")
+def gs_systeminfo():
+    cat_gs_release = "cat /etc/gs-release"
+    command_result = subprocess.run(
+                cat_gs_release, shell=True, capture_output=True, text=True
+            )
+    return jsonify(command_result.stdout)
+
+
 if __name__ == "__main__":
     config_info_file = "/gs/webui/configs/config_files.yaml"
     config_info = load_yaml_config(config_info_file)
     ssh = SSHClient(config_info["drone_config"])
     Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
-    MANAGER_FOLDER = "/"
+    MANAGER_FOLDER = "/config"
     # os.makedirs(MANAGER_FOLDER, exist_ok=True)
     app.run(host="0.0.0.0", port=5000, debug=True)
