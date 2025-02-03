@@ -16,9 +16,10 @@ $(document).ready(function () {
             });
     }
 
-    // 监听文件编辑按钮，点击后加载文件内容到模态框
+    // 点击文件编辑后加载文件内容到模态框
     editFile = function (filename) {
         $.get(`/edit/${filename}`, function (data) {
+            $('#editModalLabel').text(`正在编辑: ${filename}`);  // 模态框标题
             $('#fileContent').val(data.content);  // 填充文件内容
             $('#editModal').modal('show');  // 显示模态框
 
