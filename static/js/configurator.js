@@ -17,7 +17,11 @@ $(document).ready(function () {
                     container.append(row);
                 }
                 const resultDiv = $("#save-result-gs");
-                resultDiv.html(`<div class="alert alert-success">读取配置成功！</div>`);
+                resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                加载配置成功！
+                                </div>`);
+                // resultDiv.html(`<div class="alert alert-success">读取配置成功！</div>`);
                 // alert("加载配置成功！");
             }).fail(function () {
                 alert("加载配置失败！");
@@ -43,7 +47,10 @@ $(document).ready(function () {
                 success: function (response) {
                     const resultDiv = $("#save-result-gs");
                     if (response.success) {
-                        resultDiv.html(`<div class="alert alert-success">${response.message}</div>`);
+                        resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        ${response.message}
+                                        </div>`);
                     } else {
                         resultDiv.html(`<div class="alert alert-danger">${response.message}</div>`);
                     }
@@ -57,7 +64,7 @@ $(document).ready(function () {
 
     // 加载 Drone 配置，只有在 "Drone 配置" 标签页激活时执行
     function loadDroneConfig() {
-        if ($("#droneconf").hasClass("active")) { // 检查标签页是否处于激活状态
+        if ($("#droneconfig").hasClass("active")) { // 检查标签页是否处于激活状态
             $.get("/load_drone_config", function (data) {
                 const container = $("#drone-config-container");
                 container.empty(); // 清空容器
@@ -72,7 +79,11 @@ $(document).ready(function () {
                     container.append(row);
                 }
                 const resultDiv = $("#save-result-drone");
-                resultDiv.html(`<div class="alert alert-success">读取配置成功！</div>`);
+                resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                加载配置成功！
+                                </div>`);
+                // resultDiv.html(`<div class="alert alert-success">读取配置成功！</div>`);
                 // alert("加载配置成功！");
             }).fail(function () {
                 alert("加载配置失败！");
@@ -82,7 +93,7 @@ $(document).ready(function () {
 
     // 保存 Drone 配置，只有在 "Drone 配置" 标签页激活时执行
     function saveDroneConfig() {
-        if ($("#droneconf").hasClass("active")) { // 检查标签页是否处于激活状态
+        if ($("#droneconfig").hasClass("active")) { // 检查标签页是否处于激活状态
             const data = {};
             $(".config-input").each(function () {
                 const key = $(this).data("key");
@@ -98,7 +109,10 @@ $(document).ready(function () {
                 success: function (response) {
                     const resultDiv = $("#save-result-drone");
                     if (response.success) {
-                        resultDiv.html(`<div class="alert alert-success">${response.message}</div>`);
+                        resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        ${response.message}
+                                        </div>`);
                     } else {
                         resultDiv.html(`<div class="alert alert-danger">${response.message}</div>`);
                     }
@@ -135,7 +149,7 @@ $(document).ready(function () {
 
     // 监听标签页切换事件，当 "Drone 配置" 标签页激活时重新加载配置
     $('#myTab a').on('shown.bs.tab', function (e) {
-        if ($(e.target).attr('id') === 'droneconf-tab') {
+        if ($(e.target).attr('id') === 'droneconfig-tab') {
             loadDroneConfig(); // 如果 "Drone 配置" 标签页激活，重新加载配置
         }
     });
