@@ -1,28 +1,28 @@
 gs_config_files:
   gs:
-    path: /etc/gs.conf
+    path: fakeroot/etc/gs.conf
     format: sh
   wfb:
-    path: /etc/wifibroadcast.cfg
+    path: fakeroot/etc/wifibroadcast.cfg
     format: ini
   wfb_default:
-    path: /etc/default/wifibroadcast
+    path: fakeroot/etc/default/wifibroadcast
     format: sh
 
 drone_config_files:
   majestic:
-    path: "/etc/majestic.yaml"
+    path: "fakeroot/etc/majestic.yaml"
     format: yaml
   wfb:
-    path: "/etc/wfb.yaml"
+    path: "fakeroot/etc/wfb.yaml"
     format: yaml
   wfb_legency:
-    path: "/etc/wfb.conf"
+    path: "fakeroot/etc/wfb.conf"
     format: sh
   datalink_legency:
-    path: "/etc/datalink.conf"
+    path: "fakeroot/etc/datalink.conf"
     format: sh
   telemetry_legency:
-    path: "/etc/telemetry.conf"
+    path: "fakeroot/etc/telemetry.conf"
     format: sh
 
