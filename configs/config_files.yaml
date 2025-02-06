@@ -1,12 +1,12 @@
 gs_config_files:
   gs:
-    path: /etc/gs.conf
+    path: "/etc/gs.conf"
     format: ini
   wfb:
-    path: /etc/wifibroadcast.cfg
+    path: "/etc/wifibroadcast.cfg"
     format: ini
   wfb_default:
-    path: /etc/default/wifibroadcast
+    path: "/etc/default/wifibroadcast"
     format: ini
 
 drone_config_files:
@@ -27,8 +27,8 @@ drone_config_files:
     format: ini
 
 drone_config:
-  # host: 192.168.1.10
-  host: 10.5.0.10
-  port: 22
-  username: root
-  password: 12345
+  # host: "192.168.1.10"
+  host: "10.5.0.10"
+  port: "22"
+  username: "root"
+  password: "12345"

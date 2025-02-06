@@ -56,6 +56,74 @@ def get_new_dict_value(old: dict, new: dict) -> dict:
     return new_kv
 
 
+class SSHClient:
+    def __init__(self, host_conf):
+        self.host = host_conf["host"]
+        self.username = host_conf["username"]
+        self.password = host_conf["password"]
+        self.port = host_conf["port"]
+        self.client = None
+
+    def connect(self):
+        self.client = paramiko.SSHClient()
+        # 自动接受未验证的主机密钥
+        self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            self.client.connect(
+                self.host,
+                username=self.username,
+                password=self.password,
+                port=self.port,
+                timeout=5,
+            )
+        except paramiko.ssh_exception.NoValidConnectionsError:
+            print("无法连接到目标主机")
+            raise
+        except paramiko.AuthenticationException:
+            print(
+                f"Authentication failed when connecting to {self.hostname}. Please check your username/password or key file."
+            )
+            raise
+        except paramiko.SSHException as e:
+            print(f"SSH connection failed to {self.hostname}. SSH error: {str(e)}")
+            raise
+        except Exception as e:
+            print(f"Failed to connect to {self.hostname}. Error: {str(e)}")
+            raise
+
+    def execute_command(self, command):
+        if not self.client:
+            raise ValueError(
+                "SSH connection not established. Please call connect() first."
+            )
+        stdin, stdout, stderr = self.client.exec_command(command)
+        output = stdout.read().decode("utf-8")
+        error = stderr.read().decode("utf-8")
+        if error:
+            raise Exception(f"Error executing command: {error}")
+        return output
+
+    def download_file(self, remote_path, local_path):
+        """下载文件"""
+        if not self.client:
+            raise ValueError(
+                "SSH connection not established. Please call connect() first."
+            )
+        with SCPClient(self.client.get_transport()) as scp:
+            try:
+                scp.get(remote_path, local_path)
+                print(f"File downloaded from {remote_path} to {local_path}.")
+            except Exception as e:
+                print(f"Failed to download file from {remote_path}. Error: {str(e)}")
+                raise
+
+    def close(self):
+        """关闭SSH连接"""
+        if self.client:
+            self.client.close()
+            print("SSH connection closed.")
+
+
 config_info_file = "/gs/webui/configs/config_files.yaml"
 config_info = load_yaml_config(config_info_file)
 # print(config_info)
@@ -74,6 +142,8 @@ config_info = load_yaml_config(config_info_file)
 },
 }"""
 
+ssh = SSHClient(config_info["drone_config"])
+
 
 """
 drone_ssh_host = config_info["drone_config"]["host"]
@@ -85,7 +155,7 @@ drone_ssh_timeout = 5
 # 目标文件路径
 remote_file = "/etc/majestic.yaml"
 # 本地保存路径
-local_file = "majestic.yaml"
+local_file = "drone_files/majestic.yaml"
 
 # 创建 SSH 客户端
 client = paramiko.SSHClient()
@@ -132,6 +202,7 @@ finally:
     client.close()
 """
 
+
 app = Flask(__name__)
 app.json.sort_keys = False  # 禁用 jsonify 自动排序
 
@@ -174,10 +245,14 @@ def save_gs_config(filename):
             # crudini --set gs.conf.bak DEFAULT "br0_fixed_ip" "'0.0.0.0/0'"
             for k, v in update_content.items():
                 update_command += f''' -e "s/^{k}=.*/{k}='{v}'/g"'''
-            update_command += f" {config_info['gs_config_files'][filename]['path']} && echo success"
+            update_command += (
+                f" {config_info['gs_config_files'][filename]['path']} && echo success"
+            )
             print(update_command)
             # exec command
-            update_command_result = subprocess.run(update_command, shell=True, capture_output=True, text=True)
+            update_command_result = subprocess.run(
+                update_command, shell=True, capture_output=True, text=True
+            )
             print(update_command_result)
             if update_command_result.returncode != 0:
                 raise ValueError("sed替换文件时出错")  # 主动抛出异常
@@ -194,11 +269,21 @@ def load_drone_config(filename):
     # config_drone = load_yaml_config(config_file)
     # print(f"【Load】{config_drone}")
 
-    config_drone = load_config(config_info, "drone", filename)
+    config_file_remote = config_info["drone_config_files"][filename]["path"]
+    config_file_local = f"drone_files/{os.path.basename(config_file_remote)}"
+    print(config_file_remote)
+    print(config_file_local)
+    try:
+        ssh.connect()
+        print("Downloading file...")
+        ssh.download_file(config_file_remote, config_file_local)
+        print("File downloaded successfully.")
+    finally:
+        ssh.close()
 
-    # ssh 远程命令执行获取wfb.yml文件内容
-    config_drone_str = ""
+    # config_drone = load_config(config_info, "drone", config_file)
     # config_drone = yaml.safe_load(config_drone_str)
+    config_drone = load_yaml_config(config_file_local)
     return jsonify(config_drone)
 
 
