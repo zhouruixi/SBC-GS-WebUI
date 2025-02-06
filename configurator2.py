@@ -124,85 +124,6 @@ class SSHClient:
             print("SSH connection closed.")
 
 
-config_info_file = "/gs/webui/configs/config_files.yaml"
-config_info = load_yaml_config(config_info_file)
-# print(config_info)
-"""{
-"gs_config_files": {
-    "gs": {"path": "/etc/gs.conf", "format": "ini"},
-    "wfb": {"path": "/etc/wifibroadcast.cfg", "format": "ini"},
-    "wfb_default": {"path": "/etc/default/wifibroadcast", "format": "ini"},
-},
-"drone_config_files": {
-    "majestic": {"path": "/etc/majestic.yaml", "format": "yaml"},
-    "wfb": {"path": "/etc/wfb.yaml", "format": "yaml"},
-    "wfb_legency": {"path": "/etc/wfb.conf", "format": "ini"},
-    "datalink_legency": {"path": "/etc/datalink.conf", "format": "ini"},
-    "telemetry_legency": {"path": "/etc/telemetry.conf", "format": "ini"},
-},
-}"""
-
-ssh = SSHClient(config_info["drone_config"])
-
-
-"""
-drone_ssh_host = config_info["drone_config"]["host"]
-drone_ssh_port = config_info["drone_config"]["port"]
-drone_ssh_username = config_info["drone_config"]["username"]
-drone_ssh_password = config_info["drone_config"]["password"]
-drone_ssh_timeout = 5
-
-# 目标文件路径
-remote_file = "/etc/majestic.yaml"
-# 本地保存路径
-local_file = "drone_files/majestic.yaml"
-
-# 创建 SSH 客户端
-client = paramiko.SSHClient()
-client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-try:
-    # 连接到目标主机
-    client.connect(drone_ssh_host, drone_ssh_port, drone_ssh_username, drone_ssh_password, timeout=drone_ssh_timeout)
-    # private_key_path = '/path/to/private/key'
-    # client.connect(hostname, port, username, key_filename=private_key_path)
-
-    # 使用 SCP 获取文件
-    with SCPClient(client.get_transport()) as scp:
-        scp.get(remote_file, local_file)
-    print(f"文件已成功从 {drone_ssh_host} 下载到 {local_file}")
-
-    # 远程执行命令
-    command = "ls -l /"
-    stdin, stdout, stderr = client.exec_command(command, timeout=drone_ssh_timeout)
-    # 获取命令的输出
-    output = stdout.read().decode()  # 将输出从字节流转换为字符串
-    error = stderr.read().decode()  # 获取错误输出
-
-    if output:
-        print("命令输出：")
-        print(output)
-    if error:
-        print("错误输出：")
-        print(error)
-
-    # 交互
-    # stdin, stdout, stderr = client.exec_command('some_command')
-    # stdin.write('input_data\n')  # 输入数据
-    # stdin.flush()  # 刷新输入流
-except paramiko.ssh_exception.NoValidConnectionsError:
-    print("无法连接到目标主机")
-except paramiko.AuthenticationException:
-    print("认证失败")
-except paramiko.SSHException as e:
-    print(f"SSH 错误: {e}")
-except Exception as e:
-    print(f"其他错误: {e}")
-finally:
-    client.close()
-"""
-
-
 app = Flask(__name__)
 app.json.sort_keys = False  # 禁用 jsonify 自动排序
 
@@ -335,4 +256,7 @@ def save_drone_config(filename):
 
 
 if __name__ == "__main__":
+    config_info_file = "/gs/webui/configs/config_files.yaml"
+    config_info = load_yaml_config(config_info_file)
+    ssh = SSHClient(config_info["drone_config"])
     app.run(host="0.0.0.0", port=5000, debug=True)
