@@ -237,7 +237,7 @@ def save_gs_config(filename):
         config_gs_old = dict(config_gs)
         config_gs_new = request.json
         update_content = get_new_dict_value(config_gs_old, config_gs_new)
-        print(f"【Updated】{update_content}")
+        # print(f"【Updated】{update_content}")
         if not update_content:
             print("配置没有变化")
         else:
@@ -248,7 +248,7 @@ def save_gs_config(filename):
             update_command += (
                 f" {config_info['gs_config_files'][filename]['path']} && echo success"
             )
-            print(update_command)
+            # print(update_command)
             # exec command
             update_command_result = subprocess.run(
                 update_command, shell=True, capture_output=True, text=True
@@ -271,8 +271,8 @@ def load_drone_config(filename):
 
     config_file_remote = config_info["drone_config_files"][filename]["path"]
     config_file_local = f"drone_files/{os.path.basename(config_file_remote)}"
-    print(config_file_remote)
-    print(config_file_local)
+    # print(config_file_remote)
+    # print(config_file_local)
     try:
         ssh.connect()
         print("Downloading file...")
@@ -290,7 +290,7 @@ def load_drone_config(filename):
 @app.route("/save_drone_config/<filename>", methods=["POST"])
 def save_drone_config(filename):
     # global config_drone
-    config_drone = load_config(config_info, "drone", filename)
+    config_drone = load_yaml_config(f"drone_files/{filename}.yaml")
 
     # config_file = config_info["drone_config_files"][filename]["path"]
     # config_drone = load_yaml_config(config_file)
@@ -303,10 +303,10 @@ def save_drone_config(filename):
                 v = "false"
             # 待解决： 原始文件中的 1.0 小数会被转换为整数1
             config_drone_old[f"{file}.{k}"] = str(v)
-    print(f"【Old】{config_drone_old}")
+    # print(f"【Old】{config_drone_old}")
     try:
         config_drone_new = request.json  # 获取前端传来的 JSON 数据
-        print(f"【New】{config_drone_new}")
+        # print(f"【New】{config_drone_new}")
         # update_content = {k: config_drone_new[k] for k in config_drone_old if k in config_drone_new and config_drone_old[k] != config_drone_new[k]}
         update_content = get_new_dict_value(config_drone_old, config_drone_new)
         # print(update_content)
@@ -321,8 +321,14 @@ def save_drone_config(filename):
         for k, v in update_content.items():
             update_command += f"{update_command_used} -s .{k} {v} && "
         update_command += "echo success"
-
         print(update_command)
+        try:
+            ssh.connect()
+            print("Executing remote command...")
+            output = ssh.execute_command(update_command)
+            print(f"Command Output: {output}")
+        finally:
+            ssh.close()
         return jsonify({"success": True, "message": "配置已保存！"})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
