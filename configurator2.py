@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-import configparser
 from configobj import ConfigObj
 import yaml
 import os
-from configupdater import ConfigUpdater
 import subprocess
+import paramiko
+from scp import SCPClient
 
 
 # load_yaml_config
@@ -58,7 +58,6 @@ def get_new_dict_value(old: dict, new: dict) -> dict:
 
 config_info_file = "/gs/webui/configs/config_files.yaml"
 config_info = load_yaml_config(config_info_file)
-
 # print(config_info)
 """{
 "gs_config_files": {
@@ -75,8 +74,63 @@ config_info = load_yaml_config(config_info_file)
 },
 }"""
 
-config_gs = None
-config_drone = None  # 必须每次保存配置前读取配置，不然config_drone保存的可能是别的配置文件的内容或旧的内容
+
+"""
+drone_ssh_host = config_info["drone_config"]["host"]
+drone_ssh_port = config_info["drone_config"]["port"]
+drone_ssh_username = config_info["drone_config"]["username"]
+drone_ssh_password = config_info["drone_config"]["password"]
+drone_ssh_timeout = 5
+
+# 目标文件路径
+remote_file = "/etc/majestic.yaml"
+# 本地保存路径
+local_file = "majestic.yaml"
+
+# 创建 SSH 客户端
+client = paramiko.SSHClient()
+client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+try:
+    # 连接到目标主机
+    client.connect(drone_ssh_host, drone_ssh_port, drone_ssh_username, drone_ssh_password, timeout=drone_ssh_timeout)
+    # private_key_path = '/path/to/private/key'
+    # client.connect(hostname, port, username, key_filename=private_key_path)
+
+    # 使用 SCP 获取文件
+    with SCPClient(client.get_transport()) as scp:
+        scp.get(remote_file, local_file)
+    print(f"文件已成功从 {drone_ssh_host} 下载到 {local_file}")
+
+    # 远程执行命令
+    command = "ls -l /"
+    stdin, stdout, stderr = client.exec_command(command, timeout=drone_ssh_timeout)
+    # 获取命令的输出
+    output = stdout.read().decode()  # 将输出从字节流转换为字符串
+    error = stderr.read().decode()  # 获取错误输出
+
+    if output:
+        print("命令输出：")
+        print(output)
+    if error:
+        print("错误输出：")
+        print(error)
+
+    # 交互
+    # stdin, stdout, stderr = client.exec_command('some_command')
+    # stdin.write('input_data\n')  # 输入数据
+    # stdin.flush()  # 刷新输入流
+except paramiko.ssh_exception.NoValidConnectionsError:
+    print("无法连接到目标主机")
+except paramiko.AuthenticationException:
+    print("认证失败")
+except paramiko.SSHException as e:
+    print(f"SSH 错误: {e}")
+except Exception as e:
+    print(f"其他错误: {e}")
+finally:
+    client.close()
+"""
 
 app = Flask(__name__)
 app.json.sort_keys = False  # 禁用 jsonify 自动排序
@@ -92,7 +146,7 @@ def load_gs_config(filename):
     # global config_gs
     # config_file_path = config_info["gs_config_files"][filename]["path"]
     # config_gs = load_ini_config(config_file_path)
-    config_gs = load_config(config_info, 'gs', filename)
+    config_gs = load_config(config_info, "gs", filename)
     return jsonify(config_gs)
 
 
@@ -101,7 +155,7 @@ def save_gs_config(filename):
     try:
         # global config_gs
         # 保存前先获取配置文件最新内容
-        config_gs = load_config(config_info, 'gs', filename)
+        config_gs = load_config(config_info, "gs", filename)
 
         # 设置新的保存路径
         # config_file = config_info["gs_config_files"]["gs"]["path"] + ".new"
@@ -140,7 +194,7 @@ def load_drone_config(filename):
     # config_drone = load_yaml_config(config_file)
     # print(f"【Load】{config_drone}")
 
-    config_drone = load_config(config_info, 'drone', filename)
+    config_drone = load_config(config_info, "drone", filename)
 
     # ssh 远程命令执行获取wfb.yml文件内容
     config_drone_str = ""
@@ -151,7 +205,7 @@ def load_drone_config(filename):
 @app.route("/save_drone_config/<filename>", methods=["POST"])
 def save_drone_config(filename):
     # global config_drone
-    config_drone = load_config(config_info, 'drone', filename)
+    config_drone = load_config(config_info, "drone", filename)
 
     # config_file = config_info["drone_config_files"][filename]["path"]
     # config_drone = load_yaml_config(config_file)
