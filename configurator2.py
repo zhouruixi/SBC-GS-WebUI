@@ -7,19 +7,8 @@ from configupdater import ConfigUpdater
 import subprocess
 
 
-# 定义一个自定义 representer，用于将布尔值转换为小写字符串
-def bool_representer(dumper, data):
-    # 根据 data 的真假返回 'true' 或 'false'
-    value = "true" if data else "false"
-    return dumper.represent_scalar("tag:yaml.org,2002:bool", value)
-
-
-# 将自定义 representer 注册到 PyYAML 中，针对 bool 类型
-yaml.add_representer(bool, bool_representer)
-
-
 # load_yaml_config
-def load_yaml_config(file_path) -> dict:
+def load_yaml_config(file_path: str) -> dict:
     with open(file_path, "r") as file:
         yaml_dict = yaml.safe_load(file)
     return yaml_dict
@@ -49,24 +38,40 @@ def save_ini_config(config: ConfigObj, file_path: str) -> None:
     config.write()
 
 
+# load_config
+def load_config(config_info: dict, side: str, filename: str) -> dict:
+    file_path = config_info[f"{side}_config_files"][filename]["path"]
+    file_format = config_info[f"{side}_config_files"][filename]["format"]
+    if file_format == "ini":
+        return load_ini_config(file_path)
+    elif file_format == "yaml":
+        return load_yaml_config(file_path)
+    else:
+        raise ValueError("Unsupported file type. Use 'ini' 'yaml' or 'shell'.")
+
+
+# diff dict and get new dict value
+def get_new_dict_value(old: dict, new: dict) -> dict:
+    new_kv = {k: new[k] for k in old if k in new and old[k] != new[k]}
+    return new_kv
+
+
 config_info_file = "/gs/webui/configs/config_files.yaml"
 config_info = load_yaml_config(config_info_file)
 
-config_info_gs = config_info["gs_config_files"]
-config_info_drone = config_info["drone_config_files"]
 # print(config_info)
 """{
 "gs_config_files": {
-    "gs": {"path": "/etc/gs.conf", "format": "sh"},
+    "gs": {"path": "/etc/gs.conf", "format": "ini"},
     "wfb": {"path": "/etc/wifibroadcast.cfg", "format": "ini"},
-    "wfb_default": {"path": "/etc/default/wifibroadcast", "format": "sh"},
+    "wfb_default": {"path": "/etc/default/wifibroadcast", "format": "ini"},
 },
 "drone_config_files": {
     "majestic": {"path": "/etc/majestic.yaml", "format": "yaml"},
     "wfb": {"path": "/etc/wfb.yaml", "format": "yaml"},
-    "wfb_legency": {"path": "/etc/wfb.conf", "format": "sh"},
-    "datalink_legency": {"path": "/etc/datalink.conf", "format": "sh"},
-    "telemetry_legency": {"path": "/etc/telemetry.conf", "format": "sh"},
+    "wfb_legency": {"path": "/etc/wfb.conf", "format": "ini"},
+    "datalink_legency": {"path": "/etc/datalink.conf", "format": "ini"},
+    "telemetry_legency": {"path": "/etc/telemetry.conf", "format": "ini"},
 },
 }"""
 
@@ -74,7 +79,7 @@ config_gs = None
 config_drone = None  # 必须每次保存配置前读取配置，不然config_drone保存的可能是别的配置文件的内容或旧的内容
 
 app = Flask(__name__)
-app.json.sort_keys = False # 禁用 jsonify 自动排序
+app.json.sort_keys = False  # 禁用 jsonify 自动排序
 
 
 @app.route("/")
@@ -82,22 +87,46 @@ def home():
     return render_template("index.html")
 
 
-@app.route("/load_gs_config", methods=["GET"])
-def load_gs_config():
-    global config_gs
-    config_file = config_info["gs_config_files"]["gs"]["path"]
-    config_gs = ConfigObj(config_file)
+@app.route("/load_gs_config/<filename>", methods=["GET"])
+def load_gs_config(filename):
+    # global config_gs
+    # config_file_path = config_info["gs_config_files"][filename]["path"]
+    # config_gs = load_ini_config(config_file_path)
+    config_gs = load_config(config_info, 'gs', filename)
     return jsonify(config_gs)
 
 
-@app.route("/save_gs_config", methods=["POST"])
-def save_gs_config():
+@app.route("/save_gs_config/<filename>", methods=["POST"])
+def save_gs_config(filename):
     try:
-        global config_gs
+        # global config_gs
+        # 保存前先获取配置文件最新内容
+        config_gs = load_config(config_info, 'gs', filename)
+
         # 设置新的保存路径
-        config_file = config_info["gs_config_files"]["gs"]["path"] + ".new"
-        config_gs.filename = config_file
-        config_gs.write()
+        # config_file = config_info["gs_config_files"]["gs"]["path"] + ".new"
+        # config_gs.filename = config_file
+        # config_gs['br0_fixed_ip'] = '0.0.0.0/0'
+        # config_gs.write()
+
+        config_gs_old = dict(config_gs)
+        config_gs_new = request.json
+        update_content = get_new_dict_value(config_gs_old, config_gs_new)
+        print(f"【Updated】{update_content}")
+        if not update_content:
+            print("配置没有变化")
+        else:
+            update_command = "sed -i"
+            # crudini --set gs.conf.bak DEFAULT "br0_fixed_ip" "'0.0.0.0/0'"
+            for k, v in update_content.items():
+                update_command += f''' -e "s/^{k}=.*/{k}='{v}'/g"'''
+            update_command += f" {config_info['gs_config_files'][filename]['path']} && echo success"
+            print(update_command)
+            # exec command
+            update_command_result = subprocess.run(update_command, shell=True, capture_output=True, text=True)
+            print(update_command_result)
+            if update_command_result.returncode != 0:
+                raise ValueError("sed替换文件时出错")  # 主动抛出异常
         return jsonify({"success": True, "message": "配置已保存！"})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
@@ -105,11 +134,14 @@ def save_gs_config():
 
 @app.route("/load_drone_config/<filename>", methods=["GET"])
 def load_drone_config(filename):
-    global config_drone
+    # global config_drone
     # 从文件载入配置
-    config_file = config_info["drone_config_files"][filename]["path"]
-    config_drone = load_yaml_config(config_file)
-    print(f"【Load】{config_drone}")
+    # config_file = config_info["drone_config_files"][filename]["path"]
+    # config_drone = load_yaml_config(config_file)
+    # print(f"【Load】{config_drone}")
+
+    config_drone = load_config(config_info, 'drone', filename)
+
     # ssh 远程命令执行获取wfb.yml文件内容
     config_drone_str = ""
     # config_drone = yaml.safe_load(config_drone_str)
@@ -118,7 +150,9 @@ def load_drone_config(filename):
 
 @app.route("/save_drone_config/<filename>", methods=["POST"])
 def save_drone_config(filename):
-    global config_drone
+    # global config_drone
+    config_drone = load_config(config_info, 'drone', filename)
+
     # config_file = config_info["drone_config_files"][filename]["path"]
     # config_drone = load_yaml_config(config_file)
     config_drone_old = {}
@@ -134,8 +168,8 @@ def save_drone_config(filename):
     try:
         config_drone_new = request.json  # 获取前端传来的 JSON 数据
         print(f"【New】{config_drone_new}")
-        # diff = {k: (config_drone_old[k], config_drone_new[k]) for k in config_drone_old if k in config_drone_new and config_drone_old[k] != config_drone_new[k]}
-        update_content = {k: config_drone_new[k] for k in config_drone_old if k in config_drone_new and config_drone_old[k] != config_drone_new[k]}
+        # update_content = {k: config_drone_new[k] for k in config_drone_old if k in config_drone_new and config_drone_old[k] != config_drone_new[k]}
+        update_content = get_new_dict_value(config_drone_old, config_drone_new)
         # print(update_content)
         update_command = ""
         update_command_used = ""

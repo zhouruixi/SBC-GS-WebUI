@@ -3,14 +3,14 @@ $(document).ready(function () {
     // 加载 GS 配置
     function loadGSConfig() {
         if ($("#gsconfig").hasClass("active")) {
-            $.get("/load_gs_config", function (data) {
+            $.get("/load_gs_config/gs", function (data) {
                 const container = $("#gs-config-container");
                 container.empty(); // 清空容器
 
                 // 动态生成配置表单
                 for (const [key, value] of Object.entries(data)) {
                     const row = `
-                        <div class="mb-3">
+                        <div class="mb-3 px-3">
                             <label class="form-label">${key}</label>
                             <input type="text" class="form-control config-input" data-key="${key}" value="${value}" placeholder="${value}">
                         </div>`;
@@ -40,7 +40,7 @@ $(document).ready(function () {
             });
 
             $.ajax({
-                url: "/save_gs_config",
+                url: "/save_gs_config/gs",
                 method: "POST",
                 contentType: "application/json",
                 data: JSON.stringify(data),
@@ -76,7 +76,7 @@ $(document).ready(function () {
                     container.append(titel_part);
                     for (const [key, value] of Object.entries(content)) {
                         const row = `
-                            <div class="mb-3">
+                            <div class="mb-3 px-3">
                                 <label class="form-label">${key}</label>
                                 <input type="text" class="form-control config-input" data-key="${file}.${key}" value="${value}" placeholder="${value}">
                             </div>`;
