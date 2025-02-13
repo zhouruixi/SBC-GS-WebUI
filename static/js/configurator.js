@@ -95,7 +95,7 @@ $(document).ready(function () {
                         <div class="mb-3 px-3 row">
                             <label class="col-form-label col-auto text-start">${key}</label>
                             <div class="col flex-grow-1">
-                                <input type="text" class="form-control config-input" data-key="${key}" value="${value}" placeholder="${value}">
+                                <input type="text" class="form-control config-input-gs" data-key="${key}" value="${value}" placeholder="${value}">
                             </div>
                         </div>`;
                 container.append(row);
@@ -118,7 +118,7 @@ $(document).ready(function () {
     // 保存 GS 配置
     function saveGSConfig() {
         const data = {};
-        $(".config-input").each(function () {
+        $(".config-input-gs").each(function () {
             const key = $(this).data("key");
             const value = $(this).val();
             data[key] = value;
@@ -166,7 +166,7 @@ $(document).ready(function () {
                             <div class="mb-3 px-3 row">
                                 <label class="col-form-label col-sm-1 text-start">${key}</label>
                                 <div class="col">
-                                    <input type="text" class="form-control config-input" data-key="${file}.${key}" value="${value}" placeholder="${value}">
+                                    <input type="text" class="form-control config-input-drone-${config_name}" data-key="${file}.${key}" value="${value}" placeholder="${value}">
                                 </div>
                             </div>`;
                     container.append(row);
@@ -189,7 +189,7 @@ $(document).ready(function () {
     // 保存 Drone 配置
     function saveDroneConfig(config_name) {
         const data = {};
-        $(".config-input").each(function () {
+        $(`.config-input-drone-${config_name}`).each(function () {
             const key = $(this).data("key");
             const value = $(this).val();
             data[key] = value;
@@ -212,7 +212,9 @@ $(document).ready(function () {
                         $(`#save-result-drone-${config_name}-success-alert`).alert('close');
                     }, 2000);
                 } else {
-                    resultDiv.html(`<div class="alert alert-danger">${response.message}</div>`);
+                    resultDiv.html(`<div class="alert alert-danger alert-dismissible fade show">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        ${response.message}</div>`);
                 }
             },
             error: function () {

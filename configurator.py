@@ -438,6 +438,8 @@ def save_drone_config(filename):
     try:
         config_drone_new = request.json  # 获取前端传来的 JSON 数据
         # print(f"【New】{config_drone_new}")
+        if config_drone_new == {}:
+            return jsonify({"success": False, "message": "请先加载配置！"})
         # update_content = {k: config_drone_new[k] for k in config_drone_old if k in config_drone_new and config_drone_old[k] != config_drone_new[k]}
         update_content = get_new_dict_value(config_drone_old, config_drone_new)
         # print(update_content)
