@@ -301,9 +301,15 @@ $(document).ready(function () {
                 container.append(button_key_pair);
 
                 // 为随机生成按钮绑定点击事件
-                $(`#random-key-${keypair}`).on('click', function() {
+                $(`#random-key-${keypair}`).on('click', function () {
                     // 调用 getRandomWfbKey 函数并传递 keypair
                     getRandomWfbKey(keypair);
+                });
+
+                // 为保存 key 按钮绑定点击事件
+                $(`#save-key-${keypair}`).on('click', function () {
+                    // 调用 saveWfbKeyConfig 函数并传递 keypair
+                    saveWfbKeyConfig(keypair);
                 });
             }
             const resultDiv = $(`#save-result-wfb-key`);
@@ -320,9 +326,32 @@ $(document).ready(function () {
         });
     }
 
+    // 保存 wfb key 配置
+    function saveWfbKeyConfig(keypair) {
+        // const content = $('#fileContent').val();
+        // var value = $(`input[data-key="wfb-${keypair}.gs"]`).val();
+        var keypairContent = {};
+        keypairContent['name'] = $(`input[data-key="wfb-${keypair}.name"]`).val();
+        keypairContent['gs'] = $(`input[data-key="wfb-${keypair}.gs"]`).val();
+        keypairContent['drone'] = $(`input[data-key="wfb-${keypair}.drone"]`).val();
+
+        $.ajax({
+            url: `/save_wfb_key_config/${keypair}`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(keypairContent),
+            success: function () {
+                alert('文件已保存！');
+            },
+            error: function () {
+                alert('保存文件失败！');
+            }
+        });
+    }
+
     // 生成随机 wfb key 配置
     function getRandomWfbKey(keypair) {
-        $.get('get_random_wfb_key', function(data) {
+        $.get('get_random_wfb_key', function (data) {
             const gsKeyBase64 = data.gs;
             const droneKeyBase64 = data.drone;
             // 使用 jQuery 查找具有 data-key="key1.gs" 属性的输入框并填充值

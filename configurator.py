@@ -703,6 +703,18 @@ def load_wfb_key_config():
     return jsonify(wfb_key_config)
 
 
+@app.route("/save_wfb_key_config/<keypair>", methods=["POST"])
+def save_wfb_key_config(keypair):
+    global config_info
+    new_keypair_content = request.get_json()
+    config_info['wfb_key_pair'][keypair] = new_keypair_content
+    # 保存修改后的配置到文件
+    # 会改变顺序和注释，需优化
+    with open(config_info_file, 'w') as file:
+        yaml.dump(config_info, file)
+    return jsonify({"status": "success"})
+
+
 @app.route("/get_random_wfb_key", methods=["GET"])
 def get_random_wfb_key():
     wfb_keygen_command = "cd /dev/shm && wfb_keygen"
