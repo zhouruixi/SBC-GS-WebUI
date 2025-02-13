@@ -1,60 +1,60 @@
 gs_config_files:
   gs:
-    path: "/etc/gs.conf"
+    path: /etc/gs.conf
     format: ini
   wfb:
-    path: "/etc/wifibroadcast.cfg"
+    path: /etc/wifibroadcast.cfg
     format: ini
   wfb_default:
-    path: "/etc/default/wifibroadcast"
+    path: /etc/default/wifibroadcast
     format: ini
 
 drone_config_files:
   majestic:
-    path: "/etc/majestic.yaml"
+    path: /etc/majestic.yaml
     format: yaml
   wfb:
-    path: "/etc/wfb.yaml"
+    path: /etc/wfb.yaml
     format: yaml
   wfb_legency:
-    path: "/etc/wfb.conf"
+    path: /etc/wfb.conf
     format: ini
   datalink_legency:
-    path: "/etc/datalink.conf"
+    path: /etc/datalink.conf
     format: ini
   telemetry_legency:
-    path: "/etc/telemetry.conf"
+    path: /etc/telemetry.conf
     format: ini
 
 drone_config:
   # host: "192.168.1.10"
-  host: "10.5.0.10"
-  port: "22"
-  username: "root"
-  password: "12345"
+  host: 10.5.0.10
+  port: '22'
+  username: root
+  password: '12345'
 
 wfb_key_pair:
   default:
-    name: "Default"
-    gs: "u7ftboOkaoqbihKg+Y7OK9yXhwW4IEcBsghfooyse0YOBcSKYZX7cJIcdHpm6DwC5kC9a761slFTepiidBaiYw=="
-    drone: "u7ftboOkaoqbihKg+Y7OK9yXhwW4IEcBsghfooyse0YOBcSKYZX7cJIcdHpm6DwC5kC9a761slFTepiidBaiYw=="
+    name: Default
+    gs: u7ftboOkaoqbihKg+Y7OK9yXhwW4IEcBsghfooyse0YOBcSKYZX7cJIcdHpm6DwC5kC9a761slFTepiidBaiYw==
+    drone: u7ftboOkaoqbihKg+Y7OK9yXhwW4IEcBsghfooyse0YOBcSKYZX7cJIcdHpm6DwC5kC9a761slFTepiidBaiYw==
   key1:
-    name: ""
-    gs: ""
-    drone: ""
+    name: ''
+    gs: ''
+    drone: ''
   key2:
-    name: ""
-    gs: ""
-    drone: ""
+    name: ''
+    gs: ''
+    drone: ''
   key3:
-    name: ""
-    gs: ""
-    drone: ""
+    name: ''
+    gs: ''
+    drone: ''
   key4:
-    name: ""
-    gs: ""
-    drone: ""
+    name: ''
+    gs: ''
+    drone: ''
   key5:
-    name: ""
-    gs: ""
-    drone: ""
+    name: ''
+    gs: ''
+    drone: ''

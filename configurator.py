@@ -12,7 +12,7 @@ from flask import (
     render_template_string,
 )
 from configobj import ConfigObj
-import yaml
+from ruamel.yaml import YAML
 import os
 import subprocess
 import paramiko
@@ -24,23 +24,23 @@ import shutil
 import threading
 import base64
 
+yaml = YAML()
+yaml.width = 4096
+
 
 # load_yaml_config
 def load_yaml_config(file_path: str) -> dict:
     with open(file_path, "r") as file:
-        yaml_dict = yaml.safe_load(file)
+        yaml_dict = yaml.load(file)
     return yaml_dict
 
 
 # save_yaml_config
 def save_yaml_config(config: dict, file_path: str) -> None:
     with open(file_path, "w", encoding="utf-8") as file:
-        yaml.safe_dump(
+        yaml.dump(
             config,
             file,
-            default_flow_style=False,
-            sort_keys=False,
-            allow_unicode=True,
         )
 
 
@@ -709,9 +709,7 @@ def save_wfb_key_config(keypair):
     new_keypair_content = request.get_json()
     config_info['wfb_key_pair'][keypair] = new_keypair_content
     # 保存修改后的配置到文件
-    # 会改变顺序和注释，需优化
-    with open(config_info_file, 'w') as file:
-        yaml.dump(config_info, file)
+    save_yaml_config(config_info, config_info_file)
     return jsonify({"status": "success"})
 
 
