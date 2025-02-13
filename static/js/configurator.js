@@ -269,6 +269,80 @@ $(document).ready(function () {
             });
     }
 
+    // 加载 wfb key 配置
+    function loadWfbKeyConfig() {
+        $.get(`/load_wfb_key_config`, function (data) {
+            const container = $(`#wfb-key-config-container`);
+            container.empty(); // 清空容器
+
+            // 动态生成配置表单
+            for (const [keypair, content] of Object.entries(data)) {
+                const titel_part = `<h4 class="mt-4 p-1 bg-secondary text-white rounded-2">${keypair}</h4>`
+                container.append(titel_part);
+                for (const [key, value] of Object.entries(content)) {
+                    const row = `
+                        <div class="mb-3 px-3 row">
+                            <label class="col-form-label col-sm-1 text-start">${key}</label>
+                            <div class="col">
+                                <input type="text" class="form-control config-input-wfb-key" data-key="wfb-${keypair}.${key}" value="${value}" placeholder="${value}">
+                            </div>
+                        </div>`;
+                    container.append(row);
+                }
+                const button_key_pair = `
+                    <div class="d-flex justify-content-center align-items-center mt-3 sticky-top">
+                        <!-- 按钮组 -->
+                        <div>
+                            <button class="btn btn-secondary" id="random-key-${keypair}">随机生成key</button>
+                            <button class="btn btn-warning" id="save-key-${keypair}">保存key</button>
+                            <button class="btn btn-danger" id="apply-key-${keypair}">应用key</button>
+                        </div>
+                    </div>`;
+                container.append(button_key_pair);
+
+                // 为随机生成按钮绑定点击事件
+                $(`#random-key-${keypair}`).on('click', function() {
+                    // 调用 getRandomWfbKey 函数并传递 keypair
+                    getRandomWfbKey(keypair);
+                });
+            }
+            const resultDiv = $(`#save-result-wfb-key`);
+            resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-wfb-key-success-alert">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                加载配置成功！
+                                </div>`);
+            // 设置 2 秒后自动消失
+            setTimeout(function () {
+                $(`#load-result-wfb-key-success-alert`).alert('close');
+            }, 2000);
+        }).fail(function () {
+            alert(`加载 Drone 配置失败，请手动重新加载！`);
+        });
+    }
+
+    // 生成随机 wfb key 配置
+    function getRandomWfbKey(keypair) {
+        $.get('get_random_wfb_key', function(data) {
+            const gsKeyBase64 = data.gs;
+            const droneKeyBase64 = data.drone;
+            // 使用 jQuery 查找具有 data-key="key1.gs" 属性的输入框并填充值
+            $(`[data-key="wfb-${keypair}.gs"]`).val(gsKeyBase64);
+            $(`[data-key="wfb-${keypair}.drone"]`).val(droneKeyBase64);
+
+            const resultDiv = $(`#save-result-wfb-key`);
+            resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-wfb-key-success-alert">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                生成随机 wfb key 成功！
+                                </div>`);
+            // 设置 2 秒后自动消失
+            setTimeout(function () {
+                $(`#load-result-wfb-key-success-alert`).alert('close');
+            }, 2000);
+        }).fail(function () {
+            alert(`生成随机 wfb key 失败`);
+        });
+    }
+
     function previewVideoFile(filename) {
         const fileUrl = `/download_video/${encodeURIComponent(filename)}`;
         const modal = new bootstrap.Modal(document.getElementById('previewModal'));
@@ -319,6 +393,7 @@ $(document).ready(function () {
     loadDroneConfig("wfb");
     loadDroneConfig("majestic");
     loadVideoFiles();  // 加载DVR文件列表
+    loadWfbKeyConfig();  // 加载wfb key pair
     loadSystenInfo();  // 加载系统信息
 
     // 监听WEB按钮（代替物理按钮）

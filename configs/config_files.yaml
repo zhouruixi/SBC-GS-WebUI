@@ -32,3 +32,29 @@ drone_config:
   port: "22"
   username: "root"
   password: "12345"
+
+wfb_key_pair:
+  default:
+    name: "Default"
+    gs: "u7ftboOkaoqbihKg+Y7OK9yXhwW4IEcBsghfooyse0YOBcSKYZX7cJIcdHpm6DwC5kC9a761slFTepiidBaiYw=="
+    drone: "u7ftboOkaoqbihKg+Y7OK9yXhwW4IEcBsghfooyse0YOBcSKYZX7cJIcdHpm6DwC5kC9a761slFTepiidBaiYw=="
+  key1:
+    name: ""
+    gs: ""
+    drone: ""
+  key2:
+    name: ""
+    gs: ""
+    drone: ""
+  key3:
+    name: ""
+    gs: ""
+    drone: ""
+  key4:
+    name: ""
+    gs: ""
+    drone: ""
+  key5:
+    name: ""
+    gs: ""
+    drone: ""

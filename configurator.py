@@ -22,6 +22,7 @@ import time
 from pathlib import Path
 import shutil
 import threading
+import base64
 
 
 # load_yaml_config
@@ -71,6 +72,27 @@ def load_config(config_info: dict, side: str, filename: str) -> dict:
 def get_new_dict_value(old: dict, new: dict) -> dict:
     new_kv = {k: new[k] for k in old if k in new and old[k] != new[k]}
     return new_kv
+
+
+# file_to_base64
+def file_to_base64(file_path):
+    with open(file_path, "rb") as file:
+        # 读取文件内容
+        file_content = file.read()
+        # 对文件内容进行 Base64 编码
+        encoded_content = base64.b64encode(file_content)
+        # 返回编码后的内容，转换为字符串格式
+        return encoded_content.decode("utf-8")
+
+
+# base64_to_file
+def base64_to_file(base64_string, output_file_path):
+    # 将 Base64 编码的字符串解码为字节
+    file_data = base64.b64decode(base64_string)
+
+    # 将解码后的字节写入文件
+    with open(output_file_path, "wb") as file:
+        file.write(file_data)
 
 
 class SSHClient:
@@ -673,6 +695,26 @@ def delete_video_file(filename):
         os.remove(file_path)
         return jsonify({"status": "success"})
     return jsonify({"status": "error", "message": "File not found"}), 404
+
+
+@app.route("/load_wfb_key_config", methods=["GET"])
+def load_wfb_key_config():
+    wfb_key_config = config_info["wfb_key_pair"]
+    return jsonify(wfb_key_config)
+
+
+@app.route("/get_random_wfb_key", methods=["GET"])
+def get_random_wfb_key():
+    wfb_keygen_command = "cd /dev/shm && wfb_keygen"
+    subprocess.run(wfb_keygen_command, shell=True)
+    gs_key_path = "/dev/shm/gs.key"
+    drone_key_path = "/dev/shm/drone.key"
+    gs_key_base64 = file_to_base64(gs_key_path)
+    drone_key_base64 = file_to_base64(drone_key_path)
+    os.remove(gs_key_path)
+    os.remove(drone_key_path)
+    random_wfb_key = {"gs": gs_key_base64, "drone": drone_key_base64}
+    return jsonify(random_wfb_key)
 
 
 @app.route("/systeminfo")
