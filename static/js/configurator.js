@@ -279,23 +279,29 @@ $(document).ready(function () {
             for (const [keypair, content] of Object.entries(data)) {
                 const titel_part = `<h4 class="mt-4 p-1 bg-secondary text-white rounded-2">${keypair}</h4>`
                 container.append(titel_part);
-                for (const [key, value] of Object.entries(content)) {
+                for (const [side, value] of Object.entries(content)) {
                     const row = `
-                        <div class="mb-3 px-3 row">
-                            <label class="col-form-label col-sm-1 text-start">${key}</label>
-                            <div class="col">
-                                <input type="text" class="form-control config-input-wfb-key" data-key="wfb-${keypair}.${key}" value="${value}" placeholder="${value}">
+                        <div class="mb-1 px-3 row">
+                            <label class="col-form-label col-sm-1 text-start">${side}</label>
+                            <div class="col d-flex align-items-center">
+                                <input type="text" class="form-control config-input-wfb-key" data-key="wfb-${keypair}.${side}" value="${value}" placeholder="${value}">
+                                <button type="button" class="btn btn-danger ms-2" id="apply-key-${keypair}-${side}">应用key</button>
                             </div>
                         </div>`;
                     container.append(row);
+
+                    // 为应用 key 按钮绑定点击事件
+                    $(`#apply-key-${keypair}-${side}`).on('click', function () {
+                        // 调用 saveWfbKeyConfig 函数并传递 keypair
+                        applyWfbKey(keypair, side);
+                    });
                 }
                 const button_key_pair = `
                     <div class="d-flex justify-content-center align-items-center mt-3 sticky-top">
                         <!-- 按钮组 -->
                         <div>
-                            <button class="btn btn-secondary" id="random-key-${keypair}">随机生成key</button>
-                            <button class="btn btn-warning" id="save-key-${keypair}">保存key</button>
-                            <button class="btn btn-danger" id="apply-key-${keypair}">应用key</button>
+                            <button type="button" class="btn btn-secondary" id="random-key-${keypair}">随机生成key</button>
+                            <button type="button" class="btn btn-warning" id="save-key-${keypair}">保存key</button>
                         </div>
                     </div>`;
                 container.append(button_key_pair);
@@ -341,10 +347,31 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(keypairContent),
             success: function () {
-                alert('文件已保存！');
+                alert('key 已保存！');
             },
             error: function () {
-                alert('保存文件失败！');
+                alert('key 保存失败！');
+            }
+        });
+    }
+
+    // 应用 wfb key 配置
+    function applyWfbKey(keypair, side) {
+        var keypairContent = {};
+        keypairContent['name'] = $(`input[data-key="wfb-${keypair}.name"]`).val();
+        keypairContent['gs'] = $(`input[data-key="wfb-${keypair}.gs"]`).val();
+        keypairContent['drone'] = $(`input[data-key="wfb-${keypair}.drone"]`).val();
+
+        $.ajax({
+            url: `/apply_wfb_key/${side}`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(keypairContent),
+            success: function () {
+                alert('key 已应用！');
+            },
+            error: function () {
+                alert(`${keypairContent['name']} key 应用失败！`);
             }
         });
     }

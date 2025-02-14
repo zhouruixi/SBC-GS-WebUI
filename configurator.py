@@ -477,14 +477,11 @@ def save_drone_config(filename):
             update_command += f"{update_command_used} -s .{k} {v} && "
         update_command += "echo success"
         print(update_command)
-        try:
-            ssh.connect()
-            print("Executing remote command...")
-            output = ssh.execute_command(update_command)
-            print(f"Command Output: {output}")
-        finally:
-            # ssh.close()
-            pass
+
+        ssh.connect()
+        print("Executing remote command...")
+        output = ssh.execute_command(update_command)
+        print(f"Command Output: {output}")
         return jsonify({"success": True, "message": "配置已保存！"})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
@@ -707,10 +704,33 @@ def load_wfb_key_config():
 def save_wfb_key_config(keypair):
     global config_info
     new_keypair_content = request.get_json()
-    config_info['wfb_key_pair'][keypair] = new_keypair_content
+    config_info["wfb_key_pair"][keypair] = new_keypair_content
     # 保存修改后的配置到文件
     save_yaml_config(config_info, config_info_file)
     return jsonify({"status": "success"})
+
+
+@app.route("/apply_wfb_key/<side>", methods=["POST"])
+def apply_wfb_key(side):
+    def apply_wfb_key_drone(key_base64: str):
+        update_drone_keycommand = f"echo '{key_base64}' | base64 -d > /etc/drone.key"
+        ssh.connect()
+        ssh.execute_command(update_drone_keycommand)
+
+    try:
+        keypair_content = request.get_json()
+        if side == "name":
+            base64_to_file(keypair_content["gs"], "/config/gs.key")
+            apply_wfb_key_drone(keypair_content["drone"])
+        elif side == "gs":
+            base64_to_file(keypair_content["gs"], "/config/gs.key")
+        elif side == "drone":
+            apply_wfb_key_drone(keypair_content["drone"])
+        else:
+            print(f"无效的请求!")
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"error": f"应用 key 失败: {str(e)}"}), 500
 
 
 @app.route("/get_random_wfb_key", methods=["GET"])
