@@ -1,4 +1,17 @@
 gs_config:
+  button:
+    toggle_record: danger
+    scan_wfb_channel: success
+    null: primary
+    change_otg_mode: info
+    change_wifi_mode: info
+    mount_extdisk: info
+    cleanup_record_files: warning
+    toggle_stream: warning
+    ummount_extdisk: warning
+    apply_conf: danger
+    shutdown_gs: danger
+    reboot_gs: danger
   gs:
     path: /etc/gs.conf
     format: ini

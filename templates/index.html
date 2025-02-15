@@ -50,51 +50,14 @@
             <!-- WEB 按钮 -->
             <div class="tab-pane fade show active" id="button" role="tabpanel" aria-labelledby="button-tab">
                 <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">GS 按钮</h3>
-
                 <!-- 使用 Bootstrap 的栅格系统，将按钮分为几行，并设置每行的间距 -->
                 <div class="row g-3">
                     <!-- TODO：传入函数名和等级自动生成按钮 -->
-                    <!-- quick 按钮 -->
+                    {% for function, color in gs_button_enabled.items() %}
                     <div class="col-12 col-md-4">
-                        <button class="btn btn-danger w-100" id="gs_btn_toggle_record">toggle_record</button>
+                        <button class="btn btn-{{ color }} w-100" id="gs_btn_{{ function }}">{{ function }}</button>
                     </div>
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-success w-100" id="gs_btn_scan_wfb_channel">scan_wfb_channel</button>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-primary w-100" id="gs_btn_null">null</button>
-                    </div>
-                    <!-- info 按钮 -->
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-info w-100" id="gs_btn_change_otg_mode">change_otg_mode</button>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-info w-100" id="gs_btn_change_wifi_mode">change_wifi_mode</button>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-info w-100" id="gs_btn_mount_extdisk">mount_extdisk</button>
-                    </div>
-                    <!-- warning 按钮 -->
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-warning w-100" id="gs_btn_cleanup_record_files">cleanup_record_files</button>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-warning w-100" id="gs_btn_toggle_stream">toggle_stream</button>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-warning w-100" id="gs_btn_ummount_extdisk">ummount_extdisk</button>
-                    </div>
-                    <!-- danger 按钮 -->
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-danger w-100" id="gs_btn_apply_conf">apply_conf</button>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-danger w-100" id="gs_btn_shutdown_gs">shutdown_gs</button>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-danger w-100" id="gs_btn_reboot_gs">reboot_gs</button>
-                    </div>
-                </div>
+                    {% endfor %}
 
                 <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">Drone 按钮</h3>
 

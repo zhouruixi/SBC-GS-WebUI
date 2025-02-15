@@ -347,14 +347,19 @@ app.json.sort_keys = False  # 禁用 jsonify 自动排序
 
 @app.route("/")
 def home():
+    # 获取地面站外部IP
     server_host = request.headers.get("host")
     server_ip = server_host.split(":")[0]
-    gs_config_files_path = [
-        item["path"] for item in config_info["gs_config"].values()
-    ]
+    # 获取地面站配置文件列表
+    gs_config_files_path = [ item["path"] for item in config_info["gs_config"].values() if "path" in item ]
     gs_config_files_path.append(config_info_file)
+    # 获取启用的地面站按钮
+    gs_button_enabled = config_info["gs_config"]['button']
     return render_template(
-        "index.html", server_ip=server_ip, gs_config_files_path=gs_config_files_path
+        "index.html",
+        server_ip=server_ip,
+        gs_config_files_path=gs_config_files_path,
+        gs_button_enabled=gs_button_enabled
     )
 
 
