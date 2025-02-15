@@ -528,6 +528,10 @@ $(document).ready(function () {
     // 监听WEB按钮（代替物理按钮）
     listenToButtons();
 
+    // 点击 DVR管理 标题刷新DVR文件列表
+    // document.getElementById('refreshDvrFiles').addEventListener('click', loadVideoFiles);
+    document.getElementById('refreshDvrFiles').onclick = loadVideoFiles;
+
     // 加载 gs 配置
     $("#reload-button-gs").on("click", function () {
         loadGSConfig();

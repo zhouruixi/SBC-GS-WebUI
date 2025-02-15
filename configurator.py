@@ -682,7 +682,9 @@ def list_video_files():
         for f in os.listdir(Videos_dir)
         if os.path.isfile(os.path.join(Videos_dir, f))
     ]
-    return jsonify(files)
+    # 按文件名排序
+    files_sorted = sorted(files, key=lambda x: x["name"])
+    return jsonify(files_sorted)
 
 
 @app.route("/download_video/<filename>")
