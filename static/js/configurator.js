@@ -152,6 +152,7 @@ $(document).ready(function () {
 
     // 加载 Drone 配置
     function loadDroneConfig(config_name) {
+        const resultDiv = $(`#save-result-drone-${config_name}`);
         $.get(`/load_drone_config/${config_name}`, function (data) {
             const container = $(`#drone-config-container-${config_name}`);
             container.empty(); // 清空容器
@@ -172,7 +173,6 @@ $(document).ready(function () {
                     container.append(row);
                 }
             }
-            const resultDiv = $(`#save-result-drone-${config_name}`);
             resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-drone-${config_name}-success-alert">
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 加载配置成功！
@@ -182,7 +182,11 @@ $(document).ready(function () {
                 $(`#load-result-drone-${config_name}-success-alert`).alert('close');
             }, 2000);
         }).fail(function () {
-            alert(`加载 Drone ${config_name} 配置失败，请手动重新加载！`);
+            resultDiv.html(`<div class="alert alert-danger alert-dismissible fade show" role="alert" id="load-result-drone-${config_name}-success-alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                加载 Drone ${config_name} 配置失败，请手动重新加载！
+                </div>`);
+            // alert(`加载 Drone ${config_name} 配置失败，请手动重新加载！`);
         });
     }
 
