@@ -59,8 +59,8 @@ def save_ini_config(config: ConfigObj, file_path: str) -> None:
 
 # load_config
 def load_config(config_info: dict, side: str, filename: str) -> dict:
-    file_path = config_info[f"{side}_config_files"][filename]["path"]
-    file_format = config_info[f"{side}_config_files"][filename]["format"]
+    file_path = config_info[f"{side}_config"][filename]["path"]
+    file_format = config_info[f"{side}_config"][filename]["format"]
     if file_format == "ini":
         return load_ini_config(file_path)
     elif file_format == "yaml":
@@ -350,7 +350,7 @@ def home():
     server_host = request.headers.get("host")
     server_ip = server_host.split(":")[0]
     gs_config_files_path = [
-        item["path"] for item in config_info["gs_config_files"].values()
+        item["path"] for item in config_info["gs_config"].values()
     ]
     gs_config_files_path.append(config_info_file)
     return render_template(
@@ -361,7 +361,7 @@ def home():
 @app.route("/load_gs_config/<filename>", methods=["GET"])
 def load_gs_config(filename):
     # global config_gs
-    # config_file_path = config_info["gs_config_files"][filename]["path"]
+    # config_file_path = config_info["gs_config"][filename]["path"]
     # config_gs = load_ini_config(config_file_path)
     config_gs = load_config(config_info, "gs", filename)
     return jsonify(config_gs)
@@ -375,7 +375,7 @@ def save_gs_config(filename):
         config_gs = load_config(config_info, "gs", filename)
 
         # 设置新的保存路径
-        # config_file = config_info["gs_config_files"]["gs"]["path"] + ".new"
+        # config_file = config_info["gs_config"]["gs"]["path"] + ".new"
         # config_gs.filename = config_file
         # config_gs['br0_fixed_ip'] = '0.0.0.0/0'
         # config_gs.write()
@@ -392,7 +392,7 @@ def save_gs_config(filename):
             for k, v in update_content.items():
                 update_command += f''' -e "s/^{k}=.*/{k}='{v}'/g"'''
             update_command += (
-                f" {config_info['gs_config_files'][filename]['path']} && echo success"
+                f" {config_info['gs_config'][filename]['path']} && echo success"
             )
             # print(update_command)
             # exec command
@@ -411,11 +411,11 @@ def save_gs_config(filename):
 def load_drone_config(filename):
     # global config_drone
     # 从文件载入配置
-    # config_file = config_info["drone_config_files"][filename]["path"]
+    # config_file = config_info["drone_config"][filename]["path"]
     # config_drone = load_yaml_config(config_file)
     # print(f"【Load】{config_drone}")
 
-    config_file_remote = config_info["drone_config_files"][filename]["path"]
+    config_file_remote = config_info["drone_config"][filename]["path"]
     config_file_local = f"drone_files/{os.path.basename(config_file_remote)}"
     # print(config_file_remote)
     # print(config_file_local)
@@ -446,7 +446,7 @@ def save_drone_config(filename):
     # global config_drone
     config_drone = load_yaml_config(f"drone_files/{filename}.yaml")
 
-    # config_file = config_info["drone_config_files"][filename]["path"]
+    # config_file = config_info["drone_config"][filename]["path"]
     # config_drone = load_yaml_config(config_file)
     config_drone_old = {}
     for file, content in config_drone.items():
@@ -766,9 +766,9 @@ def gs_systeminfo():
 
 
 if __name__ == "__main__":
-    config_info_file = "/gs/webui/configs/config_files.yaml"
+    config_info_file = "/gs/webui/webui_settings.yaml"
     config_info = load_yaml_config(config_info_file)
-    ssh = SSHClient(config_info["drone_config"])
+    ssh = SSHClient(config_info["drone_config"]['ssh'])
     Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
     MANAGER_FOLDER = "/config"
     # os.makedirs(MANAGER_FOLDER, exist_ok=True)

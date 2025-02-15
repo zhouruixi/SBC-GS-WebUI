@@ -1,4 +1,4 @@
-gs_config_files:
+gs_config:
   gs:
     path: /etc/gs.conf
     format: ini
@@ -9,7 +9,13 @@ gs_config_files:
     path: /etc/default/wifibroadcast
     format: ini
 
-drone_config_files:
+drone_config:
+  ssh:
+    # host: "192.168.1.10"
+    host: 10.5.0.10
+    port: '22'
+    username: root
+    password: '12345'
   majestic:
     path: /etc/majestic.yaml
     format: yaml
@@ -25,13 +31,6 @@ drone_config_files:
   telemetry_legency:
     path: /etc/telemetry.conf
     format: ini
-
-drone_config:
-  # host: "192.168.1.10"
-  host: 10.5.0.10
-  port: '22'
-  username: root
-  password: '12345'
 
 wfb_key_pair:
   default:
