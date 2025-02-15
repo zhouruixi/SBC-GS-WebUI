@@ -8,6 +8,7 @@ from flask import (
     redirect,
     url_for,
     jsonify,
+    send_file,
     send_from_directory,
     render_template_string,
 )
@@ -624,6 +625,12 @@ def download_file(filepath):
 def preview_file(filepath):
     """支持图片和视频预览"""
     return send_from_directory(MANAGER_FOLDER, filepath)
+
+
+# 下载配置文件
+@app.route("/download_config/<path:filepath>")
+def download_config(filepath):
+    return send_file(f"/{filepath}", as_attachment=True)
 
 
 @app.route("/edit/<path:filepath>", methods=["GET", "POST"])

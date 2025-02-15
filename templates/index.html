@@ -233,11 +233,11 @@
                         {% for config_file in gs_config_files_path %}
                         <tr>
                             <td>
-                                📄 <a href="/edit/{{ config_file }}" target="_blank">{{ config_file }}</a>
+                                📄 {{ config_file }}
                             </td>
                             <td>配置文件</td>
                             <td>
-                                <a href="/download/{{ config_file }}" class="btn btn-sm btn-success">下载</a>
+                                <a href="/download_config/{{ config_file }}" class="btn btn-sm btn-success">下载</a>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="editFile('{{ config_file }}')">编辑</button>
                                 <button type="button" class="btn btn-sm btn-warning" onclick="backupFile('{{ config_file }}')">备份</button>
                             </td>
