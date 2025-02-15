@@ -296,10 +296,15 @@ $(document).ready(function () {
                         applyWfbKey(keypair, side);
                     });
                 }
+
                 const button_key_pair = `
                     <div class="d-flex justify-content-center align-items-center mt-3 sticky-top">
                         <!-- 按钮组 -->
                         <div>
+                            <button type="button" class="btn btn-primary" id="upload-gs-key-${keypair}">上传 gs key</button>
+                            <button type="button" class="btn btn-success" id="download-gs-key-${keypair}">下载 gs key</button>
+                            <button type="button" class="btn btn-primary" id="upload-drone-key-${keypair}">上传 drone key</button>
+                            <button type="button" class="btn btn-success" id="download-drone-key-${keypair}">下载 drone key</button>
                             <button type="button" class="btn btn-secondary" id="random-key-${keypair}">随机生成key</button>
                             <button type="button" class="btn btn-warning" id="save-key-${keypair}">保存key</button>
                         </div>
@@ -317,12 +322,33 @@ $(document).ready(function () {
                     // 调用 saveWfbKeyConfig 函数并传递 keypair
                     saveWfbKeyConfig(keypair);
                 });
+
+                // 上传 gs key
+                $(`#upload-gs-key-${keypair}`).on('click', function () {
+                    uploadWfbKey(keypair, 'gs');
+                });
+
+                // 下载 gs key
+                $(`#download-gs-key-${keypair}`).on('click', function () {
+                    downloadWfbKey(keypair, 'gs');
+                });
+
+                // 上传 drone key
+                $(`#upload-drone-key-${keypair}`).on('click', function () {
+                    uploadWfbKey(keypair, 'drone');
+                });
+
+                // 下载 drone key
+                $(`#download-drone-key-${keypair}`).on('click', function () {
+                    downloadWfbKey(keypair, 'drone');
+                });
             }
+
             const resultDiv = $(`#save-result-wfb-key`);
             resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-wfb-key-success-alert">
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 加载配置成功！
-                                </div>`);
+                            </div>`);
             // 设置 2 秒后自动消失
             setTimeout(function () {
                 $(`#load-result-wfb-key-success-alert`).alert('close');
@@ -330,6 +356,49 @@ $(document).ready(function () {
         }).fail(function () {
             alert(`加载 Drone 配置失败，请手动重新加载！`);
         });
+    }
+
+    // 将上传的 wfb key 转为 base64
+    function uploadWfbKey(keypair, side) {
+        const fileInput = $('<input type="file" />');
+        fileInput.on('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const base64 = e.target.result.split(',')[1];
+                    $(`input[data-key="wfb-${keypair}.${side}"]`).val(base64);
+                    console.log(`上传 ${side}:`, base64);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        fileInput.click();
+    }
+
+    // 将 base64 转为二进制 wfb key 并提供下载
+    function downloadWfbKey(keypair, side) {
+        // 从对应的 input 框获取 base64 数据
+        const base64Data = $(`input[data-key="wfb-${keypair}.${side}"]`).val();
+        if (!base64Data) return;
+
+        const binaryString = window.atob(base64Data);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes]);
+
+        // 创建下载链接
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = `${keypair}-${side}.key`; // 根据类型设置文件名
+
+        // 触发下载
+        downloadLink.click();
+
+        // 清理 URL 对象
+        URL.revokeObjectURL(downloadLink.href);
     }
 
     // 保存 wfb key 配置
