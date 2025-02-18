@@ -49,26 +49,18 @@
         <div class="tab-content" id="myTabContent">
             <!-- WEB 按钮 -->
             <div class="tab-pane fade show active" id="button" role="tabpanel" aria-labelledby="button-tab">
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">GS 按钮</h3>
-                <!-- 使用 Bootstrap 的栅格系统，将按钮分为几行，并设置每行的间距 -->
-                <div class="row g-3">
-                    <!-- 根据配置文件自动生成 GS 按钮 -->
-                    {% for function, color in gs_button_enabled.items() %}
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-{{ color }} w-100" id="gs_btn_{{ function }}">{{ function }}</button>
+                {% for side in button_enabled %}
+                    <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">{{ side }} 按钮</h3>
+                    <!-- 使用 Bootstrap 的栅格系统，将按钮分为几行，并设置每行的间距 -->
+                    <div class="row g-3">
+                        <!-- 根据配置文件自动生成按钮 -->
+                        {% for function, value in button_enabled[side].items() %}
+                        <div class="col-12 col-md-4">
+                            <button class="btn btn-{{ value.color }} w-100" id="{{ side }}_btn_{{ function }}">{{ function }}</button>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
-                </div>
-
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">Drone 按钮</h3>
-                <div class="row g-3">
-                    <!-- 根据配置文件自动生成 Drone 按钮 -->
-                    {% for function, color in drone_button_enabled.items() %}
-                    <div class="col-12 col-md-4">
-                        <button class="btn btn-{{ color }} w-100" id="drone_btn_{{ function }}">{{ function }}</button>
-                    </div>
-                    {% endfor %}
-                </div>
+                {% endfor %}
             </div>
 
 

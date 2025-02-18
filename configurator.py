@@ -356,16 +356,16 @@ def home():
     gs_config_files_path.append(config_info_file)
     # 获取启用的 GS 按钮
     gs_button_config = config_info["gs_config"]['button']
-    gs_button_enabled = {key: value['color'] for key, value in gs_button_config.items()}
     # 获取启用的 Drone 按钮
     drone_button_config = config_info["drone_config"]['button']
-    drone_button_enabled = {key: value['color'] for key, value in drone_button_config.items()}
+    button_enabled = {}
+    button_enabled['gs'] = gs_button_config
+    button_enabled['drone'] = drone_button_config
     return render_template(
         "index.html",
         server_ip=server_ip,
         gs_config_files_path=gs_config_files_path,
-        gs_button_enabled=gs_button_enabled,
-        drone_button_enabled=drone_button_enabled
+        button_enabled=button_enabled
     )
 
 
