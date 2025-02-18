@@ -353,14 +353,18 @@ def home():
     # 获取地面站配置文件列表
     gs_config_files_path = [ item["path"] for item in config_info["gs_config"].values() if "path" in item ]
     gs_config_files_path.append(config_info_file)
-    # 获取启用的地面站按钮
+    # 获取启用的 GS 按钮
     gs_button_config = config_info["gs_config"]['button']
     gs_button_enabled = {key: value['color'] for key, value in gs_button_config.items()}
+    # 获取启用的 Drone 按钮
+    drone_button_config = config_info["drone_config"]['button']
+    drone_button_enabled = {key: value['color'] for key, value in drone_button_config.items()}
     return render_template(
         "index.html",
         server_ip=server_ip,
         gs_config_files_path=gs_config_files_path,
-        gs_button_enabled=gs_button_enabled
+        gs_button_enabled=gs_button_enabled,
+        drone_button_enabled=drone_button_enabled
     )
 
 
@@ -518,19 +522,9 @@ def exec_button_function():
     elif button_id.startswith("drone_btn_"):
         # 天空端按钮
         function_name = button_id.removeprefix("drone_btn_")
-        # 函数名和命令映射字典
-        drone_function_command = {
-            "reboot_drone": "reboot",
-            "shutdown_drone": "poweroff",
-            "restart_majestic": "killall -1 majestic",
-            "restart_wfb": "/etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &",
-            "firstboot_drone": "firstboot &",
-            "test": "echo test drone",
-        }
-
         # 打印接收到的按钮ID
         print(f"收到【天空端】按钮指令: {function_name}")
-        button_command = drone_function_command[function_name]
+        button_command = config_info["drone_config"]["button"][function_name]["command"]
         print(f"执行命令：{button_command}")
         try:
             ssh.connect()

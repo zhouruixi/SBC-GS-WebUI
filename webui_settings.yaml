@@ -2,43 +2,43 @@ gs_config:
   button:
     toggle_record:
       color: danger
-      command: "/gs/button.sh toggle_record"
+      command: '/gs/button.sh toggle_record'
     scan_wfb_channel:
       color: success
-      command: "/gs/button.sh scan_wfb_channel"
+      command: '/gs/button.sh scan_wfb_channel'
     null:
       color: primary
-      command: "echo test"
+      command: 'echo test'
     change_otg_mode:
       color: info
-      command: "/gs/button.sh change_otg_mode"
+      command: '/gs/button.sh change_otg_mode'
     change_wifi_mode:
       color: info
-      command: "/gs/button.sh change_wifi_mode"
+      command: '/gs/button.sh change_wifi_mode'
     mount_extdisk:
       color: info
-      command: "/gs/button.sh mount_extdisk"
+      command: '/gs/button.sh mount_extdisk'
     cleanup_record_files:
       color: warning
-      command: "/gs/button.sh cleanup_record_files"
+      command: '/gs/button.sh cleanup_record_files'
     toggle_stream:
       color: warning
-      command: "/gs/button.sh toggle_stream"
+      command: '/gs/button.sh toggle_stream'
     ummount_extdisk:
       color: warning
-      command: "/gs/button.sh ummount_extdisk"
+      command: '/gs/button.sh ummount_extdisk'
     apply_conf:
       color: danger
-      command: "/gs/button.sh apply_conf"
+      command: '/gs/button.sh apply_conf'
     shutdown_gs:
       color: danger
-      command: "/gs/button.sh shutdown_gs"
+      command: '/gs/button.sh shutdown_gs'
     reboot_gs:
       color: danger
-      command: "/gs/button.sh reboot_gs"
+      command: '/gs/button.sh reboot_gs'
     test_gs:
       color: primary
-      command: "echo test_gs"
+      command: 'echo test_gs'
   gs:
     path: /etc/gs.conf
     format: ini
@@ -51,18 +51,31 @@ gs_config:
 
 drone_config:
   ssh:
-    # host: "192.168.1.10"
+    # host: '192.168.1.10'
     host: 10.5.0.10
     port: '22'
     username: root
     password: '12345'
   button:
+    test:
+      color: primary
+      command: 'echo drone button test'
     restart_majestic:
-      color: info
-      command: "killall -1 majestic"
+      color: warning
+      command: 'killall -1 majestic'
     restart_wfb:
-      color: info
-      command: "/etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &"
+      color: warning
+      command: '/etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &'
+    shutdown_drone:
+      color: danger
+      command: 'poweroff'
+    reboot_drone:
+      color: danger
+      command: 'reboot'
+    firstboot_drone:
+      color: danger
+      command: 'firstboot &'
+
   majestic:
     path: /etc/majestic.yaml
     format: yaml
