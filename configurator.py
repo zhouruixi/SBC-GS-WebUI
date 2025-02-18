@@ -354,7 +354,8 @@ def home():
     gs_config_files_path = [ item["path"] for item in config_info["gs_config"].values() if "path" in item ]
     gs_config_files_path.append(config_info_file)
     # 获取启用的地面站按钮
-    gs_button_enabled = config_info["gs_config"]['button']
+    gs_button_config = config_info["gs_config"]['button']
+    gs_button_enabled = {key: value['color'] for key, value in gs_button_config.items()}
     return render_template(
         "index.html",
         server_ip=server_ip,
@@ -504,7 +505,7 @@ def exec_button_function():
 
         # 打印接收到的按钮ID
         print(f"收到【地面站】按钮指令: {function_name}")
-        button_command = f"/gs/button.sh {function_name}"
+        button_command = config_info["gs_config"]["button"][function_name]["command"]
         print(f"执行命令：{button_command}")
         button_command_result = subprocess.run(
             button_command, shell=True, capture_output=True, text=True
