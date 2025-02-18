@@ -347,6 +347,7 @@ app.json.sort_keys = False  # 禁用 jsonify 自动排序
 
 @app.route("/")
 def home():
+    global config_info
     # 获取地面站外部IP
     server_host = request.headers.get("host")
     server_ip = server_host.split(":")[0]
@@ -636,6 +637,7 @@ def download_config(filepath):
 @app.route("/edit/<path:filepath>", methods=["GET", "POST"])
 def edit_file(filepath):
     filepath = os.path.join("/", filepath)
+    global config_info
 
     if request.method == "GET":
         # 打开文件并读取内容
@@ -652,6 +654,9 @@ def edit_file(filepath):
         try:
             with open(filepath, "w") as f:
                 f.write(content)
+            # 修改webui配置文件后重载配置
+            if filepath == config_info_file:
+                config_info = load_yaml_config(config_info_file)
             return jsonify({"success": True})
         except Exception as e:
             return jsonify({"error": f"保存文件失败: {str(e)}"}), 500
