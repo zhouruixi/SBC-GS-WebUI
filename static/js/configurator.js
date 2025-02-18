@@ -492,6 +492,7 @@ $(document).ready(function () {
                     videoSource.src = fileUrl;
                     video.load();
                     video.classList.remove('d-none');
+                    video.play();
                 }
                 modal.show();
             })
