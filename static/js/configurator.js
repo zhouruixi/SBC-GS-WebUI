@@ -514,8 +514,37 @@ $(document).ready(function () {
     }
 
     function loadSystenInfo() {
+        // 获取显示系统信息的 div
+        const systemInfoText = document.getElementById("systemInfoText");
+
+        // 将数据逐项展示到页面
+        function displaySystemInfo(data) {
+            let content = '<ul class="list-group">';
+            // 遍历 jsonData 中的每个键值对
+            for (const [key, value] of Object.entries(data)) {
+                // 如果该项有值，则显示
+                if (value.trim()) {
+                    content += `<li class="list-group-item"><strong>${formatKey(key)}:</strong><pre>${value}</pre></li>`;
+                }
+            }
+            content += '</ul>';
+
+            // 将生成的内容插入到页面中
+            systemInfoText.innerHTML = content;
+        }
+
+        // 格式化键名，使其变得更友好（如 "gs_release" 转为 "Release Information"）
+        function formatKey(key) {
+            const formattedKey = key
+                .replace(/_/g, ' ') // 替换下划线为空格
+                .replace(/\b\w/g, char => char.toUpperCase()); // 首字母大写
+            return formattedKey;
+        }
+
         $.get(`/systeminfo`, function (data) {
-            document.getElementById('systemInfoText').innerText = data;
+            // document.getElementById('systemInfoText').innerText = data;
+            // 调用函数显示系统信息
+            displaySystemInfo(data);
         });
     }
 
