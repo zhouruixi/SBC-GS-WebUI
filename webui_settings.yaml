@@ -39,6 +39,15 @@ gs_config:
     test_gs:
       color: primary
       command: 'echo test_gs'
+  systeminfo:
+    gs_release: 'cat /etc/gs-release'
+    mem_info: 'free -m'
+    disk_info: 'df -hT'
+    temp_cpu: 'echo $(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))'
+    temp_88x2eu: ''
+    otg_mode: 'cat /sys/kernel/debug/usb/fcc00000.dwc3/mode'
+    wifi_mode: 'nmcli con | grep -oP "^\S+(?=.*wifi0)"'
+    top10_cpu_usage: 'top -b -o +%CPU | head -n 17'
   gs:
     path: /etc/gs.conf
     format: ini

@@ -763,16 +763,7 @@ def get_random_wfb_key():
 
 @app.route("/systeminfo")
 def gs_systeminfo():
-    get_info_command = {}
-    get_info_command["gs_release"] = "cat /etc/gs-release"
-    get_info_command["mem_info"] = "free -m"
-    get_info_command["disk_info"] = "df -hT"
-    get_info_command["temp_cpu"] = "echo $(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))"
-    get_info_command["temp_88x2eu"] = ""
-    get_info_command["otg_mode"] = "cat /sys/kernel/debug/usb/fcc00000.dwc3/mode"
-    get_info_command["wifi_mode"] = "nmcli con | grep -oP '^\S+(?=.*wifi0)'"
-    get_info_command["top10_cpu_usage"] = "top -b -o +%CPU | head -n 17"
-
+    get_info_command = config_info["gs_config"]["systeminfo"]
     systeminfo = {}
     for info in get_info_command:
         command_result = subprocess.run( get_info_command[info], shell=True, capture_output=True, text=True )
