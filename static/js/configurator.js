@@ -561,6 +561,8 @@ $(document).ready(function () {
     // 点击 DVR管理 标题刷新DVR文件列表
     // document.getElementById('refreshDvrFiles').addEventListener('click', loadVideoFiles);
     document.getElementById('refreshDvrFiles').onclick = loadVideoFiles;
+    // 点击 系统信息 标题刷新系统信息
+    document.getElementById('refreshSysteminfo').onclick = loadSystenInfo;
 
     // 加载 gs 配置
     $("#reload-button-gs").on("click", function () {

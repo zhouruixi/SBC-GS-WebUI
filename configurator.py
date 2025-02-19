@@ -777,7 +777,7 @@ def gs_systeminfo():
     for info in get_info_command:
         command_result = subprocess.run( get_info_command[info], shell=True, capture_output=True, text=True )
         systeminfo[info] = command_result.stdout
-    print(systeminfo)
+    # print(systeminfo)
     return jsonify(systeminfo)
 
 
