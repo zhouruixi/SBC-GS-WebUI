@@ -40,14 +40,15 @@ gs_config:
       color: primary
       command: 'echo test_gs'
   systeminfo:
-    gs_release: 'cat /etc/gs-release'
-    mem_info: 'free -m'
-    disk_info: 'df -hT'
-    temp_cpu: 'echo $(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))'
-    temp_88x2eu: ''
     otg_mode: 'cat /sys/kernel/debug/usb/fcc00000.dwc3/mode'
     wifi_mode: 'nmcli con | grep -oP "^\S+(?=.*wifi0)"'
+    cpu_temp: 'echo $(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))'
+    88x2eu_temp: ''
+    network_info: "ip -o -4 addr show | awk '{print $2, $4}'"
+    mem_info: 'free -m'
+    disk_info: 'df -hT'
     top10_cpu_usage: 'top -b -o +%CPU | head -n 17'
+    gs_release: 'cat /etc/gs-release'
   gs:
     path: /etc/gs.conf
     format: ini
@@ -84,7 +85,6 @@ drone_config:
     firstboot_drone:
       color: danger
       command: 'firstboot &'
-
   majestic:
     path: /etc/majestic.yaml
     format: yaml
