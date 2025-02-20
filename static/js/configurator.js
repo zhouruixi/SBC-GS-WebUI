@@ -548,21 +548,74 @@ $(document).ready(function () {
         });
     }
 
-    loadGSConfig();  // 初始化页面时加载 Drone 配置
-    loadDroneConfig("wfb");
-    loadDroneConfig("majestic");
+    // 获取可用于ACS的网卡信息
+    function getAvailableNics() {
+        $.get('/wifi_acs', function (data) {
+            $('#available-acs-nics-container').empty();  // 清空之前的内容
+            // 遍历网卡信息并生成卡片
+            $.each(data, function (interfaceName, driver) {
+                const nicInfo = $(`
+                    <h4 class="mt-4 d-flex justify-content-center align-items-center p-1 bg-secondary text-white rounded-2">
+                        ${interfaceName} (${driver})
+                        <button class="btn btn-info btn-sm ms-2" id="acs-scan-${interfaceName}">开始扫描</button>
+                    </h4>
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                        <div id="acs-result-${interfaceName}"> <!-- ACS 结果将在此加载 --> </div>
+                    </div>
+                `);
+                $('#available-acs-nics-container').append(nicInfo);
+
+                // 为 开始扫描 按钮绑定点击事件
+                $(`#acs-scan-${interfaceName}`).on('click', function () {
+                    execAcsScan(interfaceName);
+                    $(`#acs-result-${interfaceName}`).text('扫描已开始，请等待扫描完成（5~10秒）。');
+                });
+            });
+        }).fail(function () {
+            console.error('获取网卡信息失败');
+        });
+    }
+
+    // 执行 ACS 扫描
+    function execAcsScan(interfaceName) {
+        $.get(`/wifi_acs/${interfaceName}`, function (data) {
+            $(`#acs-result-${interfaceName}`).empty();  // 清空之前的内容
+            // 获取显示系统信息的 div
+            const acsResult = document.getElementById(`acs-result-${interfaceName}`);
+            let content = '<ul class="list-group">';
+            // 遍历结果信息并生成卡片
+            $.each(data, function (file, result) {
+                content += `
+                    <li class="list-group-item">
+                    <strong class="d-block bg-secondary text-white p-1 rounded-2">${file}:</strong>
+                    <pre class="mb-0">${result}</pre>
+                    </li>
+                `;
+            });
+            content += '</ul>';
+            acsResult.innerHTML = content;
+        }).fail(function () {
+            console.error('ACS 扫描失败');
+        });
+
+    }
+
+
+    loadGSConfig();  // 初始化页面时加载 GS 配置
+    loadDroneConfig("wfb");  // 初始化页面时加载 Drone wfb 配置
+    loadDroneConfig("majestic");  // 初始化页面时加载 Drone majestic 配置
     loadVideoFiles();  // 加载DVR文件列表
     loadWfbKeyConfig();  // 加载wfb key pair
     loadSystenInfo();  // 加载系统信息
+    getAvailableNics(); // 获取可用于ACS的网卡
 
     // 监听WEB按钮（代替物理按钮）
     listenToButtons();
 
-    // 点击 DVR管理 标题刷新DVR文件列表
     // document.getElementById('refreshDvrFiles').addEventListener('click', loadVideoFiles);
-    document.getElementById('refreshDvrFiles').onclick = loadVideoFiles;
-    // 点击 系统信息 标题刷新系统信息
-    document.getElementById('refreshSysteminfo').onclick = loadSystenInfo;
+    document.getElementById('refreshDvrFiles').onclick = loadVideoFiles;  // 点击 DVR管理 标题刷新DVR文件列表
+    document.getElementById('refreshSystemInfo').onclick = loadSystenInfo;  // 点击 系统信息 标题刷新系统信息
+    document.getElementById('refreshAcsInfo').onclick = getAvailableNics;  // 点击 ACS 标题刷新ACS信息
 
     // 加载 gs 配置
     $("#reload-button-gs").on("click", function () {

@@ -24,6 +24,8 @@ from pathlib import Path
 import shutil
 import threading
 import base64
+from glob import glob
+
 
 yaml = YAML()
 yaml.width = 4096
@@ -352,20 +354,22 @@ def home():
     server_host = request.headers.get("host")
     server_ip = server_host.split(":")[0]
     # 获取地面站配置文件列表
-    gs_config_files_path = [ item["path"] for item in config_info["gs_config"].values() if "path" in item ]
+    gs_config_files_path = [
+        item["path"] for item in config_info["gs_config"].values() if "path" in item
+    ]
     gs_config_files_path.append(config_info_file)
     # 获取启用的 GS 按钮
-    gs_button_config = config_info["gs_config"]['button']
+    gs_button_config = config_info["gs_config"]["button"]
     # 获取启用的 Drone 按钮
-    drone_button_config = config_info["drone_config"]['button']
+    drone_button_config = config_info["drone_config"]["button"]
     button_enabled = {}
-    button_enabled['gs'] = gs_button_config
-    button_enabled['drone'] = drone_button_config
+    button_enabled["gs"] = gs_button_config
+    button_enabled["drone"] = drone_button_config
     return render_template(
         "index.html",
         server_ip=server_ip,
         gs_config_files_path=gs_config_files_path,
-        button_enabled=button_enabled
+        button_enabled=button_enabled,
     )
 
 
@@ -766,16 +770,41 @@ def gs_systeminfo():
     get_info_command = config_info["gs_config"]["systeminfo"]
     systeminfo = {}
     for info in get_info_command:
-        command_result = subprocess.run( get_info_command[info], shell=True, capture_output=True, text=True )
+        command_result = subprocess.run(
+            get_info_command[info], shell=True, capture_output=True, text=True
+        )
         systeminfo[info] = command_result.stdout
     # print(systeminfo)
     return jsonify(systeminfo)
 
 
+@app.route("/wifi_acs/", defaults={"wnic": None})
+@app.route("/wifi_acs/<wnic>")
+def wifi_acs(wnic):
+    if wnic is None:
+        available_nics = {}
+        wfb_nics = load_config(config_info, "gs", "wfb_default")["WFB_NICS"].split()
+        for nic in wfb_nics:
+            driver_path = os.path.realpath(f"/sys/class/net/{nic}/device/driver")
+            driver_name = os.path.basename(driver_path)
+            if driver_name in ["rtl88x2cu", "rtl88x2eu", "rtl8733bu"]:
+                available_nics[nic] = driver_name
+        return jsonify(available_nics)
+    else:
+        scan_command = f"iw {wnic} scan passive"
+        subprocess.run(scan_command, shell=True)
+        proc_path = glob(f"/proc/net/rtl*/{wnic}")[0]
+        acs_result = {}
+        for file in ["acs", "chan_info"]:
+            with open(f"{proc_path}/{file}", "r") as f:
+                acs_result[file] = f.read()
+        return jsonify(acs_result)
+
+
 if __name__ == "__main__":
     config_info_file = "/gs/webui/webui_settings.yaml"
     config_info = load_yaml_config(config_info_file)
-    ssh = SSHClient(config_info["drone_config"]['ssh'])
+    ssh = SSHClient(config_info["drone_config"]["ssh"])
     Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
     MANAGER_FOLDER = "/config"
     # os.makedirs(MANAGER_FOLDER, exist_ok=True)
