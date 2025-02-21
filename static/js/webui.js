@@ -243,6 +243,7 @@ $(document).ready(function () {
         });
     }
 
+    // 加载 DVR 文件列表
     function loadVideoFiles() {
         fetch('/list_video_files')
             .then(response => response.json())
@@ -286,6 +287,28 @@ $(document).ready(function () {
                     row.appendChild(actionsCell);
                     fileList.appendChild(row);
                 });
+            });
+    }
+
+    // 加载当前 wfb key 配置
+    function loadCurrentWfbKey() {
+        fetch('/load_wfb_key_config/current')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络请求失败');
+                }
+                return response.json();  // 将响应解析为 JSON
+            })
+            .then(data => {
+                document.getElementById('current-wfb-gs-key').innerHTML = `<b>Current GS key: </b>${data.gs}`;
+                const droneKeyDiv = document.getElementById('current-wfb-drone-key');
+                // 检查 data.drone 是否为空
+                if (data.drone) {
+                    droneKeyDiv.innerHTML = `<b>Current Drone key: </b>${data.drone}`;
+                } else {
+                    droneKeyDiv.innerHTML = '<b>Current Drone key: </b>加载失败，点击重试';
+                    droneKeyDiv.style.color = 'red';  // 设置提示文字为红色
+                }
             });
     }
 
@@ -376,7 +399,7 @@ $(document).ready(function () {
                 $(`#load-result-wfb-key-success-alert`).alert('close');
             }, 2000);
         }).fail(function () {
-            alert(`加载 Drone 配置失败，请手动重新加载！`);
+            alert(`加载 wfb key 配置失败，请手动重新加载！`);
         });
     }
 
@@ -623,6 +646,7 @@ $(document).ready(function () {
     loadDroneConfig("wfb");  // 初始化页面时加载 Drone wfb 配置
     loadDroneConfig("majestic");  // 初始化页面时加载 Drone majestic 配置
     loadVideoFiles();  // 加载DVR文件列表
+    loadCurrentWfbKey();  // 加载当前使用的key
     loadWfbKeyConfig();  // 加载wfb key pair
     loadSystenInfo();  // 加载系统信息
     getAvailableNics(); // 获取可用于ACS的网卡
@@ -634,6 +658,7 @@ $(document).ready(function () {
     document.getElementById('refreshDvrFiles').onclick = loadVideoFiles;  // 点击 DVR管理 标题刷新DVR文件列表
     document.getElementById('refreshSystemInfo').onclick = loadSystenInfo;  // 点击 系统信息 标题刷新系统信息
     document.getElementById('refreshAcsInfo').onclick = getAvailableNics;  // 点击 ACS 标题刷新ACS信息
+    document.getElementById('refreshCurrentWfbKey').onclick = loadCurrentWfbKey; // 点击 wfb key配置 标题重载当前key
 
     // 加载 gs 配置
     $("#reload-button-gs").on("click", function () {

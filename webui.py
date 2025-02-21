@@ -118,7 +118,7 @@ class SSHClient:
         self.last_activity_time = None
         self.close_timer = None
         self.max_retries = 3
-        self.retry_delay = 2  # 重试延迟秒数
+        self.retry_delay = 1  # 重试延迟秒数
 
     def _is_connection_active(self):
         """
@@ -168,7 +168,7 @@ class SSHClient:
                     username=self.username,
                     password=self.password,
                     port=self.port,
-                    timeout=5,
+                    timeout=2,
                 )
                 self.last_activity_time = time.time()
                 print(f"Connected to {self.host}")
@@ -725,10 +725,21 @@ def delete_video_file(filename):
     return jsonify({"status": "error", "message": "File not found"}), 404
 
 
-@app.route("/load_wfb_key_config", methods=["GET"])
-def load_wfb_key_config():
-    wfb_key_config = config_info["wfb_key_pair"]
-    return jsonify(wfb_key_config)
+@app.route("/load_wfb_key_config/", defaults={"current": None})
+@app.route("/load_wfb_key_config/<current>", methods=["GET"])
+def load_wfb_key_config(current):
+    if current == "current":
+        current_gs_key = file_to_base64("/etc/gs.key")
+        get_drone_key_command = "base64 -w 0 /etc/drone.key"
+        try:
+            ssh.connect()
+            current_drone_key = ssh.execute_command(get_drone_key_command)
+        except Exception:
+            current_drone_key = None
+        return jsonify({"gs": current_gs_key, "drone": current_drone_key})
+    else:
+        wfb_key_config = config_info["wfb_key_pair"]
+        return jsonify(wfb_key_config)
 
 
 @app.route("/save_wfb_key_config/<keypair>", methods=["POST"])

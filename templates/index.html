@@ -221,9 +221,11 @@
 
             <!-- wfb key 配置 -->
             <div class="tab-pane fade" id="wfb-key-config" role="tabpanel" aria-labelledby="wfb-key-config-tab">
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">wfb key 配置</h3>
-                <div class="mt-1 d-flex justify-content-center align-items-center bg-success text-white p-1 rounded-2">
-                    Default Key Is: u7ftboOkaoqbihKg+Y7OK9yXhwW4IEcBsghfooyse0YOBcSKYZX7cJIcdHpm6DwC5kC9a761slFTepiidBaiYw==
+                <h3 id="refreshCurrentWfbKey" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">wfb key 配置（点击刷新）</h3>
+                <div class="mt-1 d-flex flex-column justify-content-left align-items-start bg-info text-black p-1 rounded-2">
+                    <div><b>Default Key: </b>u7ftboOkaoqbihKg+Y7OK9yXhwW4IEcBsghfooyse0YOBcSKYZX7cJIcdHpm6DwC5kC9a761slFTepiidBaiYw==</div>
+                    <div id="current-wfb-gs-key"><!-- 当前 GS Key 将在此加载 --></div>
+                    <div id="current-wfb-drone-key"><!-- 当前 Drone Key 将在此加载 --></div>
                 </div>
                 <div class="mt-3" id="save-result-wfb-key"></div>
                 <div id="wfb-key-config-container" class="mt-4 bg-light rounded-3">
