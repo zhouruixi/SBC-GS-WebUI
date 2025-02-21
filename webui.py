@@ -815,7 +815,7 @@ def wifi_acs(wnic):
 
 
 if __name__ == "__main__":
-    config_info_file = "/gs/webui/webui_settings.yaml"
+    config_info_file = "/gs/webui/settings_webui.yaml"
     config_info = load_yaml_config(config_info_file)
     ssh = SSHClient(config_info["drone_config"]["ssh"])
     Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
