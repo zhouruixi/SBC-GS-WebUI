@@ -365,11 +365,13 @@ def home():
     button_enabled = {}
     button_enabled["gs"] = gs_button_config
     button_enabled["drone"] = drone_button_config
+    drone_quick_setting = config_info["drone_config"]["quick_setting"]
     return render_template(
         "index.html",
         server_ip=server_ip,
         gs_config_files_path=gs_config_files_path,
         button_enabled=button_enabled,
+        drone_quick_setting=drone_quick_setting,
     )
 
 
@@ -513,9 +515,9 @@ def exec_button_function():
         function_name = button_id.removeprefix("gs_btn_")
 
         # 打印接收到的按钮ID
-        print(f"收到【地面站】按钮指令: {function_name}")
+        # print(f"收到【地面站】按钮指令: {function_name}")
         button_command = config_info["gs_config"]["button"][function_name]["command"]
-        print(f"执行命令：{button_command}")
+        print(f"Executing local command: {button_command}")
         button_command_result = subprocess.run(
             button_command, shell=True, capture_output=True, text=True
         )
@@ -528,20 +530,31 @@ def exec_button_function():
         # 天空端按钮
         function_name = button_id.removeprefix("drone_btn_")
         # 打印接收到的按钮ID
-        print(f"收到【天空端】按钮指令: {function_name}")
+        # print(f"收到【天空端】按钮指令: {function_name}")
         button_command = config_info["drone_config"]["button"][function_name]["command"]
-        print(f"执行命令：{button_command}")
+        print(f"Executing drone command: {button_command}")
         try:
             ssh.connect()
-            print("Executing remote command...")
+            print(f"Executing remote command: {button_command}")
             output = ssh.execute_command(button_command)
-            print(f"Command Output: {output}")
+            # print(f"Command Output: {output}")
             return jsonify({"success": True, "message": "命令已执行！"})
         except Exception as e:
             return jsonify({"success": False, "message": str(e)})
-        finally:
+        # finally:
             # ssh.close()
-            pass
+    elif button_id.startswith("drone_setting_"):
+        function_name = button_id.removeprefix("drone_setting_")
+        target_value = data.get("target_value")
+        command_template = config_info["drone_config"]["quick_setting"][function_name]["command"]
+        button_command = command_template.format(target_value=target_value)
+        try:
+            ssh.connect()
+            print(f"Executing drone command: {button_command}")
+            ssh.execute_command(button_command)
+            return jsonify({"success": True, "message": "命令已执行！"})
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)})
 
 
 @app.route("/filemanager/")

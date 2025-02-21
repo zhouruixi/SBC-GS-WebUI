@@ -36,14 +36,14 @@ gs_config:
     reboot_gs:
       color: danger
       command: '/gs/button.sh reboot_gs'
-    test_gs:
-      color: primary
-      command: 'echo test_gs'
+    # test_gs:
+      # color: primary
+      # command: 'echo test_gs'
   systeminfo:
     otg_mode: 'cat /sys/kernel/debug/usb/fcc00000.dwc3/mode'
     wifi_mode: 'nmcli con | grep -oP "^\S+(?=.*wifi0)"'
     cpu_temp: 'echo $(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))'
-    88x2eu_temp: ''
+    88x2eu_temp: '[ -d /proc/net/rtl88x2eu ] && cat /proc/net/rtl88x2eu/wlx*/thermal_state || echo "No RTL8812EU connected!"'
     network_info: "ip -o -4 addr show | awk '{print $2, $4}'"
     mem_info: 'free -m'
     disk_info: 'df -hT'
@@ -67,6 +67,15 @@ drone_config:
     username: root
     password: '12345'
   button:
+    720p120:
+      color: info
+      command: 'cli -s .video0.size 1280x720 && cli -s .video0.fps 120 && killall -1 majestic'
+    1080p60:
+      color: info
+      command: 'cli -s .video0.size 1920x1080 && cli -s .video0.fps 60 && killall -1 majestic'
+    1080p90:
+      color: info
+      command: 'cli -s .video0.size 1920x1080 && cli -s .video0.fps 90 && killall -1 majestic'
     test:
       color: primary
       command: 'echo drone button test'
@@ -76,6 +85,12 @@ drone_config:
     restart_wfb:
       color: warning
       command: '/etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &'
+    reset_majestic:
+      color: warning
+      command: 'cp /rom/etc/majestic.yaml /etc/majestic.yaml'
+    reset_wfb:
+      color: warning
+      command: 'cp /rom/etc/wfb.yaml /etc/wfb.yaml'
     shutdown_drone:
       color: danger
       command: 'poweroff'
@@ -85,6 +100,49 @@ drone_config:
     firstboot_drone:
       color: danger
       command: 'firstboot &'
+  quick_setting:
+    majestic_res:
+      color: primary
+      command: "cli -s .video0.size {target_value} && killall -1 majestic"
+      options: ["1280x720", "1920x1080", "2560x1440", "3840x2160"]
+      tip: "Please enter the video resolution."
+    majestic_fps:
+      color: primary
+      command: "cli -s .video0.fps {target_value} && killall -1 majestic"
+      # command: "echo 'setfps 0 {target_value}' > /proc/mi_modules/mi_sensor/mi_sensor0"
+      options: ["20", "30", "60", "90", "120"]
+      tip: "Please enter the video frame rate."
+    majestic_bitrate:
+      color: primary
+      command: "cli -s .video0.bitrate {target_value} && curl -s 'http://localhost/api/v1/set?video0.bitrate={target_value}'"
+      options: ["2048", "4096", "6144", "8192", "10240"]
+      tip: "Please enter the video bitrate."
+    majestic_codec:
+      color: primary
+      command: "cli -s .video0.codec {target_value} && killall -1 majestic"
+      options: ["h264", "h265"]
+      tip: "Please enter the video codec."
+    wfb_channel:
+      color: danger
+      command: "wfb-cli -s .wireless.channel {target_value} && /etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &"
+      options: ["36", "157", "161"]
+      tip: "Please enter the WiFi channel."
+    wfb_mcs:
+      color: primary
+      command: "wfb_tx_cmd 8000 set_radio -B 20 -G long -S 1 -L 1 -M {target_value}"
+      options: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+      tip: "Please enter the WiFi MCS index."
+    wfb_txpower:
+      color: primary
+      command: '[ "$(basename $(readlink /sys/class/net/wlan0/device/driver))" == "rtl88xxau" ] && iw wlan0 set txpower fixed "$(({target_value} * -100))" || iw wlan0 set txpower fixed "$(({target_value} * 50))"'
+      options: ["1", "5", "15", "25", "35", "45"]
+      tip: "Please enter the WiFi Tx power(0~63). Not recommend exceed 45 for RTL8812 CU/EU"
+    wfb_bandwidth:
+      color: danger
+      command: "wfb-cli -s .wireless.mode {target_value} && channel=$(iw dev wlan0 info | awk '/channel/ {{print $2}}') && iw wlan0 set channel $channel {target_value}"
+      # command: "wfb-cli -s .wireless.mode {target_value} && /etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &"
+      options: ["HT20", "HT40+"]
+      tip: "Please enter the WiFi bandwidth."
   majestic:
     path: /etc/majestic.yaml
     format: yaml

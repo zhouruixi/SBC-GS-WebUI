@@ -51,13 +51,13 @@ $(document).ready(function () {
     }
 
     // 发送按钮 ID 到后端
-    function sendButtonFunctionToBackend(buttonId) {
+    function sendButtonFunctionToBackend(buttonId, targetValue = null) {
         fetch('/exec_button_function', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ button_id: buttonId })
+            body: JSON.stringify({ "button_id": buttonId, "target_value": targetValue })
         })
             .then(response => response.json())
             .then(data => {
@@ -72,12 +72,28 @@ $(document).ready(function () {
     // 监听所有 gs_btn_ 或 drone_btn_ 开头的控制指令按钮
     function listenToButtons() {
         const buttons = document.querySelectorAll('[id^="gs_btn_"], [id^="drone_btn_"]');
-
         buttons.forEach(button => {
             button.addEventListener('click', function () {
                 // 获取按钮的 id 并调用发送请求的函数
                 const buttonId = button.id;
                 sendButtonFunctionToBackend(buttonId);
+            });
+        });
+    }
+
+    // 监听所有 drone_setting_ 开头的快捷设置按钮
+    function listenToDroneSettingButtons() {
+        const buttons = document.querySelectorAll('[id^="drone_setting_"]');
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                // 获取按钮的 id 并调用发送请求的函数
+                const buttonId = button.id;
+                const targetValue = $(`#content_${buttonId}`).val();
+                // console.log(`Hello, ${targetValue}!`);
+                if (targetValue.trim() !== '') {
+                    // 如果input框不为空，发送按钮指令
+                    sendButtonFunctionToBackend(buttonId, targetValue);
+                }
             });
         });
     }
@@ -289,7 +305,9 @@ $(document).ready(function () {
                             <label class="col-form-label col-sm-1 text-start">${side}</label>
                             <div class="col d-flex align-items-center">
                                 <input type="text" class="form-control config-input-wfb-key" data-key="wfb-${keypair}.${side}" value="${value}" placeholder="${value}">
-                                <button type="button" class="btn btn-danger ms-2" id="apply-key-${keypair}-${side}">应用key</button>
+                                <div class="col-auto">
+                                    <button type="button" class="btn btn-danger ms-2" id="apply-key-${keypair}-${side}">应用key</button>
+                                </div>
                             </div>
                         </div>`;
                     container.append(row);
@@ -310,7 +328,7 @@ $(document).ready(function () {
                             <button type="button" class="btn btn-primary" id="upload-drone-key-${keypair}">上传 drone key</button>
                             <button type="button" class="btn btn-success" id="download-drone-key-${keypair}">下载 drone key</button>
                             <button type="button" class="btn btn-secondary" id="random-key-${keypair}">随机生成key</button>
-                            <button type="button" class="btn btn-warning" id="save-key-${keypair}">保存key</button>
+                            <button type="button" class="btn btn-warning" id="save-key-${keypair}">保存到配置文件</button>
                         </div>
                     </div>`;
                 container.append(button_key_pair);
@@ -609,8 +627,8 @@ $(document).ready(function () {
     loadSystenInfo();  // 加载系统信息
     getAvailableNics(); // 获取可用于ACS的网卡
 
-    // 监听WEB按钮（代替物理按钮）
-    listenToButtons();
+    listenToButtons();  // 监听WEB按钮（代替物理按钮）
+    listenToDroneSettingButtons();  // 监听Drone 快捷设置按钮
 
     // document.getElementById('refreshDvrFiles').addEventListener('click', loadVideoFiles);
     document.getElementById('refreshDvrFiles').onclick = loadVideoFiles;  // 点击 DVR管理 标题刷新DVR文件列表
