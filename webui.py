@@ -821,4 +821,4 @@ if __name__ == "__main__":
     Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
     MANAGER_FOLDER = "/config"
     # os.makedirs(MANAGER_FOLDER, exist_ok=True)
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=80, debug=True)
