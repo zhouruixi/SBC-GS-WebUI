@@ -40,14 +40,19 @@ gs_config:
       # color: primary
       # command: 'echo test_gs'
   systeminfo:
+    current_screen_mode: 'drm_info | grep -oP "Mode: \K.*"'
+    # current_screen_mode: 'drm_info -j /dev/dri/card0 | jq -r ".\"\/dev\/dri\/card0\".crtcs[0].mode.name + \"@\" + (.\"\/dev\/dri\/card0\".crtcs[0].mode.vrefresh | tostring)"'
     otg_mode: 'cat /sys/kernel/debug/usb/fcc00000.dwc3/mode'
     wifi_mode: 'nmcli con | grep -oP "^\S+(?=.*wifi0)"'
     cpu_temp: 'echo $(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))'
     88x2eu_temp: '[ -d /proc/net/rtl88x2eu ] && cat /proc/net/rtl88x2eu/wlx*/thermal_state || echo "No RTL8812EU connected!"'
     network_info: "ip -o -4 addr show | awk '{print $2, $4}'"
+    wifi_info: 'for nic in /sys/class/net/wlx*; do [ -d $nic ] && iw $(basename $nic) info; done'
+    supported_screen_modes: 'pixelpilot --screen-mode-list'
     mem_info: 'free -m'
     disk_info: 'df -hT'
-    top10_cpu_usage: 'top -b -o +%CPU | head -n 17'
+    # top10_cpu_usage: 'top -b -o +%CPU | head -n 17'
+    kernel_info: 'uname -a'
     gs_release: 'cat /etc/gs-release'
   gs:
     path: /etc/gs.conf
