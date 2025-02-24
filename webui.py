@@ -354,10 +354,12 @@ def home():
     server_host = request.headers.get("host")
     server_ip = server_host.split(":")[0]
     # 获取地面站配置文件列表
-    gs_config_files_path = [
-        item["path"] for item in config_info["gs_config"].values() if "path" in item
-    ]
-    gs_config_files_path.append(config_info_file)
+    script_dir = Path(__file__).resolve().parent
+    gs_config_files_path = config_info["gs_config"]["gs_config_files"]
+    for i in range(len(gs_config_files_path)):
+        path = gs_config_files_path[i]
+        if not path.startswith("/"):
+            gs_config_files_path[i] = str(script_dir / path)
     # 获取启用的 GS 按钮
     gs_button_config = config_info["gs_config"]["button"]
     # 获取启用的 Drone 按钮
@@ -826,7 +828,7 @@ def wifi_acs(wnic):
 
 
 if __name__ == "__main__":
-    config_info_file = "/gs/webui/settings_webui.yaml"
+    config_info_file = "settings_webui.yaml"
     config_info = load_yaml_config(config_info_file)
     ssh = SSHClient(config_info["drone_config"]["ssh"])
     Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]

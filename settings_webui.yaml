@@ -63,6 +63,11 @@ gs_config:
   wfb_default:
     path: /etc/default/wifibroadcast
     format: ini
+  gs_config_files:
+    - settings_webui.yaml
+    - /etc/gs.conf
+    # - /etc/wifibroadcast.cfg
+    # - /etc/default/wifibroadcast
 
 drone_config:
   ssh:

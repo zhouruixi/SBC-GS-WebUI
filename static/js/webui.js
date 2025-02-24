@@ -306,8 +306,8 @@ $(document).ready(function () {
                 if (data.drone) {
                     droneKeyDiv.innerHTML = `<b>Current Drone key: </b>${data.drone}`;
                 } else {
-                    droneKeyDiv.innerHTML = '<b>Current Drone key: </b>加载失败，点击重试';
-                    droneKeyDiv.style.color = 'red';  // 设置提示文字为红色
+                    droneKeyDiv.innerHTML = '<b>Current Drone key: </b>加载失败，点击标题重新加载';
+                    // droneKeyDiv.style.color = 'red';  // 设置提示文字为红色
                 }
             });
     }
