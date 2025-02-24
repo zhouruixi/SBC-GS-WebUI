@@ -225,7 +225,7 @@ class SSHClient:
         self.last_activity_time = time.time()
         self._reset_close_timer()
 
-        print(output)
+        # print(output)
         return output
 
     def download_file(self, remote_path, local_path):
@@ -791,17 +791,32 @@ def get_random_wfb_key():
     return jsonify(random_wfb_key)
 
 
-@app.route("/systeminfo")
-def gs_systeminfo():
-    get_info_command = config_info["gs_config"]["systeminfo"]
-    systeminfo = {}
-    for info in get_info_command:
-        command_result = subprocess.run(
-            get_info_command[info], shell=True, capture_output=True, text=True
-        )
-        systeminfo[info] = command_result.stdout
-    # print(systeminfo)
-    return jsonify(systeminfo)
+@app.route("/systeminfo/<side>")
+def gs_systeminfo(side):
+    if side == "gs":
+        get_info_command = config_info["gs_config"]["systeminfo"]
+        systeminfo = {}
+        for info in get_info_command:
+            command_result = subprocess.run(
+                get_info_command[info], shell=True, capture_output=True, text=True
+            )
+            systeminfo[info] = command_result.stdout
+        # print(systeminfo)
+        return jsonify(systeminfo)
+    elif side == "drone":
+        get_info_command = config_info["drone_config"]["systeminfo"]
+        try:
+            ssh.connect()
+            ssh.execute_command("echo success")
+            systeminfo = {}
+            for info in get_info_command:
+                command_result = ssh.execute_command(get_info_command[info])
+                systeminfo[info] = command_result
+            # print(systeminfo)
+            return jsonify(systeminfo)
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)})
+
 
 
 @app.route("/wifi_acs/", defaults={"wnic": None})

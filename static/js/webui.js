@@ -554,9 +554,9 @@ $(document).ready(function () {
             });
     }
 
-    function loadSystenInfo() {
+    function loadSystenInfo(side) {
         // 获取显示系统信息的 div
-        const systemInfoText = document.getElementById("systemInfoText");
+        const systemInfoText = document.getElementById(`${side}SystemInfoText`);
 
         // 将数据逐项展示到页面
         function displaySystemInfo(data) {
@@ -582,8 +582,8 @@ $(document).ready(function () {
             return formattedKey;
         }
 
-        $.get(`/systeminfo`, function (data) {
-            // document.getElementById('systemInfoText').innerText = data;
+        $.get(`/systeminfo/${side}`, function (data) {
+            // document.getElementById(`${side}SystemInfoText`).innerText = data;
             // 调用函数显示系统信息
             displaySystemInfo(data);
         });
@@ -648,7 +648,8 @@ $(document).ready(function () {
     loadVideoFiles();  // 加载DVR文件列表
     loadCurrentWfbKey();  // 加载当前使用的key
     loadWfbKeyConfig();  // 加载wfb key pair
-    loadSystenInfo();  // 加载系统信息
+    loadSystenInfo("gs");  // 加载 GS 系统信息
+    loadSystenInfo("drone");  // 加载 Drone 系统信息
     getAvailableNics(); // 获取可用于ACS的网卡
 
     listenToButtons();  // 监听WEB按钮（代替物理按钮）
@@ -656,7 +657,8 @@ $(document).ready(function () {
 
     // document.getElementById('refreshDvrFiles').addEventListener('click', loadVideoFiles);
     document.getElementById('refreshDvrFiles').onclick = loadVideoFiles;  // 点击 DVR管理 标题刷新DVR文件列表
-    document.getElementById('refreshSystemInfo').onclick = loadSystenInfo;  // 点击 系统信息 标题刷新系统信息
+    document.getElementById('refreshGsSystemInfo').onclick = function() { loadSystenInfo("gs"); };  // 点击 GS信息 标题刷新信息
+    document.getElementById('refreshDroneSystemInfo').onclick = function() { loadSystenInfo("drone"); };  // 点击 Drine信息 标题刷新信息
     document.getElementById('refreshAcsInfo').onclick = getAvailableNics;  // 点击 ACS 标题刷新ACS信息
     document.getElementById('refreshCurrentWfbKey').onclick = loadCurrentWfbKey; // 点击 wfb key配置 标题重载当前key
 

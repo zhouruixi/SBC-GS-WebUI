@@ -153,6 +153,17 @@ drone_config:
       # command: "wfb-cli -s .wireless.mode {target_value} && /etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &"
       options: ["HT20", "HT40+"]
       tip: "Please enter the WiFi bandwidth."
+  systeminfo:
+    hardware_info: 'fw_printenv | grep "soc=\|sensor="'
+    cpu_temp: 'cat /sys/devices/virtual/mstar/msys/TEMP_R'
+    88x2eu_temp: '[ -d /proc/net/rtl88x2eu ] && cat /proc/net/rtl88x2eu/wlx*/thermal_state'
+    network_info: "ip -o -4 addr show | awk '{print $2, $4}'"
+    wifi_info: 'printf "Driver: " && basename $(readlink /sys/class/net/wlan0/device/driver) && iw wlan0 info'
+    mem_info: 'free -m'
+    disk_info: 'df -hT'
+    # top10_cpu_usage: 'top -b -n 1 | head -n 14'
+    kernel_info: 'uname -a'
+    os_release: 'cat /etc/os-release'
   majestic:
     path: /etc/majestic.yaml
     format: yaml

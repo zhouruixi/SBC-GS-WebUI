@@ -40,7 +40,8 @@
                     <li><a class="dropdown-item" href="#wfb-key-config" data-bs-toggle="tab">Key 管理</a></li>
                     <li><a class="dropdown-item" href="#wifi-acs" data-bs-toggle="tab">ACS</a></li>
                     <li><a class="dropdown-item" id="filemanager" href="/filemanager/" target="_blank" role="tab" aria-controls="SSH" aria-selected="false">文件管理</a></li>
-                    <li><a class="dropdown-item" href="#systeminfo" data-bs-toggle="tab">系统信息</a></li>
+                    <li><a class="dropdown-item" href="#gs-systeminfo" data-bs-toggle="tab">GS 信息</a></li>
+                    <li><a class="dropdown-item" href="#drone-systeminfo" data-bs-toggle="tab">Drone 信息</a></li>
                     <li><a class="dropdown-item" href="#about" data-bs-toggle="tab">关于</a></li>
                 </ul>
             </li>
@@ -245,12 +246,22 @@
                 </div>
             </div>
 
-            <!-- 系统信息 -->
-            <div class="tab-pane fade" id="systeminfo" role="tabpanel" aria-labelledby="systeminfo-tab">
-                <h3 id="refreshSystemInfo" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">系统信息（点击刷新）</h3>
+            <!-- GS 系统信息 -->
+            <div class="tab-pane fade" id="gs-systeminfo" role="tabpanel" aria-labelledby="gs-systeminfo-tab">
+                <h3 id="refreshGsSystemInfo" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">GS信息（点击刷新）</h3>
                 <div class="d-flex justify-content-center align-items-center mt-3">
-                    <div id="systemInfoText">
-                        <!-- 系统信息内容将在此加载 -->
+                    <div id="gsSystemInfoText">
+                        <!-- GS 系统信息内容将在此加载 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drone 系统信息 -->
+            <div class="tab-pane fade" id="drone-systeminfo" role="tabpanel" aria-labelledby="drone-systeminfo-tab">
+                <h3 id="refreshDroneSystemInfo" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">Drone信息（点击刷新）</h3>
+                <div class="d-flex justify-content-center align-items-center mt-3">
+                    <div id="droneSystemInfoText">
+                        <!-- Drone 系统信息内容将在此加载 -->
                     </div>
                 </div>
             </div>
