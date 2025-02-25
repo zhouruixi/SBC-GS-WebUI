@@ -554,26 +554,7 @@ $(document).ready(function () {
             });
     }
 
-    function loadSystenInfo(side) {
-        // 获取显示系统信息的 div
-        const systemInfoText = document.getElementById(`${side}SystemInfoText`);
-
-        // 将数据逐项展示到页面
-        function displaySystemInfo(data) {
-            let content = '<ul class="list-group">';
-            // 遍历 jsonData 中的每个键值对
-            for (const [key, value] of Object.entries(data)) {
-                // 如果该项有值，则显示
-                if (value.trim()) {
-                    content += `<li class="list-group-item"><strong>${formatKey(key)}:</strong><pre>${value}</pre></li>`;
-                }
-            }
-            content += '</ul>';
-
-            // 将生成的内容插入到页面中
-            systemInfoText.innerHTML = content;
-        }
-
+    function loadSystemInfo(side) {
         // 格式化键名，使其变得更友好（如 "gs_release" 转为 "Release Information"）
         function formatKey(key) {
             const formattedKey = key
@@ -582,10 +563,25 @@ $(document).ready(function () {
             return formattedKey;
         }
 
+        // 获取显示系统信息的 div
+        const systemInfoText = document.getElementById(`${side}SystemInfoText`);
         $.get(`/systeminfo/${side}`, function (data) {
             // document.getElementById(`${side}SystemInfoText`).innerText = data;
-            // 调用函数显示系统信息
-            displaySystemInfo(data);
+            let content = '<ul class="list-group">';
+            // 遍历 jsonData 中的每个键值对
+            for (const [key, value] of Object.entries(data)) {
+                // 如果该项有值，则显示
+                const strValue = String(value);
+                if (strValue.trim()) {
+                    content += `<li class="list-group-item"><strong>${formatKey(key)}:</strong><pre>${strValue}</pre></li>`;
+                }
+            }
+            content += '</ul>';
+
+            // 将生成的内容插入到页面中
+            systemInfoText.innerHTML = content;
+        }).fail(function () {
+            systemInfoText.innerHTML = `无法获取${side}信息，请稍后再试。`;
         });
     }
 
@@ -641,6 +637,95 @@ $(document).ready(function () {
 
     }
 
+    // 获取固件列表
+    function getFirmwareList() {
+        $.get('/upgrade/list', function (data) {
+            if (data.firmwares.length > 0) {
+                var html = '<ul class="list-group">';
+                data.firmwares.forEach(function (firmware) {
+                    html += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${firmware}
+                        <div>
+                            <button class="btn btn-warning btn-sm deleteBtn" data-firmware="${firmware}">删除</button>
+                            <button class="btn btn-info btn-sm sendBtn" data-firmware="${firmware}">上传</button>
+                            <button class="btn btn-danger btn-sm upgradeBtn" data-firmware="${firmware}">刷写</button>
+                        </div>
+                    </li>
+                    `;
+                });
+                html += '</ul>';
+                $('#firmwareList').html(html);
+                listenFirmwareOperate();
+            } else {
+                $('#firmwareList').html('<div class="alert alert-info">没有可用固件，请先上传固件到GS。</div>');
+            }
+        });
+    }
+
+    // 上传固件
+    function uploadFirmware() {
+        var formData = new FormData($('#firmwareUploadForm')[0]);
+        $.ajax({
+            url: '/upgrade/upload',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                $('#firmwareUpgradeStatus').html('<div class="alert alert-success">上传成功: ' + response.message + '</div>');
+                getFirmwareList();
+            },
+            error: function () {
+                $('#firmwareUpgradeStatus').html('<div class="alert alert-danger">上传失败，请重试。</div>');
+            }
+        });
+    }
+
+    // 执行固件操作
+    function listenFirmwareOperate() {
+        // 刷写固件
+        $('#firmwareList').off('click', '.upgradeBtn').on('click', '.upgradeBtn', function () {
+            $('#firmwareUpgradeStatus').html('<div class="alert alert-success ">正在执行升级，请耐心等待!</div>');
+            var firmware = $(this).data('firmware');
+            $.post('/upgrade/execute', { firmware: firmware }, function (response) {
+                $('#firmwareUpgradeStatus').html(`<div class="alert alert-success ">${response.message}</div>`);
+            }).fail(function () {
+                $('#firmwareUpgradeStatus').html('<div class="alert alert-danger">升级失败，请重试。</div>');
+            });
+        });
+
+        // 发送固件
+        $('#firmwareList').off('click', '.sendBtn').on('click', '.sendBtn', function () {
+            $('#firmwareUpgradeStatus').html('<div class="alert alert-info ">正在上传，请耐心等待（可能非常慢 ~50KB/s）!</div>');
+            var firmware = $(this).data('firmware');
+            $.post('/upgrade/send', { firmware: firmware }, function (response) {
+                $('#firmwareUpgradeStatus').html(`<div class="alert alert-success">${response.message}</div>`);
+            }).fail(function () {
+                $('#firmwareUpgradeStatus').html('<div class="alert alert-danger">发送失败，请重试。</div>');
+            });
+        });
+
+        // 删除固件
+        $('#firmwareList').off('click', '.deleteBtn').on('click', '.deleteBtn', function () {
+            var firmware = $(this).data('firmware');
+            if (confirm(`确定删除固件文件 "${firmware}" 吗？`)) {
+                $.ajax({
+                    url: '/upgrade/delete',
+                    type: 'POST',
+                    data: { firmware: firmware },
+                    success: function (response) {
+                        $('#firmwareUpgradeStatus').html(`<div class="alert alert-success">删除成功: ${response.message}</div>`);
+                        getFirmwareList(); // 删除后刷新页面
+                    },
+                    error: function () {
+                        $('#firmwareUpgradeStatus').html('<div class="alert alert-danger">删除失败，请重试。</div>');
+                        // alert('删除失败，请重试');
+                    }
+                });
+            }
+        });
+    }
 
     loadGSConfig();  // 初始化页面时加载 GS 配置
     loadDroneConfig("wfb");  // 初始化页面时加载 Drone wfb 配置
@@ -648,19 +733,21 @@ $(document).ready(function () {
     loadVideoFiles();  // 加载DVR文件列表
     loadCurrentWfbKey();  // 加载当前使用的key
     loadWfbKeyConfig();  // 加载wfb key pair
-    loadSystenInfo("gs");  // 加载 GS 系统信息
-    loadSystenInfo("drone");  // 加载 Drone 系统信息
+    loadSystemInfo("gs");  // 加载 GS 系统信息
+    loadSystemInfo("drone");  // 加载 Drone 系统信息
     getAvailableNics(); // 获取可用于ACS的网卡
+    getFirmwareList();  // 加载固件列表
 
     listenToButtons();  // 监听WEB按钮（代替物理按钮）
     listenToDroneSettingButtons();  // 监听Drone 快捷设置按钮
 
     // document.getElementById('refreshDvrFiles').addEventListener('click', loadVideoFiles);
     document.getElementById('refreshDvrFiles').onclick = loadVideoFiles;  // 点击 DVR管理 标题刷新DVR文件列表
-    document.getElementById('refreshGsSystemInfo').onclick = function() { loadSystenInfo("gs"); };  // 点击 GS信息 标题刷新信息
-    document.getElementById('refreshDroneSystemInfo').onclick = function() { loadSystenInfo("drone"); };  // 点击 Drine信息 标题刷新信息
+    document.getElementById('refreshGsSystemInfo').onclick = function () { loadSystemInfo("gs"); };  // 点击 GS信息 标题刷新信息
+    document.getElementById('refreshDroneSystemInfo').onclick = function () { loadSystemInfo("drone"); };  // 点击 Drine信息 标题刷新信息
     document.getElementById('refreshAcsInfo').onclick = getAvailableNics;  // 点击 ACS 标题刷新ACS信息
     document.getElementById('refreshCurrentWfbKey').onclick = loadCurrentWfbKey; // 点击 wfb key配置 标题重载当前key
+    document.getElementById('firmwareUploadBtn').onclick = uploadFirmware; // 点击 wfb key配置 标题重载当前key
 
     // 加载 gs 配置
     $("#reload-button-gs").on("click", function () {

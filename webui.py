@@ -317,7 +317,7 @@ class SSHClient:
         if self.close_timer:
             self.close_timer.cancel()
 
-        self.close_timer = threading.Timer(300, self.close)  # 5分钟后自动关闭
+        self.close_timer = threading.Timer(1000, self.close)  # 5分钟后自动关闭
         self.close_timer.start()
 
     def close(self):
@@ -354,7 +354,6 @@ def home():
     server_host = request.headers.get("host")
     server_ip = server_host.split(":")[0]
     # 获取地面站配置文件列表
-    script_dir = Path(__file__).resolve().parent
     gs_config_files_path = config_info["gs_config"]["gs_config_files"]
     for i in range(len(gs_config_files_path)):
         path = gs_config_files_path[i]
@@ -842,7 +841,81 @@ def wifi_acs(wnic):
         return jsonify(acs_result)
 
 
+# 上传和升级操作
+@app.route("/upgrade/<operate>", methods=["GET", "POST"])
+def upgrade_firmware(operate):
+    # 设置上传文件夹
+    firmware_dir = os.path.join(script_dir, 'firmware')
+    if not os.path.exists(firmware_dir):
+        os.makedirs(firmware_dir)
+    # 允许的文件类型
+    ALLOWED_EXTENSIONS = {'tgz', 'tar.gz'}
+    def allowed_file(filename):
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    if operate == 'list':
+        # 列出固件
+        firmwares = []
+        for filename in os.listdir(firmware_dir):
+            if allowed_file(filename):
+                firmwares.append(filename)
+        return jsonify({'firmwares': firmwares})
+    elif operate == 'upload' and request.method == "POST":
+        # 上传固件
+        if 'firmware' in request.files:
+            file = request.files['firmware']
+            filename = file.filename
+            file.save(os.path.join(firmware_dir, filename))
+            return jsonify({'message': f'固件 {filename} 上传成功'}), 200
+        else:
+            return jsonify({'message': '没有选择固件'}), 400
+    elif operate == 'delete' and request.method == "POST":
+        firmware = request.form.get('firmware')
+        if not firmware:
+            return jsonify({'message': '没有指定固件文件'}), 400
+        firmware_path = os.path.join(firmware_dir, firmware)
+        if not os.path.exists(firmware_path):
+            return jsonify({'message': '固件文件不存在'}), 400
+        try:
+            os.remove(firmware_path)
+            return jsonify({'message': f'固件 {firmware} 删除成功'}), 200
+        except Exception as e:
+            return jsonify({'message': f'删除失败: {str(e)}'}), 500
+    elif operate == 'send' and request.method == "POST":
+        # 发送固件到Drone
+        firmware = request.form.get('firmware')
+        firmware_path = os.path.join(firmware_dir, firmware)
+        try:
+            ssh.connect()
+            print("Kill majestic")
+            ssh.execute_command('[ -n "$(pidof majestic)" ] && killall majestic')
+            print(f"uploading {firmware}...")
+            ssh.upload_file(firmware_path, f"/tmp/{firmware}")
+            return jsonify({'message': '固件发送成功'}), 200
+        except Exception as e:
+            return jsonify({'message': f'固件发送失败: {str(e)}'}), 500
+    elif operate == 'execute' and request.method == "POST":
+        # 升级固件
+        firmware = request.form.get('firmware')
+        firmware_path = os.path.join(firmware_dir, firmware)
+        try:
+            firmware_gs_md5 = subprocess.run(f"md5sum {firmware_path} | cut -d \  -f 1", shell=True, capture_output=True, text=True).stdout
+            firmware_drone_md5 = ssh.execute_command(f"[ -f /tmp/{firmware} ] && md5sum /tmp/{firmware} | cut -d \  -f 1 || echo FileNotFound")
+            if firmware_gs_md5 == firmware_drone_md5:
+                upgrade_command = f"gzip -d /tmp/{firmware} -c | tar xf - -C /tmp && soc=$(fw_printenv -n soc) && sysupgrade --kernel=/tmp/uImage.$soc --rootfs=/tmp/rootfs.squashfs.$soc -n &"
+                print(f"正在升级固件: {upgrade_command}")
+                ssh.execute_command(upgrade_command)
+                return jsonify({'message': '固件升级指令发送成功，请等待升级完成。'}), 200
+            else:
+                return jsonify({'message': '固件未上传或校验未通过，请重新上传firmware！'}), 200
+        except Exception as e:
+            return jsonify({'message': f'升级失败: {str(e)}'}), 500
+    else:
+        return jsonify({'message': '无效的操作'}), 400
+
+
 if __name__ == "__main__":
+    script_dir = Path(__file__).resolve().parent
     config_info_file = "settings_webui.yaml"
     config_info = load_yaml_config(config_info_file)
     ssh = SSHClient(config_info["drone_config"]["ssh"])
