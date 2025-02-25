@@ -43,6 +43,7 @@
                     <li><a class="dropdown-item" href="#gs-systeminfo" data-bs-toggle="tab">GS 信息</a></li>
                     <li><a class="dropdown-item" href="#drone-systeminfo" data-bs-toggle="tab">Drone 信息</a></li>
                     <li><a class="dropdown-item" href="#firmware-upgrade" data-bs-toggle="tab">固件升级</a></li>
+                    <li><a class="dropdown-item" href="#rescue-drone" data-bs-toggle="tab">救砖模式</a></li>
                     <li><a class="dropdown-item" href="#about" data-bs-toggle="tab">关于</a></li>
                 </ul>
             </li>
@@ -58,9 +59,11 @@
                 <div class="row g-3">
                     <!-- 根据配置文件自动生成按钮 -->
                     {% for function, value in button_enabled[side].items() %}
-                    <div class="col-12 col-md-4">
-                        <button type="button" class="btn btn-{{ value.color }} w-100" id="{{ side }}_btn_{{ function }}">{{ function }}</button>
-                    </div>
+                        {% if 'visible' not in value or value['visible'] == true %}
+                        <div class="col-12 col-md-4">
+                            <button type="button" class="btn btn-{{ value.color }} w-100" id="{{ side }}_btn_{{ function }}">{{ function }}</button>
+                        </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
                 {% endfor %}
@@ -269,7 +272,7 @@
 
             <!-- 固件升级 -->
             <div class="tab-pane fade" id="firmware-upgrade" role="tabpanel" aria-labelledby="firmware-upgrade-tab">
-                <h3 id="xxxx" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">固件上传与升级</h3>
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">固件上传与升级</h3>
                 <div id="firmwareList" class="mt-3"><!-- 固件列表展示 --></div>
                 <div class="d-flex justify-content-center align-items-center mt-3">
                     <div id="firmwareUpgradeText" class="d-flex align-items-center my-4 gap-2">
@@ -285,6 +288,38 @@
                     </div>
                 </div>
                 <div id="firmwareUpgradeStatus" class="mt-3"><!-- 升级结果展示 --></div>
+            </div>
+
+            <!-- 救砖模式 -->
+            <div class="tab-pane fade" id="rescue-drone" role="tabpanel" aria-labelledby="rescue-drone-tab">
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">Drone 救砖模式（TFTP + TTL）</h3>
+                <div class="d-flex justify-content-center align-items-center h-100">
+                    <pre>
+步骤：
+1、从官网下载完整bin固件，上传至GS。
+2、将摄像头串口连接至radxa zero3的串口UART3（PIN3->RX, PIN5->TX, PIN9->GND）
+3、将摄像头网线连接至radxa zero3的网卡或USB网卡网口
+4、启动救砖服务，会打开TFTP服务器和串口web控制台
+5、在串口控制台按住回车，摄像头上电，直到进入uboot控制台
+6、依次逐行执行下面的命令
+   ## Enter commands line by line! Do not copy and paste multiple lines at once!
+    * setenv ipaddr 192.168.1.10; setenv serverip 192.168.1.20
+    * mw.b 0x21000000 0xff 0x800000
+    * tftpboot 0x21000000 firmware.bin
+    * sf probe 0; sf lock 0;
+    * sf erase 0x0 0x800000; sf write 0x21000000 0x0 0x800000
+    * reset</pre>
+                </div>
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-primary" id="uploadRescueFirmwareBtn">上传救砖固件</button>
+                    <button type="button" class="btn btn-success" id="startRescueServiceBtn">启动救砖服务</button>
+                    <button type="button" class="btn btn-warning" id="stopRescueServiceBtn">停止救砖服务</button>
+                    <a href="http://{{ server_ip }}:83" target="_blank">
+                        <button type="button" class="btn btn-info" id="openRescueTerminalBtn">打开救砖终端</button>
+                    </a>
+                </div>
+                <input type="file" id="rescueFirmwareInput" style="display: none;" accept=".bin">
+                <div id="rescueServiceStatus" class="mt-3"><!-- 救砖服务状态展示 --></div>
             </div>
 
             <!-- 关于 -->
