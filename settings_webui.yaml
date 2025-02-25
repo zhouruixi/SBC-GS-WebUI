@@ -36,9 +36,18 @@ gs_config:
     reboot_gs:
       color: danger
       command: '/gs/button.sh reboot_gs'
+    start_rescue:
+      visible: false
+      color: info
+      command: 'systemctl start tftpd-hpa && systemd-run --unit=webuart /usr/local/bin/ttyd -p 83 -W minicom -D /dev/ttyS3 -b 115200'
+    stop_rescue:
+      visible: false
+      color: info
+      command: 'systemctl stop tftpd-hpa && systemctl stop webuart'
     # test_gs:
-      # color: primary
-      # command: 'echo test_gs'
+    #   visible: true
+    #   color: primary
+    #   command: 'echo test_gs'
   systeminfo:
     current_screen_mode: 'drm_info | grep -oP "Mode: \K.*"'
     # current_screen_mode: 'drm_info -j /dev/dri/card0 | jq -r ".\"\/dev\/dri\/card0\".crtcs[0].mode.name + \"@\" + (.\"\/dev\/dri\/card0\".crtcs[0].mode.vrefresh | tostring)"'

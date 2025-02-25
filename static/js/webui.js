@@ -727,6 +727,29 @@ $(document).ready(function () {
         });
     }
 
+    // 上传救砖固件
+    function uploadRescueFirmware() {
+        // 当选择文件后，提交文件
+        $('#rescueFirmwareInput').change(function () {
+            var formData = new FormData();
+            formData.append('firmware', $('#rescueFirmwareInput')[0].files[0]);
+            $.ajax({
+                url: '/upgrade/upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#rescueServiceStatus').html('<div class="alert alert-success">上传成功。</div>');
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "上传失败";
+                    $('#rescueServiceStatus').html(`<div class="alert alert-danger">上传失败，请重试。${errorMessage}</div>`);
+                }
+            });
+        });
+    }
+
     loadGSConfig();  // 初始化页面时加载 GS 配置
     loadDroneConfig("wfb");  // 初始化页面时加载 Drone wfb 配置
     loadDroneConfig("majestic");  // 初始化页面时加载 Drone majestic 配置
@@ -737,6 +760,7 @@ $(document).ready(function () {
     loadSystemInfo("drone");  // 加载 Drone 系统信息
     getAvailableNics(); // 获取可用于ACS的网卡
     getFirmwareList();  // 加载固件列表
+    uploadRescueFirmware(); //监听救砖固件上传
 
     listenToButtons();  // 监听WEB按钮（代替物理按钮）
     listenToDroneSettingButtons();  // 监听Drone 快捷设置按钮
@@ -791,11 +815,29 @@ $(document).ready(function () {
         sendButtonFunctionToBackend("drone_btn_restart_majestic");
     });
 
+    // 启动救砖服务
+    $("#startRescueServiceBtn").on("click", function () {
+        sendButtonFunctionToBackend("gs_btn_start_rescue");
+        setTimeout(function() {
+            $('#openRescueTerminalBtn').click();
+        }, 1500);
+    });
+
+    // 停止救砖服务
+    $("#stopRescueServiceBtn").on("click", function () {
+        sendButtonFunctionToBackend("gs_btn_stop_rescue");
+    });
+
     // 监听标签页切换事件
     $('#myTab a').on('shown.bs.tab', function (e) {
         if ($(e.target).attr('id') === 'droneconfig-tab') {
             loadGSConfig();
         }
+    });
+
+    // 按下"上传救砖固件"按钮，触发文件选择框
+    $('#uploadRescueFirmwareBtn').click(function () {
+        $('#rescueFirmwareInput').click();
     });
 
     // 监听模态框关闭事件，停止视频播放
