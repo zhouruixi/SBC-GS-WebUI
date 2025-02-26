@@ -25,7 +25,7 @@ import shutil
 import threading
 import base64
 from glob import glob
-from plotter import bp as plotter_bp
+from plotter import bp as plotter_bp, init_plotter
 
 
 config_info_file = "settings_webui.yaml"
@@ -356,7 +356,9 @@ app.config_info = config_info
 ssh = SSHClient(config_info["drone_config"]["ssh"])
 Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
 app.register_blueprint(plotter_bp)
-
+# 在应用上下文中初始化plotter模块
+with app.app_context():
+    init_plotter()
 
 @app.route("/")
 def home():

@@ -16,29 +16,47 @@ bp = Blueprint("plotter_bp", __name__, url_prefix="/plotter")
 yaml = YAML()
 yaml.width = 4096
 
-
-# Load configuration
-with open("settings_webui.yaml", "r") as file:
-    yaml_dict = yaml.load(file)
-settings = yaml_dict["gs_config"]["plotter"]
-
-# Shared Data for Visualizations
-sample_indices = deque(range(settings["max_samples"]), maxlen=settings["max_samples"])
+# 全局变量初始占位
+settings = None
+sample_indices = None
 rssi_values = {}
 snr_values = {}
-redundancy_values = deque([0] * settings["max_samples"], maxlen=settings["max_samples"])
-derivative_values = deque([0] * settings["max_samples"], maxlen=settings["max_samples"])
-fec_rec_values = deque([0] * settings["max_samples"], maxlen=settings["max_samples"])
-lost_values = deque([0] * settings["max_samples"], maxlen=settings["max_samples"])
-all_mbit_values = deque([0] * settings["max_samples"], maxlen=settings["max_samples"])
-out_mbit_values = deque([0] * settings["max_samples"], maxlen=settings["max_samples"])
+redundancy_values = None
+derivative_values = None
+fec_rec_values = None
+lost_values = None
+all_mbit_values = None
+out_mbit_values = None
 colors = {}
-log_interval = None  # Extracted from the "settings" JSON type message
-
-# Graceful Shutdown and Restart Flags
+log_interval = None
 shutdown_flag = threading.Event()
 restart_flag = threading.Event()
+listener_thread = None
 
+
+def init_plotter():
+    global settings, sample_indices, redundancy_values, derivative_values, fec_rec_values, lost_values, all_mbit_values, out_mbit_values, listener_thread
+
+    # 从 current_app 获取配置
+    settings = current_app.config_info["gs_config"]["plotter"]
+
+    # 初始化数据结构
+    max_samples = settings["max_samples"]
+    sample_indices = deque(range(max_samples), maxlen=max_samples)
+    redundancy_values = deque([0] * max_samples, maxlen=max_samples)
+    derivative_values = deque([0] * max_samples, maxlen=max_samples)
+    fec_rec_values = deque([0] * max_samples, maxlen=max_samples)
+    lost_values = deque([0] * max_samples, maxlen=max_samples)
+    all_mbit_values = deque([0] * max_samples, maxlen=max_samples)
+    out_mbit_values = deque([0] * max_samples, maxlen=max_samples)
+
+    # 启动监听线程
+    if not listener_thread or not listener_thread.is_alive():
+        listener_thread = threading.Thread(target=listen_to_stream, daemon=True)
+        listener_thread.start()
+    # 设置信号处理
+    signal.signal(signal.SIGINT, shutdown_signal_handler)
+    signal.signal(signal.SIGTERM, shutdown_signal_handler)
 
 @bp.route('/')
 def index():
@@ -171,7 +189,7 @@ def get_random_color():
 
 
 def listen_to_stream():
-    global rssi_values, snr_values, redundancy_values, derivative_values, fec_rec_values, lost_values, all_mbit_values, out_mbit_values, colors, log_interval
+    global settings, rssi_values, snr_values, redundancy_values, derivative_values, fec_rec_values, lost_values, all_mbit_values, out_mbit_values, colors, log_interval
 
     while not shutdown_flag.is_set():
         if restart_flag.is_set():
@@ -275,9 +293,3 @@ def shutdown_signal_handler(signal_number, frame):
     print("Graceful shutdown initiated.")
     shutdown_flag.set()
     sys.exit(0)
-
-
-
-signal.signal(signal.SIGINT, shutdown_signal_handler)
-signal.signal(signal.SIGTERM, shutdown_signal_handler)
-threading.Thread(target=listen_to_stream, daemon=True).start()
