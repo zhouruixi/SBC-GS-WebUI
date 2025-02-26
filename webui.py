@@ -347,11 +347,14 @@ app.config_info = config_info
 ssh = SSHClient(config_info["drone_config"]["ssh"])
 Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
 config_drone = None
-ssh.connect()
 app.register_blueprint(plotter_bp)
 # 在应用上下文中初始化plotter模块
 with app.app_context():
     init_plotter()
+try:
+    ssh.connect()
+except Exception as e:
+    print(f"连接drone失败: {str(e)}")
 
 @app.route("/")
 def home():
