@@ -107,7 +107,6 @@ class SSHClient:
     def __init__(self, host_conf):
         """
         初始化 SSH 客户端
-
         Args:
             host_conf (dict): 包含连接信息的字典，必须包含以下键:
                 - host: 主机地址
@@ -128,7 +127,6 @@ class SSHClient:
     def _is_connection_active(self):
         """
         检查 SSH 连接是否处于活动状态
-
         Returns:
             bool: 连接是否活动
         """
@@ -141,7 +139,6 @@ class SSHClient:
     def connect(self):
         """
         建立 SSH 连接，如果已经存在活动连接则不会重新连接
-
         Raises:
             paramiko.ssh_exception.NoValidConnectionsError: 无法连接到目标主机
             paramiko.AuthenticationException: 认证失败
@@ -205,13 +202,10 @@ class SSHClient:
     def execute_command(self, command):
         """
         执行 SSH 命令
-
         Args:
             command (str): 要执行的命令
-
         Returns:
             str: 命令执行的输出
-
         Raises:
             ValueError: SSH 连接未建立
             Exception: 命令执行错误
@@ -236,11 +230,9 @@ class SSHClient:
     def download_file(self, remote_path, local_path):
         """
         从远程服务器下载文件
-
         Args:
             remote_path (str): 远程文件路径
             local_path (str): 本地保存路径
-
         Raises:
             ValueError: 本地目录不存在
             Exception: 下载失败
@@ -258,19 +250,20 @@ class SSHClient:
         while retry_count < self.max_retries:
             try:
                 with SCPClient(self.client.get_transport()) as scp:
+                    print(f"Download from {remote_path} to {local_path}...")
                     scp.get(remote_path, local_path)
-                    print(f"File downloaded from {remote_path} to {local_path}.")
+                    print(f"Download {remote_path} sucess.")
                     break
             except Exception as e:
                 retry_count += 1
                 if retry_count < self.max_retries:
                     print(
-                        f"Download failed, attempting retry {retry_count}/{self.max_retries}..."
+                        f"Download {remote_path} failed, attempting retry {retry_count}/{self.max_retries}..."
                     )
                     time.sleep(self.retry_delay)
                     self.connect()  # 重新连接
                 else:
-                    print(f"Failed to download file after {self.max_retries} attempts.")
+                    print(f"Failed to download {remote_path} after {self.max_retries} attempts.")
                     raise
 
         self.last_activity_time = time.time()
@@ -279,11 +272,9 @@ class SSHClient:
     def upload_file(self, local_path, remote_path):
         """
         上传文件到远程服务器
-
         Args:
             local_path (str): 本地文件路径
             remote_path (str): 远程保存路径
-
         Raises:
             FileNotFoundError: 本地文件不存在
             Exception: 上传失败
@@ -355,6 +346,8 @@ app.config_info_file = config_info_file
 app.config_info = config_info
 ssh = SSHClient(config_info["drone_config"]["ssh"])
 Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
+config_drone = None
+ssh.connect()
 app.register_blueprint(plotter_bp)
 # 在应用上下文中初始化plotter模块
 with app.app_context():
@@ -404,7 +397,6 @@ def save_gs_config(filename):
         # global config_gs
         # 保存前先获取配置文件最新内容
         config_gs = load_config(config_info, "gs", filename)
-
         # 设置新的保存路径
         # config_file = config_info["gs_config"]["gs"]["path"] + ".new"
         # config_gs.filename = config_file
@@ -440,22 +432,14 @@ def save_gs_config(filename):
 
 @app.route("/load_drone_config/<filename>", methods=["GET"])
 def load_drone_config(filename):
-    # global config_drone
-    # 从文件载入配置
-    # config_file = config_info["drone_config"][filename]["path"]
-    # config_drone = load_yaml_config(config_file)
-    # print(f"【Load】{config_drone}")
-
+    global config_drone
+    config_drone_dir = os.path.join(script_dir, "drone_config")
+    os.makedirs(config_drone_dir, exist_ok=True)
     config_file_remote = config_info["drone_config"][filename]["path"]
     config_file_local = f"drone_files/{os.path.basename(config_file_remote)}"
-    # print(config_file_remote)
-    # print(config_file_local)
     try:
         ssh.connect()
-        print("Downloading file...")
         ssh.download_file(config_file_remote, config_file_local)
-        print("File downloaded successfully.")
-
         config_drone = load_yaml_config(config_file_local)
         return jsonify(config_drone)
     except EOFError as e:
@@ -474,11 +458,9 @@ def load_drone_config(filename):
 
 @app.route("/save_drone_config/<filename>", methods=["POST"])
 def save_drone_config(filename):
-    # global config_drone
-    config_drone = load_yaml_config(f"drone_files/{filename}.yaml")
-
-    # config_file = config_info["drone_config"][filename]["path"]
-    # config_drone = load_yaml_config(config_file)
+    global config_drone
+    if not config_drone:
+        return jsonify({"success": False, "message": "请先获取配置"})
     config_drone_old = {}
     for file, content in config_drone.items():
         for k, v in content.items():
@@ -859,8 +841,7 @@ def wifi_acs(wnic):
 def upgrade_firmware(operate):
     # 设置上传文件夹
     firmware_dir = os.path.join(script_dir, 'firmware')
-    if not os.path.exists(firmware_dir):
-        os.makedirs(firmware_dir)
+    os.makedirs(firmware_dir, exist_ok=True)
     # 允许的文件类型
     ALLOWED_EXTENSIONS = {'tgz', 'tar.gz'}
     def allowed_file(filename):
