@@ -25,8 +25,13 @@ import shutil
 import threading
 import base64
 from glob import glob
+from plotter import bp as plotter_bp
 
 
+config_info_file = "settings_webui.yaml"
+MANAGER_FOLDER = "/config"
+# os.makedirs(MANAGER_FOLDER, exist_ok=True)
+script_dir = Path(__file__).resolve().parent
 yaml = YAML()
 yaml.width = 4096
 
@@ -343,8 +348,14 @@ def format_size(size):
     return f"{size:.2f} TB"
 
 
+config_info = load_yaml_config(config_info_file)
 app = Flask(__name__)
 app.json.sort_keys = False  # 禁用 jsonify 自动排序
+app.config_info_file = config_info_file
+app.config_info = config_info
+ssh = SSHClient(config_info["drone_config"]["ssh"])
+Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
+app.register_blueprint(plotter_bp)
 
 
 @app.route("/")
@@ -915,11 +926,4 @@ def upgrade_firmware(operate):
 
 
 if __name__ == "__main__":
-    script_dir = Path(__file__).resolve().parent
-    config_info_file = "settings_webui.yaml"
-    config_info = load_yaml_config(config_info_file)
-    ssh = SSHClient(config_info["drone_config"]["ssh"])
-    Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
-    MANAGER_FOLDER = "/config"
-    # os.makedirs(MANAGER_FOLDER, exist_ok=True)
     app.run(host="0.0.0.0", port=80, debug=True)
