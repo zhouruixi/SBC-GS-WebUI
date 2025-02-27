@@ -436,8 +436,8 @@ def save_gs_config(filename):
 @app.route("/load_drone_config/<filename>", methods=["GET"])
 def load_drone_config(filename):
     global config_drone
-    config_drone_dir = os.path.join(script_dir, "drone_config")
-    os.makedirs(config_drone_dir, exist_ok=True)
+    drone_files_dir = os.path.join(script_dir, "drone_files")
+    os.makedirs(drone_files_dir, exist_ok=True)
     config_file_remote = config_info["drone_config"][filename]["path"]
     config_file_local = f"drone_files/{os.path.basename(config_file_remote)}"
     try:
