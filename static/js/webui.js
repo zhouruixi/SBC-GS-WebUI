@@ -513,12 +513,14 @@ $(document).ready(function () {
         });
     }
 
+    // 点击预览后显示内容到模态框
     function previewVideoFile(filename) {
         const fileUrl = `/download_video/${encodeURIComponent(filename)}`;
         const modal = new bootstrap.Modal(document.getElementById('previewModal'));
         const img = document.getElementById('previewImage');
         const video = document.getElementById('previewVideo');
         const videoSource = document.getElementById('previewVideoSource');
+        $('#previewModalLabel').text(`正在预览: ${filename}`);
 
         img.classList.add('d-none');
         video.classList.add('d-none');
