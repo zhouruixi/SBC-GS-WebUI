@@ -820,6 +820,8 @@ $(document).ready(function () {
     // 启动救砖服务
     $("#startRescueServiceBtn").on("click", function () {
         sendButtonFunctionToBackend("gs_btn_start_rescue");
+	$(this).hide();
+	$("#stopRescueServiceBtn").show();
         setTimeout(function() {
             $('#openRescueTerminalBtn').click();
         }, 1500);
@@ -828,6 +830,8 @@ $(document).ready(function () {
     // 停止救砖服务
     $("#stopRescueServiceBtn").on("click", function () {
         sendButtonFunctionToBackend("gs_btn_stop_rescue");
+	$(this).hide();
+	$("#startRescueServiceBtn").show();
     });
 
     // 监听标签页切换事件
