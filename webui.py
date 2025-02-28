@@ -899,7 +899,7 @@ def upgrade_firmware(operate):
             firmware_gs_md5 = subprocess.run(f"md5sum {firmware_path} | cut -d \  -f 1", shell=True, capture_output=True, text=True).stdout
             firmware_drone_md5 = ssh.execute_command(f"[ -f /tmp/{firmware} ] && md5sum /tmp/{firmware} | cut -d \  -f 1 || echo FileNotFound")
             if firmware_gs_md5 == firmware_drone_md5:
-                upgrade_command = f"gzip -d /tmp/{firmware} -c | tar xf - -C /tmp && soc=$(fw_printenv -n soc) && sysupgrade --kernel=/tmp/uImage.$soc --rootfs=/tmp/rootfs.squashfs.$soc -n &"
+                upgrade_command = f"gzip -d /tmp/{firmware} -c | tar xf - -C /tmp && soc=$(fw_printenv -n soc) && sysupgrade --kernel=/tmp/uImage.$soc --rootfs=/tmp/rootfs.squashfs.$soc -n"
                 print(f"正在升级固件: {upgrade_command}")
                 ssh.execute_command(upgrade_command)
                 return jsonify({'message': '固件升级指令发送成功，请等待升级完成。'}), 200
