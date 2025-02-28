@@ -39,7 +39,7 @@ gs_config:
     start_rescue:
       visible: false
       color: info
-      command: 'systemctl start tftpd-hpa && systemd-run --unit=webuart /usr/local/bin/ttyd -p 83 -W minicom -D /dev/ttyS3 -b 115200'
+      command: 'systemctl start tftpd-hpa && systemd-run --unit=webuart /usr/local/bin/ttyd -p 83 -W picocom -b 115200 -l /dev/ttyS3'
     stop_rescue:
       visible: false
       color: info
