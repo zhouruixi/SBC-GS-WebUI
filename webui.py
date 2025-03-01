@@ -18,18 +18,17 @@ import os
 import subprocess
 import paramiko
 from scp import SCPClient
-import mimetypes
 import time
 from pathlib import Path
 import shutil
 import threading
 import base64
 from glob import glob
-from plotter import bp as plotter_bp, init_plotter
+from filemanager import bp as filemanager_bp
+from plotter import bp as plotter_bp
 
 
 config_info_file = "settings_webui.yaml"
-MANAGER_FOLDER = "/config"
 # os.makedirs(MANAGER_FOLDER, exist_ok=True)
 script_dir = Path(__file__).resolve().parent
 yaml = YAML()
@@ -342,15 +341,14 @@ def format_size(size):
 config_info = load_yaml_config(config_info_file)
 app = Flask(__name__)
 app.json.sort_keys = False  # 禁用 jsonify 自动排序
-app.config_info_file = config_info_file
-app.config_info = config_info
+app.config['plotter'] = config_info["gs_config"]["plotter"]
+app.config['MANAGER_FOLDER'] = "/config"
 ssh = SSHClient(config_info["drone_config"]["ssh"])
 Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
 config_drone = None
+app.register_blueprint(filemanager_bp)
 app.register_blueprint(plotter_bp)
-# 在应用上下文中初始化plotter模块
-with app.app_context():
-    init_plotter()
+
 try:
     ssh.connect()
 except Exception as e:
@@ -554,94 +552,6 @@ def exec_button_function():
             return jsonify({"success": True, "message": "命令已执行！"})
         except Exception as e:
             return jsonify({"success": False, "message": str(e)})
-
-
-@app.route("/filemanager/")
-@app.route("/filemanager/<path:subpath>")
-def index(subpath=""):
-    base_path = os.path.join(MANAGER_FOLDER, subpath)
-    if not os.path.exists(base_path):
-        return redirect("/")
-
-    files = []
-    for item in os.listdir(base_path):
-        full_path = os.path.join(base_path, item)
-        is_dir = os.path.isdir(full_path)
-        rel_path = os.path.join(subpath, item) if subpath else item
-        file_size = os.path.getsize(full_path) if not is_dir else 0
-        file_type, _ = mimetypes.guess_type(full_path)
-        file_type = file_type if file_type else "Unknown"
-        created_time = time.strftime(
-            "%Y-%m-%d %H:%M:%S", time.localtime(os.path.getctime(full_path))
-        )
-
-        item_info = {
-            "name": item,
-            "path": rel_path,
-            "is_dir": is_dir,
-            "size": format_size(file_size),
-            "type": "Folder" if is_dir else file_type,
-            "created": created_time,
-        }
-        files.append(item_info)
-
-    # 生成面包屑导航
-    breadcrumb = [{"name": "Home", "path": "filemanager"}]
-    path_parts = subpath.split("/") if subpath else []
-    cumulative_path = "filemanager"
-    for part in path_parts:
-        cumulative_path = os.path.join(cumulative_path, part)
-        breadcrumb.append({"name": part, "path": cumulative_path})
-
-    return render_template(
-        "filemanager.html",
-        files=files,
-        current_path=subpath,
-        parent_path=os.path.dirname(subpath),
-        breadcrumb=breadcrumb,
-    )
-
-
-@app.route("/upload", methods=["POST"])
-def upload_file():
-    file = request.files["file"]
-    subpath = request.form.get("current_path", "")
-    if file:
-        save_path = os.path.join(MANAGER_FOLDER, subpath, file.filename)
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        file.save(save_path)
-    return redirect(url_for("index", subpath=subpath))
-
-
-@app.route("/create_folder", methods=["POST"])
-def create_folder():
-    folder_name = request.form["folder_name"]
-    subpath = request.form.get("current_path", "")
-    new_folder = os.path.join(MANAGER_FOLDER, subpath, folder_name)
-    os.makedirs(new_folder, exist_ok=True)
-    return redirect(url_for("index", subpath=subpath))
-
-
-@app.route("/delete/<path:filepath>")
-def delete_file(filepath):
-    full_path = os.path.join(MANAGER_FOLDER, filepath)
-    parent_dir = os.path.dirname(filepath)
-    if os.path.isdir(full_path):
-        shutil.rmtree(full_path)
-    else:
-        os.remove(full_path)
-    return redirect(url_for("index", subpath=parent_dir))
-
-
-@app.route("/download/<path:filepath>")
-def download_file(filepath):
-    return send_from_directory(MANAGER_FOLDER, filepath, as_attachment=True)
-
-
-@app.route("/preview/<path:filepath>")
-def preview_file(filepath):
-    """支持图片和视频预览"""
-    return send_from_directory(MANAGER_FOLDER, filepath)
 
 
 # 下载配置文件

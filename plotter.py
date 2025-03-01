@@ -1,20 +1,19 @@
 #!/usr/bin/python3
 
-from flask import Blueprint, current_app, Flask, render_template, request, jsonify, redirect, url_for, send_file, Response
+from flask import Blueprint, current_app, render_template, jsonify, redirect, url_for, send_file, Response
 import threading
 import socket
 import json
 import time
 import signal
 from collections import deque
-import os
 import sys
 from ruamel.yaml import YAML
 
-
-bp = Blueprint("plotter_bp", __name__, url_prefix="/plotter")
 yaml = YAML()
 yaml.width = 4096
+
+bp = Blueprint("plotter", __name__, url_prefix="/plotter")
 
 # 全局变量初始占位
 settings = None
@@ -34,11 +33,12 @@ restart_flag = threading.Event()
 listener_thread = None
 
 
-def init_plotter():
+@bp.route('/')
+def index():
     global settings, sample_indices, redundancy_values, derivative_values, fec_rec_values, lost_values, all_mbit_values, out_mbit_values, listener_thread
 
     # 从 current_app 获取配置
-    settings = current_app.config_info["gs_config"]["plotter"]
+    settings = current_app.config['plotter']
 
     # 初始化数据结构
     max_samples = settings["max_samples"]
@@ -54,12 +54,7 @@ def init_plotter():
     if not listener_thread or not listener_thread.is_alive():
         listener_thread = threading.Thread(target=listen_to_stream, daemon=True)
         listener_thread.start()
-    # 设置信号处理
-    signal.signal(signal.SIGINT, shutdown_signal_handler)
-    signal.signal(signal.SIGTERM, shutdown_signal_handler)
 
-@bp.route('/')
-def index():
     return render_template('plotter.html', settings=settings)
 
 
@@ -293,3 +288,7 @@ def shutdown_signal_handler(signal_number, frame):
     print("Graceful shutdown initiated.")
     shutdown_flag.set()
     sys.exit(0)
+
+# 设置信号处理
+signal.signal(signal.SIGINT, shutdown_signal_handler)
+signal.signal(signal.SIGTERM, shutdown_signal_handler)

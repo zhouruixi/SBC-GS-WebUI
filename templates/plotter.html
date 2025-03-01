@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live View</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chartjs-plugin-zoom') }}"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script> -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -54,11 +56,11 @@
 <body>
     <h1>Live Data Visualization</h1>
     <div class="controls">
-        <a href="/plotter/viewer">Viewer</a>
+        <a href="{{ url_for('plotter.viewer_page') }}">Viewer</a>
         <button id="pause">Pause</button>
         <button id="resume" style="display:none;">Resume</button>
         <button id="resetZoom">Reset Zoom</button>
-        <a href="/plotter/save">Save to File</a>
+        <a href="{{ url_for('plotter.save_data') }}">Save to File</a>
         <button id="toggleHeight">Slim</button>
     </div>
     <div class="chart-container">
@@ -195,7 +197,7 @@
 
         function fetchData() {
             if (paused) return;
-            fetch('/plotter/data')
+            fetch("{{ url_for('plotter.data') }}")
                 .then((response) => response.json())
                 .then((data) => {
                     const { rssi, snr, redundancy, derivative, fec_rec, lost, all_mbit, out_mbit, sample_indices, colors, settings } = data;

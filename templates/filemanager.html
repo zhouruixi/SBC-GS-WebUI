@@ -36,7 +36,7 @@
         <!-- 上传和创建文件夹 -->
         <div class="row mb-3">
             <div class="col">
-                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ url_for('filemanager.upload_file') }}" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="current_path" value="{{ current_path }}">
                     <div class="input-group">
                         <input type="file" class="form-control" name="file">
@@ -45,7 +45,7 @@
                 </form>
             </div>
             <div class="col">
-                <form action="{{ url_for('create_folder') }}" method="post">
+                <form action="{{ url_for('filemanager.create_folder') }}" method="post">
                     <input type="hidden" name="current_path" value="{{ current_path }}">
                     <div class="input-group">
                         <input type="text" class="form-control" name="folder_name" placeholder="新建文件夹">
@@ -71,7 +71,7 @@
                 {% if current_path %}
                 <tr>
                     <td colspan="5">
-                        <a href="/filemanager/{{ parent_path }}" class="btn btn-light">返回上一层</a>
+                        <a href="{{ url_for('filemanager.index', subpath=parent_path) }}" class="btn btn-light">返回上一层</a>
                     </td>
                 </tr>
                 {% endif %}
@@ -80,7 +80,7 @@
                 <tr>
                     <td>
                         {% if file.is_dir %}
-                        📁 <a href="/filemanager/{{ file.path }}">{{ file.name }}</a>
+                        📁 <a href="{{ url_for('filemanager.index', subpath=file.path) }}">{{ file.name }}</a>
                         {% else %}
                         📄 {{ file.name }}
                         {% endif %}
@@ -94,8 +94,8 @@
                         {% elif file.type.startswith('video') %}
                         <button class="btn btn-sm btn-info" onclick="previewFile('{{ file.path }}', 'video')">播放</button>
                         {% endif %}
-                        <a href="/download/{{ file.path }}" class="btn btn-sm btn-success">下载</a>
-                        <a href="{{ url_for('delete_file', filepath=file.path) }}" class="btn btn-sm btn-danger">删除</a>
+                        <a href="{{ url_for('filemanager.download_file', filepath=file.path) }}" class="btn btn-sm btn-success">下载</a>
+                        <a href="{{ url_for('filemanager.delete_file', filepath=file.path) }}" class="btn btn-sm btn-danger">删除</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -135,10 +135,10 @@
             videoPreview.classList.add('d-none');
 
             if (type === 'image') {
-                imagePreview.src = '/preview/' + path;
+                imagePreview.src = '/filemanager/preview/' + path;
                 imagePreview.classList.remove('d-none');
             } else if (type === 'video') {
-                videoPreview.src = '/preview/' + path;
+                videoPreview.src = '/filemanager/preview/' + path;
                 videoPreview.classList.remove('d-none');
                 videoPreview.play();
             }

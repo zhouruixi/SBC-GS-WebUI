@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Viewer</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chartjs-plugin-zoom') }}"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script> -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -72,7 +74,7 @@
     <div class="controls">
         <input type="file" id="fileInput">
         <button id="loadData">Load Data</button>
-        <a href="/plotter">Back to Live View</a>
+        <a href="{{ url_for('plotter.index') }}">Back to Live View</a>
         <button id="resetZoom">Reset Zoom</button>
         <button id="toggleHeight">Slim</button>
     </div>
