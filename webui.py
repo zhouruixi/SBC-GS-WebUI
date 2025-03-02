@@ -19,6 +19,7 @@ import subprocess
 import paramiko
 from scp import SCPClient
 import time
+from datetime import datetime
 from pathlib import Path
 import shutil
 import threading
@@ -819,6 +820,31 @@ def upgrade_firmware(operate):
             return jsonify({'message': f'升级失败: {str(e)}'}), 500
     else:
         return jsonify({'message': '无效的操作'}), 400
+
+
+# 根据客户端设置系统时间
+@app.route('/sync-time', methods=['POST'])
+def sync_time():
+    data = request.get_json()
+    if 'time' not in data or 'timezone' not in data:
+        return jsonify({"error": "缺少参数"}), 400
+    try:
+        # 解析 ISO 8601 时间
+        client_time = datetime.fromisoformat(data['time'].replace("Z", "+00:00"))
+        formatted_time = client_time.strftime('%Y-%m-%d %H:%M:%S')
+        # 获取时区信息
+        timezone = data['timezone']
+        # 设置时间
+        subprocess.run(["date", "-u", "-s", formatted_time], check=True)
+        # 设置时区
+        subprocess.run(["timedatectl", "set-timezone", timezone], check=True)
+        subprocess.run(["fake-hwclock", "save"], check=True)
+        response = {"message": "服务器时间和时区已更新", "new_time": formatted_time, "new_timezone": timezone}
+        print("同步成功:", response)
+        return jsonify(response)
+    except Exception as e:
+        print("同步失败:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

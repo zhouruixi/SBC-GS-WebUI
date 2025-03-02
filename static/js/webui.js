@@ -752,6 +752,26 @@ $(document).ready(function () {
         });
     }
 
+    // 将客户端时间同步到SBC
+    function syncTimeToServer() {
+        let now = new Date();
+        let formattedTime = now.toISOString(); // 获取 ISO 8601 格式的时间
+        let timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; // 获取浏览器时区
+        $.ajax({
+            url: "/sync-time",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ time: formattedTime, timezone: timeZone }),
+            success: function(response) {
+                console.log("服务器时间已同步:", response);
+            },
+            error: function(error) {
+                console.error("同步失败:", error.responseText);
+            }
+        });
+    }
+
+    syncTimeToServer();  // 将客户端时间同步到SBC
     loadGSConfig();  // 初始化页面时加载 GS 配置
     loadDroneConfig("wfb");  // 初始化页面时加载 Drone wfb 配置
     loadDroneConfig("majestic");  // 初始化页面时加载 Drone majestic 配置
