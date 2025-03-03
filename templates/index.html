@@ -288,6 +288,9 @@
                     </div>
                 </div>
                 <div id="firmwareUpgradeStatus" class="mt-3"><!-- 升级结果展示 --></div>
+                <div id="log-container" class="rounded-2" style="height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #929191; display: none;">
+                    <pre id="sysupgrade-stdout"></pre>
+                </div>
             </div>
 
             <!-- 救砖模式 -->
@@ -337,6 +340,8 @@
     <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/webui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ansi_up.min.js') }}"></script>
+
 </body>
 
 </html>

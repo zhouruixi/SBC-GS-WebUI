@@ -692,9 +692,30 @@ $(document).ready(function () {
             var firmware = $(this).data('firmware');
             $.post('/upgrade/execute', { firmware: firmware }, function (response) {
                 $('#firmwareUpgradeStatus').html(`<div class="alert alert-success ">${response.message}</div>`);
+                getSysupgradeProcess();
             }).fail(function () {
                 $('#firmwareUpgradeStatus').html('<div class="alert alert-danger">升级失败，请重试。</div>');
             });
+
+            function getSysupgradeProcess() {
+                document.getElementById("log-container").style.display = "block";
+                var sysupgradeStdout = document.getElementById("sysupgrade-stdout")
+                const logContainer = document.getElementById('log-container');
+                const ansiConverter = new AnsiUp();
+                sysupgradeStdout.innerHTML = "";
+                var eventSource = new EventSource("/upgrade/progress");
+                eventSource.onmessage = function (event) {
+                    const html = ansiConverter.ansi_to_html(event.data);
+                    sysupgradeStdout.innerHTML += html + "<br>";
+                    // 自动滚动到最底部
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                };
+
+                eventSource.onerror = function () {
+                    console.log("SSE 连接关闭");
+                    eventSource.close();  // 关闭 SSE 连接，防止重复连接
+                };
+            }
         });
 
         // 发送固件
@@ -762,10 +783,10 @@ $(document).ready(function () {
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify({ time: formattedTime, timezone: timeZone }),
-            success: function(response) {
+            success: function (response) {
                 console.log("服务器时间已同步:", response);
             },
-            error: function(error) {
+            error: function (error) {
                 console.error("同步失败:", error.responseText);
             }
         });
@@ -840,9 +861,9 @@ $(document).ready(function () {
     // 启动救砖服务
     $("#startRescueServiceBtn").on("click", function () {
         sendButtonFunctionToBackend("gs_btn_start_rescue");
-	$(this).hide();
-	$("#stopRescueServiceBtn").show();
-        setTimeout(function() {
+        $(this).hide();
+        $("#stopRescueServiceBtn").show();
+        setTimeout(function () {
             $('#openRescueTerminalBtn').click();
         }, 1500);
     });
@@ -850,8 +871,8 @@ $(document).ready(function () {
     // 停止救砖服务
     $("#stopRescueServiceBtn").on("click", function () {
         sendButtonFunctionToBackend("gs_btn_stop_rescue");
-	$(this).hide();
-	$("#startRescueServiceBtn").show();
+        $(this).hide();
+        $("#startRescueServiceBtn").show();
     });
 
     // 监听标签页切换事件

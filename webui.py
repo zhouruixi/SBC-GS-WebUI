@@ -3,6 +3,7 @@
 # pip install flask configobj paramiko scp
 from flask import (
     Flask,
+    Response,
     render_template,
     request,
     redirect,
@@ -109,12 +110,12 @@ class SSHClient:
         初始化 SSH 客户端
         Args:
             host_conf (dict): 包含连接信息的字典，必须包含以下键:
-                - host: 主机地址
+                - hostname: 主机地址
                 - username: 用户名
                 - password: 密码
                 - port: 端口号
         """
-        self.host = host_conf["host"]
+        self.hostname = host_conf["hostname"]
         self.username = host_conf["username"]
         self.password = host_conf["password"]
         self.port = host_conf["port"]
@@ -146,7 +147,7 @@ class SSHClient:
             Exception: 其他连接错误
         """
         if self._is_connection_active():
-            print(f"Already connected to {self.host}. No need to reconnect.")
+            print(f"Already connected to {self.hostname}. No need to reconnect.")
             return
 
         # 如果连接不活跃，先确保关闭旧连接
@@ -166,30 +167,30 @@ class SSHClient:
         while retry_count < self.max_retries:
             try:
                 self.client.connect(
-                    self.host,
+                    self.hostname,
                     username=self.username,
                     password=self.password,
                     port=self.port,
                     timeout=2,
                 )
                 self.last_activity_time = time.time()
-                print(f"Connected to {self.host}")
+                print(f"Connected to {self.hostname}")
                 return
             except paramiko.ssh_exception.NoValidConnectionsError as e:
                 print(
-                    f"无法连接到目标主机 {self.host}, 尝试重连... (重试 {retry_count + 1}/{self.max_retries})"
+                    f"无法连接到目标主机 {self.hostname}, 尝试重连... (重试 {retry_count + 1}/{self.max_retries})"
                 )
                 last_exception = e
             except paramiko.AuthenticationException as e:
                 print(
-                    f"Authentication failed when connecting to {self.host}. Please check your username/password."
+                    f"Authentication failed when connecting to {self.hostname}. Please check your username/password."
                 )
                 raise
             except paramiko.SSHException as e:
-                print(f"SSH connection failed to {self.host}. SSH error: {str(e)}")
+                print(f"SSH connection failed to {self.hostname}. SSH error: {str(e)}")
                 last_exception = e
             except Exception as e:
-                print(f"Failed to connect to {self.host}. Error: {str(e)}")
+                print(f"Failed to connect to {self.hostname}. Error: {str(e)}")
                 last_exception = e
 
             retry_count += 1
@@ -347,6 +348,7 @@ app.config['MANAGER_FOLDER'] = "/config"
 ssh = SSHClient(config_info["drone_config"]["ssh"])
 Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
 config_drone = None
+sysupgrade_stdout = None
 app.register_blueprint(filemanager_bp)
 app.register_blueprint(plotter_bp)
 
@@ -760,6 +762,42 @@ def upgrade_firmware(operate):
     ALLOWED_EXTENSIONS = {'tgz', 'tar.gz'}
     def allowed_file(filename):
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    def execute_sysupgrade_command(command):
+        """ 执行 SSH 命令并将输出存入缓存 """
+        global sysupgrade_stdout
+        sysupgrade_stdout = []
+        # 封装的SSHClient类无法工作
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(**config_info["drone_config"]["ssh"])
+        stdin, stdout, stderr = ssh.exec_command(command, get_pty=True)
+        try:
+            buffer = ""
+            while True:
+                while stdout.channel.recv_ready():
+                    chunk = stdout.channel.recv(1)
+                    if not chunk:
+                        break
+                    decoded_char = chunk.replace(b'\r', b'\n').decode()
+                    if decoded_char == '\n':
+                        if buffer:
+                            sysupgrade_stdout.append(buffer)
+                            print(buffer)
+                            buffer = ""
+                    else:
+                        buffer += decoded_char
+                if stdout.channel.exit_status_ready():
+                    trailing_data = stdout.channel.recv(4096)
+                    while trailing_data:
+                        buffer += trailing_data.replace(b'\r', b'\n').decode()
+                        trailing_data = stdout.channel.recv(4096)
+                    if buffer:
+                        sysupgrade_stdout.append(buffer)
+                        print(buffer)
+                    break
+                time.sleep(0.1)
+        except Exception as e:
+            print(str(e))
 
     if operate == 'list':
         # 列出固件
@@ -812,12 +850,23 @@ def upgrade_firmware(operate):
             if firmware_gs_md5 == firmware_drone_md5:
                 upgrade_command = f"gzip -d /tmp/{firmware} -c | tar xf - -C /tmp && soc=$(fw_printenv -n soc) && sysupgrade --kernel=/tmp/uImage.$soc --rootfs=/tmp/rootfs.squashfs.$soc -n"
                 print(f"正在升级固件: {upgrade_command}")
-                ssh.execute_command(upgrade_command)
+                threading.Thread(target=execute_sysupgrade_command, args=(upgrade_command,)).start()  # 在新线程执行
                 return jsonify({'message': '固件升级指令发送成功，请等待升级完成。'}), 200
             else:
                 return jsonify({'message': '固件未上传或校验未通过，请重新上传firmware！'}), 200
         except Exception as e:
             return jsonify({'message': f'升级失败: {str(e)}'}), 500
+    elif operate == 'progress' and request.method == "GET":
+        def generate():
+            previous_length = 0
+            while True:
+                if sysupgrade_stdout:
+                    new_output = sysupgrade_stdout[previous_length:]  # 只获取新行
+                    for line in new_output:
+                        yield f"data: {line}\n\n"  # SSE 格式推送
+                    previous_length = len(sysupgrade_stdout)  # 更新已发送的行数
+                time.sleep(0.1)  # 限制推送频率，避免过载
+        return Response(generate(), mimetype="text/event-stream")
     else:
         return jsonify({'message': '无效的操作'}), 400
 
