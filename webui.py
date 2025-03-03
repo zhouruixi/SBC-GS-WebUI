@@ -4,6 +4,7 @@
 from flask import (
     Flask,
     Response,
+    g,
     render_template,
     request,
     redirect,
@@ -343,19 +344,27 @@ def format_size(size):
 config_info = load_yaml_config(config_info_file)
 app = Flask(__name__)
 app.json.sort_keys = False  # 禁用 jsonify 自动排序
-app.config['plotter'] = config_info["gs_config"]["plotter"]
 app.config['MANAGER_FOLDER'] = "/config"
 ssh = SSHClient(config_info["drone_config"]["ssh"])
 Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
 config_drone = None
 sysupgrade_stdout = None
-app.register_blueprint(filemanager_bp)
-app.register_blueprint(plotter_bp)
+
 
 try:
     ssh.connect()
 except Exception as e:
     print(f"连接drone失败: {str(e)}")
+
+
+@app.before_request
+def before_request():
+    g.plotter_settings = config_info["gs_config"]["plotter"]
+
+
+app.register_blueprint(filemanager_bp)
+app.register_blueprint(plotter_bp)
+
 
 @app.route("/")
 def home():

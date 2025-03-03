@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from flask import Blueprint, current_app, render_template, jsonify, redirect, url_for, send_file, Response
+from flask import Blueprint, render_template, jsonify, redirect, url_for, send_file, Response, g
 import threading
 import socket
 import json
@@ -37,8 +37,8 @@ listener_thread = None
 def index():
     global settings, sample_indices, redundancy_values, derivative_values, fec_rec_values, lost_values, all_mbit_values, out_mbit_values, listener_thread
 
-    # 从 current_app 获取配置
-    settings = current_app.config['plotter']
+    # 从全局变量获取配置
+    settings = g.plotter_settings
 
     # 初始化数据结构
     max_samples = settings["max_samples"]
