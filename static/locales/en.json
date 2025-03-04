@@ -1,0 +1,143 @@
+{
+  "common": {
+    "button": "Button",
+    "load": "Load",
+    "save": "Save",
+    "apply": "Apply",
+    "saveAndApply": "Save & Apply",
+    "cancel": "Cancel",
+    "setting": "Setting",
+    "download": "Download",
+    "delete": "Delete",
+    "upload": "Upload",
+    "preview": "Preview",
+    "fileName": "File Name",
+    "fileType": "File Type",
+    "operation": "Operation",
+    "close": "Close",
+    "loadSuccess": "Loading configuration successfully!",
+    "loadFail": "Failed to load configuration, please reload manually!",
+    "saveSuccess": "Configuration saved successfully!",
+    "saveFail": "Failed to save configuration!",
+    "applySuccess": "Apply successful!",
+    "applyFail": "Apply failed!",
+    "success": "success",
+    "fail": "fail",
+    "deleteSuccess": "Deletion successful!",
+    "deleteFail": "Deletion failed!",
+    "getInfoFail": "Failed to obtain information, please try again!",
+    "uploadSuccess": "Upload Successfully",
+    "uploadFail": "Upload failed, please try again!",
+    "confirmDelete": "Are you sure you want to delete {{filename}}?"
+  },
+  "tab": {
+    "webButton": "WEB Buttons",
+    "gsSettings": "GS Settings",
+    "droneSettings": "Drone Settings",
+    "dvr": "DVR Manager",
+    "configEditor": "Config Editor",
+    "tools": "Tools"
+  },
+  "tools": {
+    "ssh": "SSH",
+    "plotter": "Wfb Plotter",
+    "keyManager": "Key Manager",
+    "acs": "ACS",
+    "fileManager": "File Manager",
+    "gsInfo": "GS Info",
+    "droneInfo": "Drone Info",
+    "firmwareUpgrade": "Firmware Upgrade",
+    "unbrickMode": "Unbrick Mode",
+    "about": "About"
+  },
+  "webButton": {
+    "gsButton": "Ground Station Button",
+    "droneButton": "Drone Button",
+    "droneQuickSettings": "Drone Quick Settings (effective immediately)",
+    "buttonSuccess": "Button command {{buttonId}} has been sent",
+    "buttonFail": "Button command {{buttonId}} failed to send"
+  },
+  "droneSettings": {
+    "wfb": "wfb",
+    "wfbTitle": "Drone Wfb Settings",
+    "majestic": "majestic",
+    "majesticTitle": "Drone Majestic Settings"
+  },
+  "dvr": {
+    "title": "DVR Manager (Click to refresh)",
+    "fileSize": "Size",
+    "previewNow": "Preview",
+    "previewFail": "Preview failed. The file may have been deleted or the path is incorrect."
+  },
+  "configEditor": {
+    "title": "Configuration File Editor",
+    "configFile": "Config Files",
+    "edit": "Edit",
+    "backup": "Backup",
+    "editNow": "editing: {{filename}}",
+    "saveSuccess": "File saved successfully!",
+    "saveFail": "Failed to save the file!"
+  },
+  "keyManager": {
+    "title": "Wfb Key Manager (click to refresh)",
+    "clickToReload": "Loading failed, click the title to reload!",
+    "applyKey": "Apply key",
+    "uploadGsKey": "Upload gs key",
+    "downloadGsKey": "Download gs key",
+    "uploadDroneKey": "Upload drone key",
+    "downloadDroneKey": "Download drone key",
+    "randomKey": "Randomly generate keys",
+    "saveToFile": "Save to configuration file"
+  },
+  "acs": {
+    "title": "WiFi Automatic Channel Selection (click to refresh)",
+    "startScan": "Start Scan",
+    "scanTips": "Scanning has started. Please wait for the scan to complete (5~10 seconds).",
+    "getNicFail": "Failed to obtain network card information!",
+    "acsFail": "ACS scan failed!"
+  },
+  "fileManager": {
+    "uploadFile": "Upload File",
+    "newDirectory": "New Directory",
+    "create": "Create",
+    "fileName": "File Name",
+    "fileSize": "File Size",
+    "fileType": "File Type",
+    "creationTime": "Creation Time",
+    "operation": "Operation",
+    "previousDirectory": "Previous Directory",
+    "preview": "Preview",
+    "play": "Play",
+    "download": "Download",
+    "delete": "Delete"
+  },
+  "gsInfo": {
+    "title": "GS Information (click to refresh)"
+  },
+  "droneInfo": {
+    "title": "Drone Information (click to refresh)"
+  },
+  "firmwareUpgrade": {
+    "title": "Firmware upload and upgrade",
+    "selectfirmware": "Select Firmware",
+    "supportedFormats": "Supported file formats: .tgz, .tar.gz",
+    "uploadFirmware": "Upload Firmware",
+    "upgrade": "upgrade",
+    "noAvailableFirmware": "There is no firmware available. Please upload the firmware to GS first.",
+    "upgradeTips": "Upgrading is in progress, please be patient!",
+    "upgradeFail": "Upgrade failed, please try again!",
+    "sendFirmwareTips": "Uploading, please be patient (may be very slow)!",
+    "sendFail": "Sending failed, please try again!"
+  },
+  "unbrickMode": {
+    "title": "Drone Unbrick Mode (TFTP + TTL)",
+    "uploadRescueFirmware": "Ppload Rescue Firmware",
+    "startRescueService": "Start Rescue Service",
+    "stopRescueService": "Stop Rescue Service",
+    "openRescueTerminal": "Open Rescue Terminal",
+    "Steps": "Steps:\n1. Download the complete bin firmware from the official website and upload it to GS.\n2. Connect the camera serial port to the serial port UART3 of radxa zero3 (PIN3->RX, PIN5->TX, PIN9->GND)\n3. Connect the camera network cable to the network card or USB network card network port of radxa zero3\n4. Start the brick recovery service, and the TFTP server and serial web console will be opened\n5. Press Enter in the serial console, power on the camera, and enter the uboot console\n6. Execute the following commands line by line\n   ## Enter commands line by line! Do not copy and paste multiple lines at once!\n    * setenv ipaddr 192.168.1.10; setenv serverip 192.168.1.20\n    * mw.b 0x21000000 0xff 0x800000\n    * tftpboot 0x21000000 firmware.bin\n    * sf probe 0; sf lock 0;\n    * sf erase 0x0 0x800000; sf write 0x21000000 0x0 0x800000\n    * reset"
+  },
+  "about": {
+    "selectLanguage": "Choose your language:"
+  }
+}

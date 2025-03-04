@@ -1,0 +1,143 @@
+{
+  "common": {
+    "button": "按钮",
+    "load": "加载配置",
+    "save": "保存配置",
+    "apply": "应用配置",
+    "saveAndApply": "保存并应用配置",
+    "cancel": "取消",
+    "setting": "设置",
+    "download": "下载",
+    "delete": "删除",
+    "upload": "上传",
+    "preview": "预览",
+    "fileName": "文件名",
+    "fileType": "文件类型",
+    "operation": "操作",
+    "close": "关闭",
+    "loadSuccess": "加载配置成功！",
+    "loadFail": "加载配置失败，请手动重新加载！",
+    "saveSuccess": "保存配置成功！",
+    "saveFail": "保存配置失败！",
+    "applySuccess": "应用成功！",
+    "applyFail": "应用失败！",
+    "success": "成功",
+    "fail": "失败",
+    "deleteSuccess": "删除成功！",
+    "deleteFail": "删除失败！",
+    "getInfoFail": "获取信息失败，请重试！",
+    "uploadSuccess": "上传成功",
+    "uploadFail": "上传失败，请重试！",
+    "confirmDelete": "确定要删除 {{filename}} 吗？"
+  },
+  "tab": {
+    "webButton": "WEB 按钮",
+    "gsSettings": "GS 配置",
+    "droneSettings": "Drone 配置",
+    "dvr": "DVR 管理",
+    "configEditor": "配置编辑器",
+    "tools": "常用工具"
+  },
+  "tools": {
+    "ssh": "SSH",
+    "plotter": "wfb 图表",
+    "keyManager": "Key 管理",
+    "acs": "ACS 扫描",
+    "fileManager": "文件管理",
+    "gsInfo": "GS 信息",
+    "droneInfo": "Drone 信息",
+    "firmwareUpgrade": "固件升级",
+    "unbrickMode": "救砖模式",
+    "about": "关于"
+  },
+  "webButton": {
+    "gsButton": "地面站按钮",
+    "droneButton": "天空端按钮",
+    "droneQuickSettings": "天空端快捷设置（实时生效）",
+    "buttonSuccess": "按钮指令 {{buttonId}} 已发送",
+    "buttonFail": "按钮指令 {{buttonId}} 发送失败"
+  },
+  "droneSettings": {
+    "wfb": "wfb",
+    "wfbTitle": "Drone wfb 配置",
+    "majestic": "majestic",
+    "majesticTitle": "Drone majestic 配置"
+  },
+  "dvr": {
+    "title": "DVR 管理（点击刷新）",
+    "fileSize": "大小",
+    "previewNow": "正在预览：",
+    "previewFail": "预览失败，文件可能已被删除或路径错误"
+  },
+  "configEditor": {
+    "title": "配置文件编辑器",
+    "configFile": "配置文件",
+    "edit": "编辑",
+    "backup": "备份",
+    "editNow": "正在编辑：{{filename}}",
+    "saveSuccess": "文件保存成功！",
+    "saveFail": "文件保存失败！"
+  },
+  "keyManager": {
+    "title": "wfb key 配置（点击刷新）",
+    "clickToReload": "加载失败，点击标题重新加载！",
+    "applyKey": "应用key",
+    "uploadGsKey": "上传 gs key",
+    "downloadGsKey": "下载 gs key",
+    "uploadDroneKey": "上传 drone key",
+    "downloadDroneKey": "下载 drone key",
+    "randomKey": "随机生成key",
+    "saveToFile": "保存到配置文件"
+  },
+  "acs": {
+    "title": "WiFi信道扫描（点击刷新）",
+    "startScan": "开始扫描",
+    "scanTips": "扫描已开始，请等待扫描完成（5~10秒）。",
+    "getNicFail": "获取网卡信息失败！",
+    "acsFail": "ACS 扫描失败！"
+  },
+  "fileManager": {
+    "uploadFile": "上传文件",
+    "newDirectory": "新建文件夹",
+    "create": "创建",
+    "fileName": "文件名",
+    "fileSize": "文件大小",
+    "fileType": "文件类型",
+    "creationTime": "创建时间",
+    "operation": "操作",
+    "previousDirectory": "返回上一层",
+    "preview": "预览",
+    "play": "播放",
+    "download": "下载",
+    "delete": "删除"
+  },
+  "gsInfo": {
+    "title": "GS信息（点击刷新）"
+  },
+  "droneInfo": {
+    "title": "Drone信息（点击刷新）"
+  },
+  "firmwareUpgrade": {
+    "title": "固件上传与升级",
+    "selectfirmware": "选择固件",
+    "supportedFormats": "支持的文件格式：.tgz, .tar.gz",
+    "uploadFirmware": "上传固件",
+    "upgrade": "刷写",
+    "noAvailableFirmware": "没有可用固件，请先上传固件到GS。",
+    "upgradeTips": "正在执行升级，请耐心等待！",
+    "upgradeFail": "升级失败，请重试！",
+    "sendFirmwareTips": "正在上传，请耐心等待（可能非常慢）！",
+    "sendFail": "发送失败，请重试！"
+  },
+  "unbrickMode": {
+    "title": "Drone 救砖模式（TFTP + TTL）",
+    "uploadRescueFirmware": "上传救砖固件",
+    "startRescueService": "启动救砖服务",
+    "stopRescueService": "停止救砖服务",
+    "openRescueTerminal": "打开救砖终端",
+    "Steps": "步骤：\n1、从官网下载完整bin固件，上传至GS。\n2、将摄像头串口连接至radxa zero3的串口UART3（PIN3->RX, PIN5->TX, PIN9->GND）\n3、将摄像头网线连接至radxa zero3的网卡或USB网卡网口\n4、启动救砖服务，会打开TFTP服务器和串口web控制台\n5、在串口控制台按住回车，摄像头上电，直到进入uboot控制台\n6、依次逐行执行下面的命令\n   ## Enter commands line by line! Do not copy and paste multiple lines at once!\n    * setenv ipaddr 192.168.1.10; setenv serverip 192.168.1.20\n    * mw.b 0x21000000 0xff 0x800000\n    * tftpboot 0x21000000 firmware.bin\n    * sf probe 0; sf lock 0;\n    * sf erase 0x0 0x800000; sf write 0x21000000 0x0 0x800000\n    * reset"
+  },
+  "about": {
+    "selectLanguage": "选择您的语言："
+  }
+}

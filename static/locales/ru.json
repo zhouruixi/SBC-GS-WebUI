@@ -1,0 +1,144 @@
+{
+    "common": {
+      "button": "Кнопка",
+      "load": "Загрузка конфигурации",
+      "save": "Сохранить конфигурацию",
+      "apply": "применять",
+      "saveAndApply": "Сохранить и применить",
+      "cancel": "Отмена",
+      "setting": "настраивать",
+      "download": "скачать",
+      "delete": "удалить",
+      "upload": "Загрузить",
+      "preview": "Предварительный просмотр",
+      "fileName": "имя файла",
+      "fileType": "Тип файла",
+      "operation": "работать",
+      "close": "закрытие",
+      "loadSuccess": "Загрузка конфигурации прошла успешно!",
+      "loadFail": "Не удалось загрузить конфигурацию, пожалуйста, перезагрузите вручную!",
+      "saveSuccess": "Конфигурация успешно сохранена!",
+      "saveFail": "Не удалось сохранить конфигурацию!",
+      "applySuccess": "применить Успех!",
+      "applyFail": "применить Не удалось!",
+      "success": "успех",
+      "fail": "неудача",
+      "deleteSuccess": "Удаление успешно!",
+      "deleteFail": "Удаление не удалось!",
+      "getInfoFail": "Не удалось получить информацию, попробуйте еще раз!",
+      "uploadSuccess": "Загрузка прошла успешно",
+      "uploadFail": "Загрузка не удалась, попробуйте еще раз!",
+      "confirmDelete": "Вы уверены, что хотите удалить {{filename}}?"
+    },
+    "tab": {
+      "webButton": "WEB Кнопка",
+      "gsSettings": "Наземная станция Конфигурация",
+      "droneSettings": "Небесный Терминал Конфигурация",
+      "dvr": "DVR управлять",
+      "configEditor": "Редактор конфигурации",
+      "tools": "Общие инструменты"
+    },
+    "tools": {
+      "ssh": "SSH",
+      "plotter": "wfb плоттер",
+      "keyManager": "Key управлять",
+      "acs": "ACS сканирование",
+      "fileManager": "Управление файлами",
+      "gsInfo": "GS информация",
+      "droneInfo": "Drone информация",
+      "firmwareUpgrade": "Обновление прошивки",
+      "unbrickMode": "Режим спасения кирпича",
+      "about": "о"
+    },
+    "webButton": {
+      "gsButton": "Кнопка наземной станции",
+      "droneButton": "Кнопка воздушной системы",
+      "droneQuickSettings": "Быстрые настройки воздушной системы (вступают в силу немедленно)",
+      "buttonSuccess": "Команда кнопки {{buttonId}} была отправлена",
+      "buttonFail": "Команда кнопки {{buttonId}} не была отправлена"
+    },
+    "droneSettings": {
+      "wfb": "wfb",
+      "wfbTitle": "Drone wfb Конфигурация",
+      "majestic": "majestic",
+      "majesticTitle": "Drone majestic Конфигурация"
+    },
+    "dvr": {
+      "title": "Управление DVR (нажмите, чтобы обновить)",
+      "fileSize": "размер",
+      "previewNow": "Предварительный просмотр: ",
+      "previewFail": "Предварительный просмотр не удался. Возможно, файл был удален или путь указан неверно."
+    },
+    "configEditor": {
+      "title": "Редактор файла конфигурации",
+      "configFile": "Файлы конфигурации",
+      "edit": "редактировать",
+      "backup": "Резервное копирование",
+      "editNow": "Редактирование: {{имя_файла}}",
+      "saveSuccess": "Файл успешно сохранен!",
+      "saveFail": "сохранить Не удалось!"
+    },
+    "keyManager": {
+      "title": "wfb key Конфигурация (нажмите, чтобы обновить)",
+      "clickToReload": "Загрузка не удалась, нажмите на заголовок, чтобы перезагрузить!",
+      "applyKey": "настраивать key",
+      "uploadGsKey": "Загрузить gs key",
+      "downloadGsKey": "скачать gs key",
+      "uploadDroneKey": "Загрузить drone key",
+      "downloadDroneKey": "скачать drone key",
+      "randomKey": "Случайная генерация key",
+      "saveToFile": "Сохранить в файле конфигурации"
+    },
+    "acs": {
+      "title": "Сканирование каналов WiFi (нажмите, чтобы обновить)",
+      "startScan": "Начать сканирование",
+      "scanTips": "Сканирование началось. Пожалуйста, дождитесь завершения сканирования (5~10 секунд).",
+      "getNicFail": "Не удалось получить информацию о сетевой карте!",
+      "acsFail": "ACS Сканирование не удалось!"
+    },
+    "fileManager": {
+      "uploadFile": "Загрузить файлы",
+      "newDirectory": "Создать новую папку",
+      "create": "создавать",
+      "fileName": "имя файла",
+      "fileSize": "Размер файла",
+      "fileType": "Тип файла",
+      "creationTime": "Время создания",
+      "operation": "работать",
+      "previousDirectory": "Вернуться на предыдущий уровень",
+      "preview": "Предварительный просмотр",
+      "play": "Играть",
+      "download": "скачать",
+      "delete": "удалить"
+    },
+    "gsInfo": {
+      "title": "Информация GS (нажмите, чтобы обновить)"
+    },
+    "droneInfo": {
+      "title": "Информация Drone (нажмите, чтобы обновить)"
+    },
+    "firmwareUpgrade": {
+      "title": "Загрузка и обновление прошивки",
+      "selectfirmware": "Выбрать прошивку",
+      "supportedFormats": "Поддерживаемые форматы файлов: .tgz, .tar.gz",
+      "uploadFirmware": "Загрузить прошивку",
+      "upgrade": "обновление",
+      "noAvailableFirmware": "Нет доступной прошивки. Сначала загрузите прошивку в GS.",
+      "upgradeTips": "Выполняется обновление, пожалуйста, наберитесь терпения!",
+      "upgradeFail": "Обновление не удалось, попробуйте еще раз!",
+      "sendFirmwareTips": "Загрузка, пожалуйста, наберитесь терпения (может быть очень медленной)!",
+      "sendFail": "Отправка не удалась, попробуйте еще раз!"
+    },
+    "unbrickMode": {
+      "title": "Drone Режим спасения кирпича (TFTP + TTL)",
+      "uploadRescueFirmware": "Загрузите прошивку для восстановления кирпича",
+      "startRescueService": "Запустить службу спасения кирпичей",
+      "stopRescueService": "Служба спасения кирпича Stop",
+      "openRescueTerminal": "Откройте спасательный терминал",
+      "Steps": "步骤：\n1、从官网下载完整bin固件，上传至GS。\n2、将摄像头串口连接至radxa zero3的串口UART3（PIN3->RX, PIN5->TX, PIN9->GND）\n3、将摄像头网线连接至radxa zero3的网卡或USB网卡网口\n4、启动救砖服务，会打开TFTP服务器和串口web控制台\n5、在串口控制台按住回车，摄像头上电，直到进入uboot控制台\n6、依次逐行执行下面的命令\n   ## Enter commands line by line! Do not copy and paste multiple lines at once!\n    * setenv ipaddr 192.168.1.10; setenv serverip 192.168.1.20\n    * mw.b 0x21000000 0xff 0x800000\n    * tftpboot 0x21000000 firmware.bin\n    * sf probe 0; sf lock 0;\n    * sf erase 0x0 0x800000; sf write 0x21000000 0x0 0x800000\n    * reset"
+    },
+    "about": {
+      "selectLanguage": "Выберите язык:"
+    }
+  }
+  

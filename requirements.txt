@@ -3,3 +3,4 @@ configobj
 ruamel.yaml
 paramiko
 scp
+flask-babel

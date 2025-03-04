@@ -14,37 +14,37 @@
         <!-- 导航栏 -->
         <ul class="nav nav-tabs sticky-top" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="button-tab" data-bs-toggle="tab" data-bs-target="#button" type="button" role="tab" aria-controls="button" aria-selected="false">WEB 按钮</button>
+                <button class="nav-link active" id="button-tab" data-bs-toggle="tab" data-bs-target="#button" type="button" role="tab" aria-controls="button" aria-selected="false" data-i18n="tab.webButton">WEB 按钮</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="gsconfig-tab" data-bs-toggle="tab" data-bs-target="#gsconfig" type="button" role="tab" aria-controls="button" aria-selected="false">GS 配置</button>
+                <button class="nav-link" id="gsconfig-tab" data-bs-toggle="tab" data-bs-target="#gsconfig" type="button" role="tab" aria-controls="button" aria-selected="false" data-i18n="tab.gsSettings">GS 配置</button>
             </li>
             <li class="nav-item dropdown" role="presentation">
-                <a class="nav-link dropdown-toggle" href="#" id="droneconfig-tab" role="button" data-bs-toggle="dropdown" aria-expanded="false">Drone 配置</a>
+                <a class="nav-link dropdown-toggle" href="#" id="droneconfig-tab" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="tab.droneSettings">Drone 配置</a>
                 <ul class="dropdown-menu" aria-labelledby="drone-config-tab">
-                    <li><a class="dropdown-item" href="#drone-config-wfb" data-bs-toggle="tab">wfb</a></li>
-                    <li><a class="dropdown-item" href="#drone-config-majestic" data-bs-toggle="tab">majestic</a></li>
+                    <li><a class="dropdown-item" href="#drone-config-wfb" data-bs-toggle="tab" data-i18n="droneSettings.wfb">wfb</a></li>
+                    <li><a class="dropdown-item" href="#drone-config-majestic" data-bs-toggle="tab" data-i18n="droneSettings.majestic">majestic</a></li>
                 </ul>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="videomg-tab" data-bs-toggle="tab" data-bs-target="#videomg" type="button" role="tab" aria-controls="videomg" aria-selected="true">DVR 管理</button>
+                <button class="nav-link" id="videomg-tab" data-bs-toggle="tab" data-bs-target="#videomg" type="button" role="tab" aria-controls="videomg" aria-selected="true" data-i18n="tab.dvr">DVR 管理</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="fileedit-tab" data-bs-toggle="tab" data-bs-target="#fileedit" type="button" role="tab" aria-controls="fileedit" aria-selected="true">配置编辑器</button>
+                <button class="nav-link" id="fileedit-tab" data-bs-toggle="tab" data-bs-target="#fileedit" type="button" role="tab" aria-controls="fileedit" aria-selected="true" data-i18n="tab.configEditor">配置编辑器</button>
             </li>
             <li class="nav-item dropdown" role="presentation"> <!-- 添加 dropdown 类 -->
-                <a class="nav-link dropdown-toggle" href="#" id="gsconfig-tab" role="button" data-bs-toggle="dropdown" aria-expanded="false">常用工具</a>
+                <a class="nav-link dropdown-toggle" href="#" id="gsconfig-tab" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="tab.tools">常用工具</a>
                 <ul class="dropdown-menu" aria-labelledby="gsconfig-tab">
-                    <li><a class="dropdown-item" id="web-ssh" href="http://{{ server_ip }}:81" target="_blank" role="tab" aria-controls="SSH" aria-selected="false">SSH</a></li>
-                    <li><a class="dropdown-item" id="web-plotter" href="/plotter" target="_blank" role="tab" aria-controls="plotter" aria-selected="false">plotter</a></li>
-                    <li><a class="dropdown-item" href="#wfb-key-config" data-bs-toggle="tab">Key 管理</a></li>
-                    <li><a class="dropdown-item" href="#wifi-acs" data-bs-toggle="tab">ACS</a></li>
-                    <li><a class="dropdown-item" id="filemanager" href="/filemanager/" target="_blank" role="tab" aria-controls="SSH" aria-selected="false">文件管理</a></li>
-                    <li><a class="dropdown-item" href="#gs-systeminfo" data-bs-toggle="tab">GS 信息</a></li>
-                    <li><a class="dropdown-item" href="#drone-systeminfo" data-bs-toggle="tab">Drone 信息</a></li>
-                    <li><a class="dropdown-item" href="#firmware-upgrade" data-bs-toggle="tab">固件升级</a></li>
-                    <li><a class="dropdown-item" href="#rescue-drone" data-bs-toggle="tab">救砖模式</a></li>
-                    <li><a class="dropdown-item" href="#about" data-bs-toggle="tab">关于</a></li>
+                    <li><a class="dropdown-item" id="web-ssh" href="http://{{ server_ip }}:81" target="_blank" role="tab" aria-controls="SSH" aria-selected="false" data-i18n="tools.ssh">SSH</a></li>
+                    <li><a class="dropdown-item" id="web-plotter" href="/plotter" target="_blank" role="tab" aria-controls="plotter" aria-selected="false" data-i18n="tools.plotter">plotter</a></li>
+                    <li><a class="dropdown-item" href="#wfb-key-config" data-bs-toggle="tab" data-i18n="tools.keyManager">Key 管理</a></li>
+                    <li><a class="dropdown-item" href="#wifi-acs" data-bs-toggle="tab" data-i18n="tools.acs">ACS</a></li>
+                    <li><a class="dropdown-item" id="filemanager" href="/filemanager/" target="_blank" role="tab" aria-controls="SSH" aria-selected="false" data-i18n="tools.fileManager">文件管理</a></li>
+                    <li><a class="dropdown-item" href="#gs-systeminfo" data-bs-toggle="tab" data-i18n="tools.gsInfo">GS 信息</a></li>
+                    <li><a class="dropdown-item" href="#drone-systeminfo" data-bs-toggle="tab" data-i18n="tools.droneInfo">Drone 信息</a></li>
+                    <li><a class="dropdown-item" href="#firmware-upgrade" data-bs-toggle="tab" data-i18n="tools.firmwareUpgrade">固件升级</a></li>
+                    <li><a class="dropdown-item" href="#rescue-drone" data-bs-toggle="tab" data-i18n="tools.unbrickMode">救砖模式</a></li>
+                    <li><a class="dropdown-item" href="#about" data-bs-toggle="tab" data-i18n="tools.about">关于</a></li>
                 </ul>
             </li>
         </ul>
@@ -54,7 +54,7 @@
             <!-- WEB 按钮 -->
             <div class="tab-pane fade show active" id="button" role="tabpanel" aria-labelledby="button-tab">
                 {% for side in button_enabled %}
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">{{ side }} 按钮</h3>
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="webButton.{{ side }}Button">{{ side }} 按钮</h3>
                 <!-- 使用 Bootstrap 的栅格系统，将按钮分为几行，并设置每行的间距 -->
                 <div class="row g-3">
                     <!-- 根据配置文件自动生成按钮 -->
@@ -68,7 +68,7 @@
                 </div>
                 {% endfor %}
 
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">Drone 快捷设置（实时生效）</h3>
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="webButton.droneQuickSettings">Drone 快捷设置（实时生效）</h3>
                 {% for function, function_info in drone_quick_setting.items() %}
                 <div class="mb-3 px-3 row bg-light rounded-3" style="margin-left: 0; margin-right: 0;">
                     <label class="col-form-label col-sm-2 text-start">{{ function }}</label>
@@ -82,7 +82,7 @@
                         </datalist>
                     </div>
                     <div class="col-auto">
-                        <button type="button" class="btn btn-{{ function_info['color'] }}" id="drone_setting_{{ function }}">设置</button>
+                        <button type="button" class="btn btn-{{ function_info['color'] }}" id="drone_setting_{{ function }}" data-i18n="common.setting">设置</button>
                     </div>
                 </div>
                 {% endfor %}
@@ -91,7 +91,7 @@
 
             <!-- GS 配置 -->
             <div class="tab-pane fade" id="gsconfig" role="tabpanel" aria-labelledby="gsconfig-tab">
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">GS 配置</h3>
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="tab.gsSettings">GS 配置</h3>
                 <div class="mt-3" id="save-result-gs"><!-- 操作结果将在此加载 --></div>
                 <div id="gs-config-container" class="mt-4 bg-light rounded-3">
                     <!-- YAML 内容将在此加载 -->
@@ -99,15 +99,15 @@
                 <div class="d-flex justify-content-center align-items-center mt-3 sticky-bottom">
                     <!-- 按钮组 -->
                     <div>
-                        <button class="btn btn-secondary" id="reload-button-gs">读取配置</button>
-                        <button class="btn btn-success" id="save-button-gs">保存配置</button>
+                        <button class="btn btn-secondary" id="reload-button-gs" data-i18n="common.load">读取配置</button>
+                        <button class="btn btn-success" id="save-button-gs" data-i18n="common.save">保存配置</button>
                     </div>
                 </div>
             </div>
 
             <!-- Drone wfb 配置 -->
             <div class="tab-pane fade" id="drone-config-wfb" role="tabpanel" aria-labelledby="drone-config-wfb-tab">
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">Drone wfb 配置</h3>
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="droneSettings.wfbTitle">Drone wfb 配置</h3>
                 <div class="mt-3" id="save-result-drone-wfb"><!-- 操作结果将在此加载 --></div>
                 <div id="drone-config-container-wfb" class="mt-4 bg-light rounded-3">
                     <!-- YAML 内容将在此加载 -->
@@ -115,16 +115,16 @@
                 <div class="d-flex justify-content-center align-items-center mt-3 sticky-bottom">
                     <!-- 按钮组 -->
                     <div>
-                        <button class="btn btn-secondary" id="reload-button-drone-wfb">读取配置</button>
-                        <button class="btn btn-warning" id="save-button-drone-wfb">保存配置</button>
-                        <button class="btn btn-danger" id="apply-button-drone-wfb">保存并应用配置</button>
+                        <button class="btn btn-secondary" id="reload-button-drone-wfb" data-i18n="common.load">读取配置</button>
+                        <button class="btn btn-warning" id="save-button-drone-wfb" data-i18n="common.save">保存配置>保存配置</button>
+                        <button class="btn btn-danger" id="apply-button-drone-wfb" data-i18n="common.saveAndApply">保存配置>保存并应用配置</button>
                     </div>
                 </div>
             </div>
 
             <!-- Drone majestic 配置 -->
             <div class="tab-pane fade" id="drone-config-majestic" role="tabpanel" aria-labelledby="drone-config-majestic-tab">
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">Drone majestic 配置</h3>
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="droneSettings.majesticTitle">Drone majestic 配置</h3>
                 <div class="mt-3" id="save-result-drone-majestic"><!-- 操作结果将在此加载 --></div>
                 <div id="drone-config-container-majestic" class="mt-4 bg-light rounded-3">
                     <!-- YAML 内容将在此加载 -->
@@ -132,24 +132,24 @@
                 <div class="d-flex justify-content-center align-items-center mt-3 sticky-bottom">
                     <!-- 按钮组 -->
                     <div>
-                        <button class="btn btn-secondary" id="reload-button-drone-majestic">读取配置</button>
-                        <button class="btn btn-warning" id="save-button-drone-majestic">保存配置</button>
-                        <button class="btn btn-danger" id="apply-button-drone-majestic">保存并应用配置</button>
+                        <button class="btn btn-secondary" id="reload-button-drone-majestic" data-i18n="common.load">读取配置</button>
+                        <button class="btn btn-warning" id="save-button-drone-majestic" data-i18n="common.save">保存配置</button>
+                        <button class="btn btn-danger" id="apply-button-drone-majestic" data-i18n="common.saveAndApply">保存并应用配置</button>
                     </div>
                 </div>
             </div>
 
             <!-- DVR 管理 -->
             <div class="tab-pane fade" id="videomg" role="tabpanel" aria-labelledby="videomg-tab">
-                <h3 id="refreshDvrFiles" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">DVR 管理（点击刷新）</h3>
+                <h3 id="refreshDvrFiles" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="dvr.title">DVR 管理（点击刷新）</h3>
                 <div class="container mt-4">
                     <!-- 文件列表 -->
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>文件名</th>
-                                <th>大小</th>
-                                <th>操作</th>
+                                <th data-i18n="common.fileName">文件名</th>
+                                <th data-i18n="dvr.fileSize">大小</th>
+                                <th data-i18n="common.operation">操作</th>
                             </tr>
                         </thead>
                         <tbody id="fileList"></tbody>
@@ -161,7 +161,7 @@
                     <div class="modal-dialog" style="max-width: 70%; width: auto;">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="previewModalLabel">文件预览</h5>
+                                <h5 class="modal-title" id="previewModalLabel" data-i18n="common.preview">文件预览</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body text-center">
@@ -177,13 +177,13 @@
 
             <!-- 文件编辑器 -->
             <div class="tab-pane fade" id="fileedit" role="tabpanel" aria-labelledby="fileedit-tab">
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">文件编辑器</h3>
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="configEditor.title">文件编辑器</h3>
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>文件名</th>
-                            <th>文件类型</th>
-                            <th>操作</th>
+                            <th data-i18n="common.fileName">文件名</th>
+                            <th data-i18n="common.fileType">文件类型</th>
+                            <th data-i18n="common.operation">操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -192,11 +192,11 @@
                             <td>
                                 📄 {{ config_file }}
                             </td>
-                            <td>配置文件</td>
+                            <td data-i18n="configEditor.configFile">配置文件</td>
                             <td>
-                                <a href="/download_config/{{ config_file }}" class="btn btn-sm btn-success">下载</a>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="editFile('{{ config_file }}')">编辑</button>
-                                <button type="button" class="btn btn-sm btn-warning" onclick="backupFile('{{ config_file }}')">备份</button>
+                                <a href="/download_config/{{ config_file }}" class="btn btn-sm btn-success" data-i18n="common.download">下载</a>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="editFile('{{ config_file }}')" data-i18n="configEditor.edit">编辑</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="backupFile('{{ config_file }}')" data-i18n="configEditor.backup">备份</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -217,8 +217,8 @@
                             <textarea id="fileContent" class="form-control" rows="20"></textarea>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                            <button type="button" class="btn btn-primary" id="saveFileBtn">保存</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.close">关闭</button>
+                            <button type="button" class="btn btn-primary" id="saveFileBtn" data-i18n="common.save">保存</button>
                         </div>
                     </div>
                 </div>
@@ -226,7 +226,7 @@
 
             <!-- wfb key 配置 -->
             <div class="tab-pane fade" id="wfb-key-config" role="tabpanel" aria-labelledby="wfb-key-config-tab">
-                <h3 id="refreshCurrentWfbKey" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">wfb key 配置（点击刷新）</h3>
+                <h3 id="refreshCurrentWfbKey" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="keyManager.title">wfb key 配置（点击刷新）</h3>
                 <div class="mt-1 d-flex flex-column justify-content-left align-items-start bg-info text-black p-1 rounded-2">
                     <div><b>Default Key: </b>u7ftboOkaoqbihKg+Y7OK9yXhwW4IEcBsghfooyse0YOBcSKYZX7cJIcdHpm6DwC5kC9a761slFTepiidBaiYw==</div>
                     <div id="current-wfb-gs-key"><!-- 当前 GS Key 将在此加载 --></div>
@@ -240,7 +240,7 @@
 
             <!-- wifi ACS -->
             <div class="tab-pane fade" id="wifi-acs" role="tabpanel" aria-labelledby="wifi-acs-tab">
-                <h3 id="refreshAcsInfo" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">WiFi Automatic Channel Selection（点击刷新）</h3>
+                <h3 id="refreshAcsInfo" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="acs.title">WiFi Automatic Channel Selection（点击刷新）</h3>
                 <!-- TODO: 显示当前信道 -->
                 <div id="available-acs-nics-container"><!-- 显示可用网卡 --></div>
                 <div class="d-flex justify-content-center align-items-center mt-3">
@@ -252,7 +252,7 @@
 
             <!-- GS 系统信息 -->
             <div class="tab-pane fade" id="gs-systeminfo" role="tabpanel" aria-labelledby="gs-systeminfo-tab">
-                <h3 id="refreshGsSystemInfo" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">GS信息（点击刷新）</h3>
+                <h3 id="refreshGsSystemInfo" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="gsInfo.title">GS信息（点击刷新）</h3>
                 <div class="d-flex justify-content-center align-items-center mt-3">
                     <div id="gsSystemInfoText">
                         <!-- GS 系统信息内容将在此加载 -->
@@ -262,7 +262,7 @@
 
             <!-- Drone 系统信息 -->
             <div class="tab-pane fade" id="drone-systeminfo" role="tabpanel" aria-labelledby="drone-systeminfo-tab">
-                <h3 id="refreshDroneSystemInfo" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">Drone信息（点击刷新）</h3>
+                <h3 id="refreshDroneSystemInfo" class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="droneInfo.title">Drone信息（点击刷新）</h3>
                 <div class="d-flex justify-content-center align-items-center mt-3">
                     <div id="droneSystemInfoText">
                         <!-- Drone 系统信息内容将在此加载 -->
@@ -272,18 +272,18 @@
 
             <!-- 固件升级 -->
             <div class="tab-pane fade" id="firmware-upgrade" role="tabpanel" aria-labelledby="firmware-upgrade-tab">
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">固件上传与升级</h3>
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="firmwareUpgrade.title">固件上传与升级</h3>
                 <div id="firmwareList" class="mt-3"><!-- 固件列表展示 --></div>
                 <div class="d-flex justify-content-center align-items-center mt-3">
                     <div id="firmwareUpgradeText" class="d-flex align-items-center my-4 gap-2">
                         <!-- 固件上传表单 -->
                         <form id="firmwareUploadForm" action="/upgrade/upload" method="POST" enctype="multipart/form-data" class="d-flex align-items-center mr-4 gap-2">
                             <div class="form-group mr-3">
-                                <label for="firmware" class="mr-2">选择固件文件</label>
+                                <label for="firmware" class="mr-2" data-i18n="firmwareUpgrade.selectfirmware">选择固件</label>
                                 <input type="file" class="form-control" id="firmware" name="firmware" accept=".tgz,.tar.gz" required>
-                                <small id="fileHelp" class="form-text text-muted">支持的文件格式：.tgz, .tar.gz</small>
+                                <small id="fileHelp" class="form-text text-muted" data-i18n="firmwareUpgrade.supportedFormats">支持的文件格式：.tgz, .tar.gz</small>
                             </div>
-                            <button type="button" class="btn btn-primary" id="firmwareUploadBtn">上传固件</button>
+                            <button type="button" class="btn btn-primary" id="firmwareUploadBtn" data-i18n="firmwareUpgrade.uploadFirmware">上传固件</button>
                         </form>
                     </div>
                 </div>
@@ -295,30 +295,16 @@
 
             <!-- 救砖模式 -->
             <div class="tab-pane fade" id="rescue-drone" role="tabpanel" aria-labelledby="rescue-drone-tab">
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">Drone 救砖模式（TFTP + TTL）</h3>
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="unbrickMode.title">Drone 救砖模式（TFTP + TTL）</h3>
                 <div class="d-flex justify-content-center align-items-center h-100">
-                    <pre>
-步骤：
-1、从官网下载完整bin固件，上传至GS。
-2、将摄像头串口连接至radxa zero3的串口UART3（PIN3->RX, PIN5->TX, PIN9->GND）
-3、将摄像头网线连接至radxa zero3的网卡或USB网卡网口
-4、启动救砖服务，会打开TFTP服务器和串口web控制台
-5、在串口控制台按住回车，摄像头上电，直到进入uboot控制台
-6、依次逐行执行下面的命令
-   ## Enter commands line by line! Do not copy and paste multiple lines at once!
-    * setenv ipaddr 192.168.1.10; setenv serverip 192.168.1.20
-    * mw.b 0x21000000 0xff 0x800000
-    * tftpboot 0x21000000 firmware.bin
-    * sf probe 0; sf lock 0;
-    * sf erase 0x0 0x800000; sf write 0x21000000 0x0 0x800000
-    * reset</pre>
+                    <pre data-i18n="unbrickMode.Steps"><!-- 步骤在这里展示 --></pre>
                 </div>
                 <div class="d-flex justify-content-center gap-3">
-                    <button type="button" class="btn btn-primary" id="uploadRescueFirmwareBtn">上传救砖固件</button>
-                    <button type="button" class="btn btn-success" id="startRescueServiceBtn">启动救砖服务</button>
-                    <button type="button" class="btn btn-warning" id="stopRescueServiceBtn" style="display: none;">停止救砖服务</button>
+                    <button type="button" class="btn btn-primary" id="uploadRescueFirmwareBtn" data-i18n="unbrickMode.uploadRescueFirmware">上传救砖固件</button>
+                    <button type="button" class="btn btn-success" id="startRescueServiceBtn" data-i18n="unbrickMode.startRescueService">启动救砖服务</button>
+                    <button type="button" class="btn btn-warning" id="stopRescueServiceBtn" style="display: none;" data-i18n="unbrickMode.stopRescueService">停止救砖服务</button>
                     <a href="http://{{ server_ip }}:83" target="_blank">
-                        <button type="button" class="btn btn-info" id="openRescueTerminalBtn">打开救砖终端</button>
+                        <button type="button" class="btn btn-info" id="openRescueTerminalBtn" data-i18n="unbrickMode.openRescueTerminal">打开救砖终端</button>
                     </a>
                 </div>
                 <input type="file" id="rescueFirmwareInput" style="display: none;" accept=".bin">
@@ -327,9 +313,23 @@
 
             <!-- 关于 -->
             <div class="tab-pane fade" id="about" role="tabpanel" aria-labelledby="about-tab">
-                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2">关于</h3>
+                <h3 class="mt-3 d-flex justify-content-center align-items-center bg-primary text-white p-1 rounded-2" data-i18n="tools.about">关于</h3>
                 <div class="d-flex justify-content-center align-items-center mt-3">
-                    SBC Ground Station CC Edition WebUI.
+                    <h4>SBC Ground Station CC Edition WebUI.</h4>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-center align-items-center gap-3">
+                    <p class="lead mb-0" data-i18n="about.selectLanguage"></p>
+                    <div class="btn-group language-switcher">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ gettext('Language') }}
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a class="dropdown-item" href="#" data-lng="en">English</a></li>
+                            <li><a class="dropdown-item" href="#" data-lng="zh">中文</a></li>
+                            <li><a class="dropdown-item" href="#" data-lng="ru">Русский</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -341,6 +341,9 @@
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/webui.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ansi_up.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/i18next.min.js') }}"></script>  <!-- i18next 核心 -->
+    <script src="{{ url_for('static', filename='js/i18nextBrowserLanguageDetector.min.js') }}"></script>  <!-- 语言检测器 -->
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
 
 </body>
 

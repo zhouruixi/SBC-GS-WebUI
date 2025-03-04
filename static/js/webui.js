@@ -19,7 +19,8 @@ $(document).ready(function () {
     // 点击文件编辑后加载文件内容到模态框
     editFile = function (filename) {
         $.get(`/edit/${filename}`, function (data) {
-            $('#editModalLabel').text(`正在编辑: ${filename}`);  // 模态框标题
+            $('#editModalLabel').text(i18next.t('configEditor.editNow', { filename: filename}));  // 模态框标题
+            // $('#editModalLabel').text(`正在编辑: ${filename}`);  // 模态框标题
             $('#fileContent').val(data.content);  // 填充文件内容
             $('#editModal').modal('show');  // 显示模态框
 
@@ -41,11 +42,11 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({ content: content }),
             success: function () {
-                alert('文件已保存！');
+                alert(i18next.t('configEditor.saveSuccess'));
                 $('#editModal').modal('hide');
             },
             error: function () {
-                alert('保存文件失败！');
+                alert(i18next.t(configEditor.saveFail));
             }
         });
     }
@@ -62,10 +63,10 @@ $(document).ready(function () {
             .then(response => response.json())
             .then(data => {
                 // console.log('服务器响应:', data);
-                alert(`按钮指令 ${buttonId} 已发送`);
+                alert(i18next.t('webButton.buttonSuccess', {buttonId: buttonId}));
             })
             .catch(error => {
-                console.error('发生错误:', error);
+                console.error(i18next.t('webButton.buttonFail', {buttonId: buttonId}), error);
             });
     }
 
@@ -119,14 +120,14 @@ $(document).ready(function () {
             const resultDiv = $("#save-result-gs");
             resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-gs-success-alert">
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                加载配置成功！
+                                ${i18next.t('common.loadSuccess')}
                                 </div>`);
             // 设置 2 秒后自动消失
             setTimeout(function () {
                 $('#load-result-gs-success-alert').alert('close');
             }, 2000);
         }).fail(function () {
-            alert("加载 gs 配置失败，请手动重新加载！");
+            alert(i18next.t('common.loadFail'));
         });
         // }
     }
@@ -161,7 +162,7 @@ $(document).ready(function () {
                 }
             },
             error: function () {
-                alert("保存 gs 配置失败！");
+                alert(i18next.t('common.saveFail'));
             },
         });
     }
@@ -191,7 +192,7 @@ $(document).ready(function () {
             }
             resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-drone-${config_name}-success-alert">
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                加载配置成功！
+                                data-i18n="common.loadSuccess">${i18next.t('common.loadSuccess')}</div>
                                 </div>`);
             // 设置 2 秒后自动消失
             setTimeout(function () {
@@ -200,7 +201,7 @@ $(document).ready(function () {
         }).fail(function () {
             resultDiv.html(`<div class="alert alert-danger alert-dismissible fade show" role="alert" id="load-result-drone-${config_name}-success-alert">
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                加载 Drone ${config_name} 配置失败，请手动重新加载！
+                <div data-i18n="common.loadFail">${i18next.t('common.loadFail')}</div>
                 </div>`);
             // alert(`加载 Drone ${config_name} 配置失败，请手动重新加载！`);
         });
@@ -238,7 +239,7 @@ $(document).ready(function () {
                 }
             },
             error: function () {
-                alert(`保存 Drone ${config_name} 配置失败！`);
+                alert(i18next.t('common.saveFail'));
             },
         });
     }
@@ -267,19 +268,22 @@ $(document).ready(function () {
                     const downloadBtn = document.createElement("a");
                     downloadBtn.href = `/download_video/${encodeURIComponent(file.name)}`;
                     downloadBtn.className = "btn btn-success btn-sm";
-                    downloadBtn.textContent = "下载";
+                    downloadBtn.dataset.i18n = "common.download";
+                    downloadBtn.textContent = i18next.t('common.download');
                     actionsCell.appendChild(downloadBtn);
 
                     const deleteBtn = document.createElement("button");
                     deleteBtn.className = "btn btn-danger btn-sm ms-1";
-                    deleteBtn.textContent = "删除";
+                    deleteBtn.dataset.i18n = "common.delete";
+                    deleteBtn.textContent = i18next.t('common.delete');
                     deleteBtn.onclick = function () { deleteVideoFile(file.name); };
                     actionsCell.appendChild(deleteBtn);
 
                     if (file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || file.name.endsWith('.gif') || file.name.endsWith('.mp4') || file.name.endsWith('.avi')) {
                         const previewBtn = document.createElement("button");
                         previewBtn.className = "btn btn-info btn-sm ms-1";
-                        previewBtn.textContent = "预览";
+                        previewBtn.dataset.i18n = "common.preview";
+                        previewBtn.textContent = i18next.t('common.preview');
                         previewBtn.onclick = function () { previewVideoFile(file.name); };
                         actionsCell.appendChild(previewBtn);
                     }
@@ -306,7 +310,7 @@ $(document).ready(function () {
                 if (data.drone) {
                     droneKeyDiv.innerHTML = `<b>Current Drone key: </b>${data.drone}`;
                 } else {
-                    droneKeyDiv.innerHTML = '<b>Current Drone key: </b>加载失败，点击标题重新加载';
+                    droneKeyDiv.innerHTML = `<b>Current Drone key: </b>${i18next.t('keyManager.clickToReload')}`;
                     // droneKeyDiv.style.color = 'red';  // 设置提示文字为红色
                 }
             });
@@ -329,7 +333,7 @@ $(document).ready(function () {
                             <div class="col d-flex align-items-center">
                                 <input type="text" class="form-control config-input-wfb-key" data-key="wfb-${keypair}.${side}" value="${value}" placeholder="${value}">
                                 <div class="col-auto">
-                                    <button type="button" class="btn btn-danger ms-2" id="apply-key-${keypair}-${side}">应用key</button>
+                                    <button type="button" class="btn btn-danger ms-2" id="apply-key-${keypair}-${side}" data-i18n="keyManager.applyKey">${i18next.t('keyManager.applyKey')}</button>
                                 </div>
                             </div>
                         </div>`;
@@ -343,15 +347,15 @@ $(document).ready(function () {
                 }
 
                 const button_key_pair = `
-                    <div class="d-flex justify-content-center align-items-center mt-3 sticky-top">
+                    <div class="d-flex justify-content-center align-items-center mt-3">
                         <!-- 按钮组 -->
                         <div>
-                            <button type="button" class="btn btn-primary" id="upload-gs-key-${keypair}">上传 gs key</button>
-                            <button type="button" class="btn btn-success" id="download-gs-key-${keypair}">下载 gs key</button>
-                            <button type="button" class="btn btn-primary" id="upload-drone-key-${keypair}">上传 drone key</button>
-                            <button type="button" class="btn btn-success" id="download-drone-key-${keypair}">下载 drone key</button>
-                            <button type="button" class="btn btn-secondary" id="random-key-${keypair}">随机生成key</button>
-                            <button type="button" class="btn btn-warning" id="save-key-${keypair}">保存到配置文件</button>
+                            <button type="button" class="btn btn-primary" id="upload-gs-key-${keypair}" data-i18n="keyManager.uploadGsKey">${i18next.t('keyManager.uploadGsKey')}</button>
+                            <button type="button" class="btn btn-success" id="download-gs-key-${keypair}" data-i18n="keyManager.downloadGsKey">${i18next.t('keyManager.downloadGsKey')}</button>
+                            <button type="button" class="btn btn-primary" id="upload-drone-key-${keypair}" data-i18n="keyManager.uploadDroneKey">${i18next.t('keyManager.uploadDroneKey')}</button>
+                            <button type="button" class="btn btn-success" id="download-drone-key-${keypair}" data-i18n="keyManager.downloadDroneKey">${i18next.t('keyManager.downloadDroneKey')}</button>
+                            <button type="button" class="btn btn-secondary" id="random-key-${keypair}" data-i18n="keyManager.randomKey">${i18next.t('keyManager.randomKey')}</button>
+                            <button type="button" class="btn btn-warning" id="save-key-${keypair}" data-i18n="keyManager.saveToFile">${i18next.t('keyManager.saveToFile')}</button>
                         </div>
                     </div>`;
                 container.append(button_key_pair);
@@ -392,14 +396,14 @@ $(document).ready(function () {
             const resultDiv = $(`#save-result-wfb-key`);
             resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-wfb-key-success-alert">
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                加载配置成功！
+                                ${i18next.t('common.loadSuccess')}
                             </div>`);
             // 设置 2 秒后自动消失
             setTimeout(function () {
-                $(`#load-result-wfb-key-success-alert`).alert('close');
+                $('#load-result-wfb-key-success-alert').alert('close');
             }, 2000);
         }).fail(function () {
-            alert(`加载 wfb key 配置失败，请手动重新加载！`);
+            alert(i18next.t('common.loadFail'));
         });
     }
 
@@ -413,7 +417,7 @@ $(document).ready(function () {
                 reader.onload = function (e) {
                     const base64 = e.target.result.split(',')[1];
                     $(`input[data-key="wfb-${keypair}.${side}"]`).val(base64);
-                    console.log(`上传 ${side}:`, base64);
+                    console.log(`Upload ${side}:`, base64);
                 };
                 reader.readAsDataURL(file);
             }
@@ -461,10 +465,10 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(keypairContent),
             success: function () {
-                alert('key 已保存！');
+                alert(i18next.t('common.saveSuccess'));
             },
             error: function () {
-                alert('key 保存失败！');
+                alert(i18next.t('common.saveFail'));
             }
         });
     }
@@ -482,10 +486,10 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(keypairContent),
             success: function () {
-                alert('key 已应用！');
+                alert(`key ${i18next.t('common.applySuccess')}`);
             },
             error: function () {
-                alert(`${keypairContent['name']} key 应用失败！`);
+                alert(`${keypairContent['name']} key ${i18next.t('common.applyFail')}`);
             }
         });
     }
@@ -499,17 +503,17 @@ $(document).ready(function () {
             $(`[data-key="wfb-${keypair}.gs"]`).val(gsKeyBase64);
             $(`[data-key="wfb-${keypair}.drone"]`).val(droneKeyBase64);
 
-            const resultDiv = $(`#save-result-wfb-key`);
+            const resultDiv = $('#save-result-wfb-key');
             resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-wfb-key-success-alert">
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                生成随机 wfb key 成功！
+                                ${i18next.t('keyManager.randomKey')} ${i18next.t('common.success')}
                                 </div>`);
             // 设置 2 秒后自动消失
             setTimeout(function () {
-                $(`#load-result-wfb-key-success-alert`).alert('close');
+                $('#load-result-wfb-key-success-alert').alert('close');
             }, 2000);
         }).fail(function () {
-            alert(`生成随机 wfb key 失败`);
+            alert(`${i18next.t('keyManager.randomKey')} ${i18next.t('common.fail')}`);
         });
     }
 
@@ -520,7 +524,7 @@ $(document).ready(function () {
         const img = document.getElementById('previewImage');
         const video = document.getElementById('previewVideo');
         const videoSource = document.getElementById('previewVideoSource');
-        $('#previewModalLabel').text(`正在预览: ${filename}`);
+        $('#previewModalLabel').text(`${i18next.t('dvr.previewNow')}: ${filename}`);
 
         img.classList.add('d-none');
         video.classList.add('d-none');
@@ -539,11 +543,11 @@ $(document).ready(function () {
                 }
                 modal.show();
             })
-            .catch(() => alert("预览失败，文件可能已被删除或路径错误"));
+            .catch(() => alert(i18next.t('dvr.previewFail')));
     }
 
     function deleteVideoFile(filename) {
-        if (!confirm(`确定要删除 ${filename} 吗？`)) return;
+        if (!confirm(i18next.t('common.confirmDelete', {filename: filename}))) return;
 
         fetch(`/delete_video/${encodeURIComponent(filename)}`, { method: 'POST' })
             .then(response => response.json())
@@ -551,7 +555,7 @@ $(document).ready(function () {
                 if (data.status === "success") {
                     loadVideoFiles();
                 } else {
-                    alert("删除失败: " + data.message);
+                    alert(`${i18next.t('common.deleteFail')}${data.message}`);
                 }
             });
     }
@@ -583,7 +587,7 @@ $(document).ready(function () {
             // 将生成的内容插入到页面中
             systemInfoText.innerHTML = content;
         }).fail(function () {
-            systemInfoText.innerHTML = `无法获取${side}信息，请稍后再试。`;
+            systemInfoText.innerHTML = i18next.t('common.getInfoFail');
         });
     }
 
@@ -596,7 +600,7 @@ $(document).ready(function () {
                 const nicInfo = $(`
                     <h4 class="mt-4 d-flex justify-content-center align-items-center p-1 bg-secondary text-white rounded-2">
                         ${interfaceName} (${driver})
-                        <button class="btn btn-info btn-sm ms-2" id="acs-scan-${interfaceName}">开始扫描</button>
+                        <button class="btn btn-info btn-sm ms-2" id="acs-scan-${interfaceName}" data-i18n="acs.startScan">开始扫描</button>
                     </h4>
                     <div class="d-flex justify-content-center align-items-center mt-3">
                         <div id="acs-result-${interfaceName}"> <!-- ACS 结果将在此加载 --> </div>
@@ -607,11 +611,11 @@ $(document).ready(function () {
                 // 为 开始扫描 按钮绑定点击事件
                 $(`#acs-scan-${interfaceName}`).on('click', function () {
                     execAcsScan(interfaceName);
-                    $(`#acs-result-${interfaceName}`).text('扫描已开始，请等待扫描完成（5~10秒）。');
+                    $(`#acs-result-${interfaceName}`).text(i18next.t('acs.scanTips'));
                 });
             });
         }).fail(function () {
-            console.error('获取网卡信息失败');
+            console.error(i18next.t('acs.getNicFail'));
         });
     }
 
@@ -634,7 +638,7 @@ $(document).ready(function () {
             content += '</ul>';
             acsResult.innerHTML = content;
         }).fail(function () {
-            console.error('ACS 扫描失败');
+            console.error(i18next.t('acs.acsFail'));
         });
 
     }
@@ -649,9 +653,9 @@ $(document).ready(function () {
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         ${firmware}
                         <div>
-                            <button class="btn btn-warning btn-sm deleteBtn" data-firmware="${firmware}">删除</button>
-                            <button class="btn btn-info btn-sm sendBtn" data-firmware="${firmware}">上传</button>
-                            <button class="btn btn-danger btn-sm upgradeBtn" data-firmware="${firmware}">刷写</button>
+                            <button class="btn btn-warning btn-sm deleteBtn" data-firmware="${firmware}" data-i18n="common.delete">删除</button>
+                            <button class="btn btn-info btn-sm sendBtn" data-firmware="${firmware}" data-i18n="common.upload">上传</button>
+                            <button class="btn btn-danger btn-sm upgradeBtn" data-firmware="${firmware}" data-i18n="firmwareUpgrade.upgrade">刷写</button>
                         </div>
                     </li>
                     `;
@@ -660,7 +664,7 @@ $(document).ready(function () {
                 $('#firmwareList').html(html);
                 listenFirmwareOperate();
             } else {
-                $('#firmwareList').html('<div class="alert alert-info">没有可用固件，请先上传固件到GS。</div>');
+                $('#firmwareList').html(`<div class="alert alert-info">${i18next.t('firmwareUpgrade.noAvailableFirmware')}</div>`);
             }
         });
     }
@@ -675,11 +679,11 @@ $(document).ready(function () {
             contentType: false,
             processData: false,
             success: function (response) {
-                $('#firmwareUpgradeStatus').html('<div class="alert alert-success">上传成功: ' + response.message + '</div>');
+                $('#firmwareUpgradeStatus').html(`<div class="alert alert-success">${i18next.t('common.uploadSuccess')}: ${response.message}</div>`);
                 getFirmwareList();
             },
             error: function () {
-                $('#firmwareUpgradeStatus').html('<div class="alert alert-danger">上传失败，请重试。</div>');
+                $('#firmwareUpgradeStatus').html(`<div class="alert alert-danger">${i18next.t('common.uploadFail')}</div>`);
             }
         });
     }
@@ -688,13 +692,13 @@ $(document).ready(function () {
     function listenFirmwareOperate() {
         // 刷写固件
         $('#firmwareList').off('click', '.upgradeBtn').on('click', '.upgradeBtn', function () {
-            $('#firmwareUpgradeStatus').html('<div class="alert alert-success ">正在执行升级，请耐心等待!</div>');
+            $('#firmwareUpgradeStatus').html(`<div class="alert alert-success ">${i18next.t('firmwareUpgrade.upgradeTips')}</div>`);
             var firmware = $(this).data('firmware');
             $.post('/upgrade/execute', { firmware: firmware }, function (response) {
                 $('#firmwareUpgradeStatus').html(`<div class="alert alert-success ">${response.message}</div>`);
                 getSysupgradeProcess();
             }).fail(function () {
-                $('#firmwareUpgradeStatus').html('<div class="alert alert-danger">升级失败，请重试。</div>');
+                $('#firmwareUpgradeStatus').html(`<div class="alert alert-danger">${i18next.t('firmwareUpgrade.upgradeFail')}</div>`);
             });
 
             function getSysupgradeProcess() {
@@ -712,7 +716,7 @@ $(document).ready(function () {
                 };
 
                 eventSource.onerror = function () {
-                    console.log("SSE 连接关闭");
+                    console.log("SSE connect closed");
                     eventSource.close();  // 关闭 SSE 连接，防止重复连接
                 };
             }
@@ -720,29 +724,29 @@ $(document).ready(function () {
 
         // 发送固件
         $('#firmwareList').off('click', '.sendBtn').on('click', '.sendBtn', function () {
-            $('#firmwareUpgradeStatus').html('<div class="alert alert-info ">正在上传，请耐心等待（可能非常慢 ~50KB/s）!</div>');
+            $('#firmwareUpgradeStatus').html(`<div class="alert alert-info ">${i18next.t('firmwareUpgrade.sendFirmwareTips')}</div>`);
             var firmware = $(this).data('firmware');
             $.post('/upgrade/send', { firmware: firmware }, function (response) {
                 $('#firmwareUpgradeStatus').html(`<div class="alert alert-success">${response.message}</div>`);
             }).fail(function () {
-                $('#firmwareUpgradeStatus').html('<div class="alert alert-danger">发送失败，请重试。</div>');
+                $('#firmwareUpgradeStatus').html(`<div class="alert alert-danger">${i18next.t('firmwareUpgrade.sendFail')}</div>`);
             });
         });
 
         // 删除固件
         $('#firmwareList').off('click', '.deleteBtn').on('click', '.deleteBtn', function () {
             var firmware = $(this).data('firmware');
-            if (confirm(`确定删除固件文件 "${firmware}" 吗？`)) {
+            if (confirm(i18next.t('common.confirmDelete', {filename: firmware}))) {
                 $.ajax({
                     url: '/upgrade/delete',
                     type: 'POST',
                     data: { firmware: firmware },
                     success: function (response) {
-                        $('#firmwareUpgradeStatus').html(`<div class="alert alert-success">删除成功: ${response.message}</div>`);
+                        $('#firmwareUpgradeStatus').html(`<div class="alert alert-success">${i18next.t('common.deleteSuccess')}: ${response.message}</div>`);
                         getFirmwareList(); // 删除后刷新页面
                     },
                     error: function () {
-                        $('#firmwareUpgradeStatus').html('<div class="alert alert-danger">删除失败，请重试。</div>');
+                        $('#firmwareUpgradeStatus').html(`<div class="alert alert-danger">${i18next.t('common.deleteFail')}</div>`);
                         // alert('删除失败，请重试');
                     }
                 });
@@ -763,11 +767,11 @@ $(document).ready(function () {
                 processData: false,
                 contentType: false,
                 success: function (response) {
-                    $('#rescueServiceStatus').html('<div class="alert alert-success">上传成功。</div>');
+                    $('#rescueServiceStatus').html(`<div class="alert alert-success">${i18next.t('common.uploadSuccess')}</div>`);
                 },
                 error: function (xhr, status, error) {
-                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "上传失败";
-                    $('#rescueServiceStatus').html(`<div class="alert alert-danger">上传失败，请重试。${errorMessage}</div>`);
+                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "Upload failed";
+                    $('#rescueServiceStatus').html(`<div class="alert alert-danger">${i18next.t('common.uploadFail')}${errorMessage}</div>`);
                 }
             });
         });
@@ -784,10 +788,10 @@ $(document).ready(function () {
             contentType: "application/json",
             data: JSON.stringify({ time: formattedTime, timezone: timeZone }),
             success: function (response) {
-                console.log("服务器时间已同步:", response);
+                console.log("Server time synced:", response);
             },
             error: function (error) {
-                console.error("同步失败:", error.responseText);
+                console.error("Sync time Failed:", error.responseText);
             }
         });
     }

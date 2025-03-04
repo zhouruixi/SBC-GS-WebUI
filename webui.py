@@ -14,6 +14,7 @@ from flask import (
     send_from_directory,
     render_template_string,
 )
+from flask_babel import Babel
 from configobj import ConfigObj
 from ruamel.yaml import YAML
 import os
@@ -349,7 +350,7 @@ ssh = SSHClient(config_info["drone_config"]["ssh"])
 Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
 config_drone = None
 sysupgrade_stdout = None
-
+babel = Babel(app)
 
 try:
     ssh.connect()
@@ -361,6 +362,9 @@ except Exception as e:
 def before_request():
     g.plotter_settings = config_info["gs_config"]["plotter"]
 
+def before_request():
+    # 获取浏览器语言偏好
+    g.locale = request.accept_languages.best_match(['en', 'zh', 'ru'])
 
 app.register_blueprint(filemanager_bp)
 app.register_blueprint(plotter_bp)
