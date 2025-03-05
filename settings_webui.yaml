@@ -99,6 +99,8 @@ gs_config:
     mbit_max: 16.0
 
 drone_config:
+  # drone firmware type can be latest or legacy, recommended set it manually
+  firmware_type: auto
   ssh:
     # hostname: '192.168.1.10'
     hostname: 10.5.0.10
@@ -164,22 +166,26 @@ drone_config:
     wfb_channel:
       color: danger
       command: "wfb-cli -s .wireless.channel {target_value} && /etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &"
+      command_legacy: "sed -i 's/^channel=.*/channel={target_value}/g' /etc/wfb.conf && /etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &"
       options: ["36", "157", "161"]
       tip: "Please enter the WiFi channel."
     wfb_mcs:
       color: primary
       command: "wfb_tx_cmd 8000 set_radio -B 20 -G long -S 1 -L 1 -M {target_value}"
+      command_legacy: "sed -i 's/^mcs_index=.*/mcs_index={target_value}/g' /etc/wfb.conf && wfb_tx_cmd 8000 set_radio -B 20 -G long -S 1 -L 1 -M {target_value}"
       options: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
       tip: "Please enter the WiFi MCS index."
     wfb_txpower:
       color: primary
       command: '[ "$(basename $(readlink /sys/class/net/wlan0/device/driver))" == "rtl88xxau" ] && iw wlan0 set txpower fixed "$(({target_value} * -100))" || iw wlan0 set txpower fixed "$(({target_value} * 50))"'
+      command_legacy: 'sed -i "s/^txpower=.*/txpower={target_value}/g" /etc/wfb.conf && [ "$(basename $(readlink /sys/class/net/wlan0/device/driver))" == "rtl88xxau" ] && iw wlan0 set txpower fixed "$(({target_value} * -100))" || iw wlan0 set txpower fixed "$(({target_value} * 50))"'
       options: ["1", "5", "15", "25", "35", "45"]
       tip: "Please enter the WiFi Tx power(0~63). Not recommend exceed 45 for RTL8812 CU/EU"
     wfb_bandwidth:
       color: danger
       command: "wfb-cli -s .wireless.mode {target_value} && channel=$(iw dev wlan0 info | awk '/channel/ {{print $2}}') && iw wlan0 set channel $channel {target_value}"
       # command: "wfb-cli -s .wireless.mode {target_value} && /etc/init.d/S98wifibroadcast stop && /etc/init.d/S98wifibroadcast start &"
+      command_legacy: "sed -i 's/^bandwidth=.*/bandwidth={target_value}/g' /etc/wfb.conf && channel=$(iw dev wlan0 info | awk '/channel/ {{print $2}}') && iw wlan0 set channel $channel {target_value}"
       options: ["HT20", "HT40+"]
       tip: "Please enter the WiFi bandwidth."
   systeminfo:
@@ -199,13 +205,13 @@ drone_config:
   wfb:
     path: /etc/wfb.yaml
     format: yaml
-  wfb_legency:
+  wfb_legacy:
     path: /etc/wfb.conf
     format: ini
-  datalink_legency:
+  datalink_legacy:
     path: /etc/datalink.conf
     format: ini
-  telemetry_legency:
+  telemetry_legacy:
     path: /etc/telemetry.conf
     format: ini
 

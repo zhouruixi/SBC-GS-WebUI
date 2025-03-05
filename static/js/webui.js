@@ -192,7 +192,7 @@ $(document).ready(function () {
             }
             resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-drone-${config_name}-success-alert">
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                data-i18n="common.loadSuccess">${i18next.t('common.loadSuccess')}</div>
+                                <div data-i18n="common.loadSuccess">${i18next.t('common.loadSuccess')}</div>
                                 </div>`);
             // 设置 2 秒后自动消失
             setTimeout(function () {

@@ -347,15 +347,11 @@ app = Flask(__name__)
 app.json.sort_keys = False  # 禁用 jsonify 自动排序
 app.config['MANAGER_FOLDER'] = "/config"
 ssh = SSHClient(config_info["drone_config"]["ssh"])
+drone_firmware_type = config_info["drone_config"]["firmware_type"]
 Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
-config_drone = None
+config_drone = {}
 sysupgrade_stdout = None
 babel = Babel(app)
-
-try:
-    ssh.connect()
-except Exception as e:
-    print(f"连接drone失败: {str(e)}")
 
 
 @app.before_request
@@ -366,6 +362,18 @@ def before_request():
     # 获取浏览器语言偏好
     g.locale = request.accept_languages.best_match(['en', 'zh', 'ru'])
 
+# 如果配置中未指定天空端固件版本则自动获取
+def get_drone_firmware_type():
+    global drone_firmware_type
+    if drone_firmware_type not in ['latest', 'legacy']:
+        get_firmware_type_cmd = "[ -f /etc/wfb.conf ] && printf legacy || printf latest"
+        try:
+            ssh.connect()
+            drone_firmware_type = ssh.execute_command(get_firmware_type_cmd)
+        except Exception as e:
+            print(f"Failed to get drone firmware version: {str(e)}")
+
+# 注册蓝图
 app.register_blueprint(filemanager_bp)
 app.register_blueprint(plotter_bp)
 
@@ -450,36 +458,45 @@ def save_gs_config(filename):
 @app.route("/load_drone_config/<filename>", methods=["GET"])
 def load_drone_config(filename):
     global config_drone
+    config_drone[filename] = {}
     drone_files_dir = os.path.join(script_dir, "drone_files")
     os.makedirs(drone_files_dir, exist_ok=True)
-    config_file_remote = config_info["drone_config"][filename]["path"]
-    config_file_local = f"drone_files/{os.path.basename(config_file_remote)}"
-    try:
-        ssh.connect()
-        ssh.download_file(config_file_remote, config_file_local)
-        config_drone = load_yaml_config(config_file_local)
-        return jsonify(config_drone)
-    except EOFError as e:
-        # 捕捉EOFError并记录错误
-        print(f"EOFError: 网络连接中断或远程服务器关闭连接: {str(e)}")
-        # 可以选择重试逻辑或者其他恢复策略
-        return jsonify({"error": "Failed to load configuration."}), 400
-    except Exception as e:
-        # 捕捉其他所有异常并记录
-        print(f"发生了其他错误: {str(e)}")
-        return jsonify({"error": "Failed to load configuration."}), 400
-    finally:
-        # ssh.close()
-        pass
+    # 获取天空端固件版本
+    get_drone_firmware_type()
+    if drone_firmware_type not in ['latest', 'legacy']:
+        return jsonify({"error": "Failed to get drone firmware version."}), 400
+    if drone_firmware_type == "legacy" and filename == "wfb":
+        try:
+            ssh.connect()
+            for file in ['wfb', 'datalink', 'telemetry']:
+                config_file_remote = config_info["drone_config"][f"{file}_legacy"]["path"]
+                config_file_local = f"drone_files/{os.path.basename(config_file_remote)}"
+                ssh.download_file(config_file_remote, config_file_local)
+                config = load_ini_config(config_file_local)
+                config_drone[filename][file] = config.dict()
+            return jsonify(config_drone[filename])
+        except Exception as e:
+            print(f"load configuration failed: {str(e)}")
+            return jsonify({"error": "Failed to load configuration."}), 400
+    else:
+        try:
+            ssh.connect()
+            config_file_remote = config_info["drone_config"][filename]["path"]
+            config_file_local = f"drone_files/{os.path.basename(config_file_remote)}"
+            ssh.download_file(config_file_remote, config_file_local)
+            config_drone[filename] = load_yaml_config(config_file_local)
+            return jsonify(config_drone[filename])
+        except Exception as e:
+            print(f"load configuration failed: {str(e)}")
+            return jsonify({"error": "Failed to load configuration."}), 400
 
 
 @app.route("/save_drone_config/<filename>", methods=["POST"])
 def save_drone_config(filename):
-    global config_drone
-    if not config_drone:
+    if not config_drone[filename]:
         return jsonify({"success": False, "message": "请先获取配置"})
     config_drone_old = {}
-    for file, content in config_drone.items():
+    for file, content in config_drone[filename].items():
         for k, v in content.items():
             if v is True:
                 v = "true"
@@ -490,24 +507,38 @@ def save_drone_config(filename):
     # print(f"【Old】{config_drone_old}")
     try:
         config_drone_new = request.json  # 获取前端传来的 JSON 数据
-        # print(f"【New】{config_drone_new}")
         if config_drone_new == {}:
             return jsonify({"success": False, "message": "请先加载配置！"})
-        # update_content = {k: config_drone_new[k] for k in config_drone_old if k in config_drone_new and config_drone_old[k] != config_drone_new[k]}
+        # 比较获取更新的设置及内容
         update_content = get_new_dict_value(config_drone_old, config_drone_new)
-        # print(update_content)
+        # 初始化用于存储更新命令的变量
         update_command = ""
-        update_command_used = ""
-        if filename == "wfb":
-            update_command_used = "wfb-cli"
-        elif filename == "majestic":
-            update_command_used = "cli"
+        update_content_legacy = {}
+        # legacy固件wfb更新
+        if drone_firmware_type == "legacy" and filename == "wfb":
+            # 将表单转为二维字典
+            for k, v in update_content.items():
+                config_file, config_key = k.split('.', 1)
+                if config_file not in update_content_legacy:
+                    update_content_legacy[config_file] = {}
+                update_content_legacy[config_file][config_key] = v
+            # 遍历字典为每个文件生成一个更新命令
+            for file, content in update_content_legacy.items():
+                update_command_used = "sed -i"
+                for option, vlaue in content.items():
+                    update_command_used += f' -e "s/^{option}=.*/{option}={vlaue}/g"'
+                file_path = config_info['drone_config'][f"{file}_legacy"]['path']
+                update_command_used += f" {file_path} && "
+                update_command += update_command_used
         else:
-            update_command_used = ""
-        for k, v in update_content.items():
-            update_command += f"{update_command_used} -s .{k} {v} && "
+            if filename == "wfb":
+                update_command_used = "wfb-cli"
+            elif filename == "majestic":
+                update_command_used = "cli"
+            for k, v in update_content.items():
+                update_command += f"{update_command_used} -s .{k} {v} && "
         update_command += "echo success"
-        print(update_command)
+        # print(update_command)
 
         ssh.connect()
         print("Executing remote command...")
@@ -559,7 +590,11 @@ def exec_button_function():
     elif button_id.startswith("drone_setting_"):
         function_name = button_id.removeprefix("drone_setting_")
         target_value = data.get("target_value")
-        command_template = config_info["drone_config"]["quick_setting"][function_name]["command"]
+        function_info = config_info["drone_config"]["quick_setting"][function_name]
+        if drone_firmware_type == "legacy" and "command_legacy" in function_info:
+            command_template = function_info["command_legacy"]
+        else:
+            command_template = function_info["command"]
         button_command = command_template.format(target_value=target_value)
         try:
             ssh.connect()
