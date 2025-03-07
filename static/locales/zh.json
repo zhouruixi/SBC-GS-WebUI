@@ -130,7 +130,7 @@
     "sendFail": "发送失败，请重试！"
   },
   "unbrickMode": {
-    "title": "Drone 救砖模式（TFTP + TTL）",
+    "title": "Drone 救砖模式（TFTP + UART）",
     "uploadRescueFirmware": "上传救砖固件",
     "startRescueService": "启动救砖服务",
     "stopRescueService": "停止救砖服务",

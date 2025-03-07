@@ -106,33 +106,45 @@ def base64_to_file(base64_string, output_file_path):
         file.write(file_data)
 
 
-class SSHClient:
-    def __init__(self, host_conf):
-        """
-        初始化 SSH 客户端
+class SSHClientSingleton:
+    _instance = None
+    _lock = threading.Lock()
+    _connection_lock = threading.Lock()
+
+    def __new__(cls):
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super(SSHClientSingleton, cls).__new__(cls)
+                cls._instance._initialized = False
+            return cls._instance
+
+    def __init__(self):
+        if not self._initialized:
+            with self._lock:
+                if not self._initialized:
+                    self.client = None
+                    self.transport = None
+                    self.last_activity_time = None
+                    self.close_timer = None
+                    self.max_retries = 3
+                    self.retry_delay = 1
+                    self._initialized = True
+                    self._config = None
+
+    def configure(self, host_conf):
+        """配置 SSH 连接参数
         Args:
-            host_conf (dict): 包含连接信息的字典，必须包含以下键:
-                - hostname: 主机地址
-                - username: 用户名
-                - password: 密码
-                - port: 端口号
+            host_conf (dict): 包含连接信息的字典
         """
-        self.hostname = host_conf["hostname"]
-        self.username = host_conf["username"]
-        self.password = host_conf["password"]
-        self.port = host_conf["port"]
-        self.client = None
-        self.last_activity_time = None
-        self.close_timer = None
-        self.max_retries = 3
-        self.retry_delay = 1  # 重试延迟秒数
+        self._config = {
+            'hostname': host_conf['hostname'],
+            'username': host_conf['username'],
+            'password': host_conf['password'],
+            'port': host_conf['port']
+        }
 
     def _is_connection_active(self):
-        """
-        检查 SSH 连接是否处于活动状态
-        Returns:
-            bool: 连接是否活动
-        """
+        """检查 SSH 连接是否处于活动状态"""
         return (
             self.client is not None
             and self.client.get_transport() is not None
@@ -140,197 +152,163 @@ class SSHClient:
         )
 
     def connect(self):
-        """
-        建立 SSH 连接，如果已经存在活动连接则不会重新连接
-        Raises:
-            paramiko.ssh_exception.NoValidConnectionsError: 无法连接到目标主机
-            paramiko.AuthenticationException: 认证失败
-            paramiko.SSHException: SSH 连接失败
-            Exception: 其他连接错误
-        """
-        if self._is_connection_active():
-            print(f"Already connected to {self.hostname}. No need to reconnect.")
-            return
+        """建立 SSH 连接，使用线程锁确保线程安全"""
+        if not self._config:
+            raise ValueError("SSH configuration not set. Call configure() first.")
 
-        # 如果连接不活跃，先确保关闭旧连接
-        if self.client:
-            try:
-                self.client.close()
-            except Exception:
-                pass
-            self.client = None
-
-        self.client = paramiko.SSHClient()
-        self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-        retry_count = 0
-        last_exception = None
-
-        while retry_count < self.max_retries:
-            try:
-                self.client.connect(
-                    self.hostname,
-                    username=self.username,
-                    password=self.password,
-                    port=self.port,
-                    timeout=2,
-                )
-                self.last_activity_time = time.time()
-                print(f"Connected to {self.hostname}")
+        with self._connection_lock:
+            if self._is_connection_active():
                 return
-            except paramiko.ssh_exception.NoValidConnectionsError as e:
-                print(
-                    f"无法连接到目标主机 {self.hostname}, 尝试重连... (重试 {retry_count + 1}/{self.max_retries})"
-                )
-                last_exception = e
-            except paramiko.AuthenticationException as e:
-                print(
-                    f"Authentication failed when connecting to {self.hostname}. Please check your username/password."
-                )
-                raise
-            except paramiko.SSHException as e:
-                print(f"SSH connection failed to {self.hostname}. SSH error: {str(e)}")
-                last_exception = e
-            except Exception as e:
-                print(f"Failed to connect to {self.hostname}. Error: {str(e)}")
-                last_exception = e
 
-            retry_count += 1
-            if retry_count < self.max_retries:
-                time.sleep(self.retry_delay)
+            if self.client:
+                try:
+                    self.client.close()
+                except Exception:
+                    pass
+                self.client = None
 
-        if last_exception:
-            raise last_exception
+            self.client = paramiko.SSHClient()
+            self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+            retry_count = 0
+            last_exception = None
+
+            while retry_count < self.max_retries:
+                try:
+                    self.client.connect(
+                        self._config['hostname'],
+                        username=self._config['username'],
+                        password=self._config['password'],
+                        port=self._config['port'],
+                        timeout=2
+                    )
+                    self.transport = self.client.get_transport()
+                    self.last_activity_time = time.time()
+                    print(f"Connected to {self._config['hostname']}")
+                    return
+                except paramiko.ssh_exception.NoValidConnectionsError as e:
+                    print(f"Unable connect to {self._config['hostname']}, Try to reconnect... (Retrying {retry_count + 1}/{self.max_retries})")
+                    last_exception = e
+                except paramiko.AuthenticationException as e:
+                    print(f"Authentication failed when connecting to {self._config['hostname']}. Please check your username/password.")
+                    raise
+                except paramiko.SSHException as e:
+                    print(f"SSH connection failed to {self._config['hostname']}. SSH error: {str(e)}")
+                    last_exception = e
+                except Exception as e:
+                    print(f"Failed to connect to {self._config['hostname']}. Error: {str(e)}")
+                    last_exception = e
+
+                retry_count += 1
+                if retry_count < self.max_retries:
+                    time.sleep(self.retry_delay)
+
+            if last_exception:
+                raise last_exception
 
     def execute_command(self, command):
-        """
-        执行 SSH 命令
-        Args:
-            command (str): 要执行的命令
-        Returns:
-            str: 命令执行的输出
-        Raises:
-            ValueError: SSH 连接未建立
-            Exception: 命令执行错误
-        """
-        if not self._is_connection_active():
-            print("SSH connection is not active. Reconnecting...")
-            self.connect()
+        """执行 SSH 命令"""
+        with self._connection_lock:
+            if not self._is_connection_active():
+                print("SSH connection is not active. Reconnecting...")
+                self.connect()
 
-        stdin, stdout, stderr = self.client.exec_command(command)
-        output = stdout.read().decode("utf-8")
-        error = stderr.read().decode("utf-8")
+            channel = self.transport.open_session()
+            channel.exec_command(command)
+            stdout = channel.makefile("r", -1).read().decode("utf-8")
+            stderr = channel.makefile_stderr("r", -1).read().decode("utf-8")
+            channel.close()
 
-        if error:
-            raise Exception(f"Error executing command: {error}")
+            if stderr:
+                raise Exception(f"Error executing command: {stderr}")
 
-        self.last_activity_time = time.time()
-        self._reset_close_timer()
+            self.last_activity_time = time.time()
+            self._reset_close_timer()
 
-        # print(output)
-        return output
-
-    def download_file(self, remote_path, local_path):
-        """
-        从远程服务器下载文件
-        Args:
-            remote_path (str): 远程文件路径
-            local_path (str): 本地保存路径
-        Raises:
-            ValueError: 本地目录不存在
-            Exception: 下载失败
-        """
-        if not self._is_connection_active():
-            print("SSH connection is not active. Reconnecting...")
-            self.connect()
-
-        if not os.path.isdir(os.path.dirname(local_path)):
-            raise ValueError(
-                f"Local path directory does not exist: {os.path.dirname(local_path)}"
-            )
-
-        retry_count = 0
-        while retry_count < self.max_retries:
-            try:
-                with SCPClient(self.client.get_transport()) as scp:
-                    print(f"Download from {remote_path} to {local_path}...")
-                    scp.get(remote_path, local_path)
-                    print(f"Download {remote_path} sucess.")
-                    break
-            except Exception as e:
-                retry_count += 1
-                if retry_count < self.max_retries:
-                    print(
-                        f"Download {remote_path} failed, attempting retry {retry_count}/{self.max_retries}..."
-                    )
-                    time.sleep(self.retry_delay)
-                    self.connect()  # 重新连接
-                else:
-                    print(f"Failed to download {remote_path} after {self.max_retries} attempts.")
-                    raise
-
-        self.last_activity_time = time.time()
-        self._reset_close_timer()
+            return stdout
 
     def upload_file(self, local_path, remote_path):
-        """
-        上传文件到远程服务器
-        Args:
-            local_path (str): 本地文件路径
-            remote_path (str): 远程保存路径
-        Raises:
-            FileNotFoundError: 本地文件不存在
-            Exception: 上传失败
-        """
-        if not os.path.exists(local_path):
-            raise FileNotFoundError(f"Local file does not exist: {local_path}")
+        """上传文件到远程服务器"""
+        with self._connection_lock:
+            if not os.path.exists(local_path):
+                raise FileNotFoundError(f"Local file does not exist: {local_path}")
 
-        if not self._is_connection_active():
-            print("SSH connection is not active. Reconnecting...")
-            self.connect()
+            if not self._is_connection_active():
+                print("SSH connection is not active. Reconnecting...")
+                self.connect()
 
-        retry_count = 0
-        while retry_count < self.max_retries:
-            try:
-                with SCPClient(self.client.get_transport()) as scp:
-                    scp.put(local_path, remote_path)
-                    print(f"File uploaded from {local_path} to {remote_path}.")
-                    break
-            except Exception as e:
-                retry_count += 1
-                if retry_count < self.max_retries:
-                    print(
-                        f"Upload failed, attempting retry {retry_count}/{self.max_retries}..."
-                    )
-                    time.sleep(self.retry_delay)
-                    self.connect()  # 重新连接
-                else:
-                    print(f"Failed to upload file after {self.max_retries} attempts.")
-                    raise
+            retry_count = 0
+            while retry_count < self.max_retries:
+                try:
+                    with SCPClient(self.client.get_transport()) as scp:
+                        scp.put(local_path, remote_path)
+                        print(f"File uploaded from {local_path} to {remote_path}.")
+                        break
+                except Exception as e:
+                    retry_count += 1
+                    if retry_count < self.max_retries:
+                        print(f"Upload failed, attempting retry {retry_count}/{self.max_retries}...")
+                        time.sleep(self.retry_delay)
+                        self.connect()
+                    else:
+                        print(f"Failed to upload file after {self.max_retries} attempts.")
+                        raise
 
-        self.last_activity_time = time.time()
-        self._reset_close_timer()
+            self.last_activity_time = time.time()
+            self._reset_close_timer()
+
+    def download_file(self, remote_path, local_path):
+        """从远程服务器下载文件"""
+        with self._connection_lock:
+            if not os.path.isdir(os.path.dirname(local_path)):
+                raise ValueError(f"Local path directory does not exist: {os.path.dirname(local_path)}")
+
+            if not self._is_connection_active():
+                print("SSH connection is not active. Reconnecting...")
+                self.connect()
+
+            retry_count = 0
+            while retry_count < self.max_retries:
+                try:
+                    with SCPClient(self.client.get_transport()) as scp:
+                        print(f"Download from {remote_path} to {local_path}...")
+                        scp.get(remote_path, local_path)
+                        print(f"Download {remote_path} success.")
+                        break
+                except Exception as e:
+                    retry_count += 1
+                    if retry_count < self.max_retries:
+                        print(f"Download {remote_path} failed, attempting retry {retry_count}/{self.max_retries}...")
+                        time.sleep(self.retry_delay)
+                        self.connect()
+                    else:
+                        print(f"Failed to download {remote_path} after {self.max_retries} attempts.")
+                        raise
+
+            self.last_activity_time = time.time()
+            self._reset_close_timer()
 
     def _reset_close_timer(self):
         """重置自动关闭连接的定时器"""
         if self.close_timer:
             self.close_timer.cancel()
 
-        self.close_timer = threading.Timer(1000, self.close)  # 5分钟后自动关闭
+        self.close_timer = threading.Timer(1000, self.close)
         self.close_timer.start()
 
     def close(self):
         """关闭 SSH 连接"""
-        if self.client:
-            try:
-                self.client.close()
-                print("SSH connection closed.")
-            except Exception as e:
-                print(f"Error closing SSH connection: {str(e)}")
-            finally:
-                self.client = None
-                if self.close_timer:
-                    self.close_timer.cancel()
+        with self._connection_lock:
+            if self.client:
+                try:
+                    self.client.close()
+                    print("SSH connection closed.")
+                except Exception as e:
+                    print(f"Error closing SSH connection: {str(e)}")
+                finally:
+                    self.client = None
+                    if self.close_timer:
+                        self.close_timer.cancel()
 
 
 def format_size(size):
@@ -346,7 +324,8 @@ config_info = load_yaml_config(config_info_file)
 app = Flask(__name__)
 app.json.sort_keys = False  # 禁用 jsonify 自动排序
 app.config['MANAGER_FOLDER'] = "/config"
-ssh = SSHClient(config_info["drone_config"]["ssh"])
+ssh = SSHClientSingleton()
+ssh.configure(config_info["drone_config"]["ssh"])
 drone_firmware_type = config_info["drone_config"]["firmware_type"]
 Videos_dir = load_config(config_info, "gs", "gs")["rec_dir"]
 config_drone = {}

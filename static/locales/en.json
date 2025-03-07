@@ -130,7 +130,7 @@
     "sendFail": "Sending failed, please try again!"
   },
   "unbrickMode": {
-    "title": "Drone Unbrick Mode (TFTP + TTL)",
+    "title": "Drone Unbrick Mode (TFTP + UART)",
     "uploadRescueFirmware": "Ppload Rescue Firmware",
     "startRescueService": "Start Rescue Service",
     "stopRescueService": "Stop Rescue Service",

@@ -47,7 +47,7 @@
       "gsInfo": "Информация о GS",
       "droneInfo": "Информация о Drone",
       "firmwareUpgrade": "Обновление прошивки",
-      "unbrickMode": "Прошивка через TFTP + TTL",
+      "unbrickMode": "Прошивка через TFTP + UART",
       "about": "О программе..."
     },
     "webButton": {
@@ -130,7 +130,7 @@
       "sendFail": "Отправка не удалась, попробуйте еще раз!"
     },
     "unbrickMode": {
-      "title": "Drone - Прошивка через TFTP + TTL (Раскирпичивание)",
+      "title": "Drone - Прошивка через TFTP + UART (Раскирпичивание)",
       "uploadRescueFirmware": "Загрузить прошивку в камеру",
       "startRescueService": "Начать запись прошивки",
       "stopRescueService": "Остановить запись прошивки",
