@@ -664,7 +664,7 @@ $(document).ready(function () {
                 $('#firmwareList').html(html);
                 listenFirmwareOperate();
             } else {
-                $('#firmwareList').html(`<div class="alert alert-info">${i18next.t('firmwareUpgrade.noAvailableFirmware')}</div>`);
+                $('#firmwareList').html(`<div class="alert alert-info" data-i18n="firmwareUpgrade.noAvailableFirmware">没有可用固件，请先上传固件到GS。</div>`);
             }
         });
     }
