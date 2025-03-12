@@ -86,8 +86,10 @@
     "downloadGsKey": "Download gs key",
     "uploadDroneKey": "Upload drone key",
     "downloadDroneKey": "Download drone key",
-    "randomKey": "Randomly generate keys",
-    "saveToFile": "Save to configuration file"
+    "randomKey": "Random keys",
+    "saveToFile": "Save to configuration file",
+    "keyPassword": "keys password",
+    "derivationKeypair": "derivation keypair"
   },
   "acs": {
     "title": "WiFi Automatic Channel Selection (click to refresh)",

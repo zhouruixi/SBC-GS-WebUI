@@ -714,9 +714,14 @@ def apply_wfb_key(side):
         return jsonify({"error": f"应用 key 失败: {str(e)}"}), 500
 
 
-@app.route("/get_random_wfb_key", methods=["GET"])
+@app.route("/get_random_wfb_key", methods=["GET", "POST"])
 def get_random_wfb_key():
-    wfb_keygen_command = "cd /dev/shm && wfb_keygen"
+    if request.method == "POST":
+        password = request.json.get("password", "")
+        wfb_keygen_command = f"cd /dev/shm && wfb_keygen '{password}'"
+    else:
+        wfb_keygen_command = "cd /dev/shm && wfb_keygen"
+
     subprocess.run(wfb_keygen_command, shell=True)
     gs_key_path = "/dev/shm/gs.key"
     drone_key_path = "/dev/shm/drone.key"

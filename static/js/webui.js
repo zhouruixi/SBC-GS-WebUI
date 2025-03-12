@@ -355,15 +355,21 @@ $(document).ready(function () {
                             <button type="button" class="btn btn-primary" id="upload-drone-key-${keypair}" data-i18n="keyManager.uploadDroneKey">${i18next.t('keyManager.uploadDroneKey')}</button>
                             <button type="button" class="btn btn-success" id="download-drone-key-${keypair}" data-i18n="keyManager.downloadDroneKey">${i18next.t('keyManager.downloadDroneKey')}</button>
                             <button type="button" class="btn btn-secondary" id="random-key-${keypair}" data-i18n="keyManager.randomKey">${i18next.t('keyManager.randomKey')}</button>
+                            <input type="password" id="wfb-key-password-${keypair}" placeholder="${i18next.t("keyManager.keyPassword")}" data-i18n-placeholder="keyManager.keyPassword">
+                            <button type="button" class="btn btn-secondary" id="random-key-password-${keypair}" data-i18n="keyManager.derivationKeypair">${i18next.t('keyManager.derivationKeypair')}</button>
                             <button type="button" class="btn btn-warning" id="save-key-${keypair}" data-i18n="keyManager.saveToFile">${i18next.t('keyManager.saveToFile')}</button>
                         </div>
                     </div>`;
                 container.append(button_key_pair);
 
-                // 为随机生成按钮绑定点击事件
+                // 为随机生成 wfb key 按钮绑定点击事件
                 $(`#random-key-${keypair}`).on('click', function () {
                     // 调用 getRandomWfbKey 函数并传递 keypair
                     getRandomWfbKey(keypair);
+                });
+                $(`#random-key-password-${keypair}`).on('click', function () {
+                    const wfbKeyPassword = $(`#wfb-key-password-${keypair}`).val();
+                    getRandomWfbKey(keypair, wfbKeyPassword);
                 });
 
                 // 为保存 key 按钮绑定点击事件
@@ -495,26 +501,48 @@ $(document).ready(function () {
     }
 
     // 生成随机 wfb key 配置
-    function getRandomWfbKey(keypair) {
-        $.get('get_random_wfb_key', function (data) {
-            const gsKeyBase64 = data.gs;
-            const droneKeyBase64 = data.drone;
-            // 使用 jQuery 查找具有 data-key="key1.gs" 属性的输入框并填充值
-            $(`[data-key="wfb-${keypair}.gs"]`).val(gsKeyBase64);
-            $(`[data-key="wfb-${keypair}.drone"]`).val(droneKeyBase64);
+    function getRandomWfbKey(keypair, password = null) {
+        const url = 'get_random_wfb_key';
 
-            const resultDiv = $('#save-result-wfb-key');
-            resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-wfb-key-success-alert">
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                ${i18next.t('keyManager.randomKey')} ${i18next.t('common.success')}
-                                </div>`);
-            // 设置 2 秒后自动消失
-            setTimeout(function () {
-                $('#load-result-wfb-key-success-alert').alert('close');
-            }, 2000);
-        }).fail(function () {
-            alert(`${i18next.t('keyManager.randomKey')} ${i18next.t('common.fail')}`);
-        });
+        if (password) {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify({ password: password }),
+                success: function (data) {
+                    showWfbKey(data, keypair);
+                },
+                error: function () {
+                    alert(`${i18next.t('keyManager.randomKey')} ${i18next.t('common.fail')}`);
+                }
+            });
+        } else {
+            $.get(url, function (data) {
+                showWfbKey(data, keypair);
+            }).fail(function () {
+                alert(`${i18next.t('keyManager.randomKey')} ${i18next.t('common.fail')}`);
+            });
+        }
+    }
+
+    // 在页面中展示生成的 wfb key
+    function showWfbKey(data, keypair) {
+        const gsKeyBase64 = data.gs;
+        const droneKeyBase64 = data.drone;
+
+        $(`[data-key="wfb-${keypair}.gs"]`).val(gsKeyBase64);
+        $(`[data-key="wfb-${keypair}.drone"]`).val(droneKeyBase64);
+
+        const resultDiv = $('#save-result-wfb-key');
+        resultDiv.html(`<div class="alert alert-success alert-dismissible fade show" role="alert" id="load-result-wfb-key-success-alert">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            ${i18next.t('keyManager.randomKey')} ${i18next.t('common.success')}
+                        </div>`);
+
+        setTimeout(function () {
+            $('#load-result-wfb-key-success-alert').alert('close');
+        }, 2000);
     }
 
     // 点击预览后显示内容到模态框

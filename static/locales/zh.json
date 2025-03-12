@@ -87,7 +87,9 @@
     "uploadDroneKey": "上传 drone key",
     "downloadDroneKey": "下载 drone key",
     "randomKey": "随机生成key",
-    "saveToFile": "保存到配置文件"
+    "saveToFile": "保存到配置文件",
+    "keyPassword": "密钥密码",
+    "derivationKeypair": "派生密钥"
   },
   "acs": {
     "title": "WiFi信道扫描（点击刷新）",

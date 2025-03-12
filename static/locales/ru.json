@@ -1,143 +1,145 @@
 {
-    "common": {
-      "button": "Кнопка",
-      "load": "Загрузка конфигурации",
-      "save": "Сохранить конфигурацию",
-      "apply": "Применять",
-      "saveAndApply": "Сохранить и применить",
-      "cancel": "Отмена",
-      "setting": "Настройка",
-      "download": "Скачать",
-      "delete": "Удалить",
-      "upload": "Загрузить",
-      "preview": "Просмотр",
-      "fileName": "Имя файла",
-      "fileType": "Тип файла",
-      "operation": "Действия",
-      "close": "Закрыть",
-      "loadSuccess": "Загрузка конфигурации прошла успешно!",
-      "loadFail": "Не удалось загрузить конфигурацию, пожалуйста, попробуйте загрузить вручную!",
-      "saveSuccess": "Конфигурация успешно сохранена!",
-      "saveFail": "Не удалось сохранить конфигурацию!",
-      "applySuccess": "Применение успешно!",
-      "applyFail": "Применить не удалось!",
-      "success": "Готово",
-      "fail": "Ошибка",
-      "deleteSuccess": "Удаление успешно!",
-      "deleteFail": "Удаление не удалось!",
-      "getInfoFail": "Не удалось получить информацию, попробуйте еще раз!",
-      "uploadSuccess": "Загрузка прошла успешно",
-      "uploadFail": "Загрузка не удалась, попробуйте еще раз!",
-      "confirmDelete": "Вы уверены, что хотите удалить {{filename}}?"
-    },
-    "tab": {
-      "webButton": "WEB Кнопка",
-      "gsSettings": "GS-Настройки",
-      "droneSettings": "Drone-Настройки",
-      "dvr": "DVR",
-      "configEditor": "Конфиг. файлы",
-      "tools": "Инструменты"
-    },
-    "tools": {
-      "ssh": "SSH",
-      "plotter": "WFB-графики",
-      "keyManager": "Bind-кнопок",
-      "acs": "ACS Сканирование частот",
-      "fileManager": "Файловый менеджер",
-      "gsInfo": "Информация о GS",
-      "droneInfo": "Информация о Drone",
-      "firmwareUpgrade": "Обновление прошивки",
-      "unbrickMode": "Прошивка через TFTP + UART",
-      "about": "О программе..."
-    },
-    "webButton": {
-      "gsButton": "Кнопки Drone",
-      "droneButton": "Кнопки GS",
-      "droneQuickSettings": "Быстрые настройки Drone (вступают в силу немедленно)",
-      "buttonSuccess": "Команда кнопки {{buttonId}} была отправлена",
-      "buttonFail": "Команда кнопки {{buttonId}} не была отправлена"
-    },
-    "droneSettings": {
-      "wfb": "WFB",
-      "wfbTitle": "Drone - Настройка WFB",
-      "majestic": "Majestic",
-      "majesticTitle": "Drone - Настройка Majestic"
-    },
-    "dvr": {
-      "title": "Управление DVR (Нажмите, чтобы обновить)",
-      "fileSize": "Размер",
-      "previewNow": "Просмотр: ",
-      "previewFail": "Просмотр не удался. Возможно, файл был удален или путь указан неверно."
-    },
-    "configEditor": {
-      "title": "Редактор файлов конфигураций",
-      "configFile": "Файлы конфигураций",
-      "edit": "Изменить",
-      "backup": "Backup",
-      "editNow": "Редактирование: {{filename}}",
-      "saveSuccess": "Файл успешно сохранен!",
-      "saveFail": "Сохранить Не удалось!"
-    },
-    "keyManager": {
-      "title": "WFB Bind-кнопок (нажмите, чтобы обновить)",
-      "clickToReload": "Загрузка не удалась, нажмите на заголовок, чтобы перезагрузить!",
-      "applyKey": "Применить",
-      "uploadGsKey": "Загрузить на GS",
-      "downloadGsKey": "Скачать c GS",
-      "uploadDroneKey": "Загрузить на Drone",
-      "downloadDroneKey": "Скачать c Drone",
-      "randomKey": "Сгенерировать",
-      "saveToFile": "Сохранить в файле конфигурации"
-    },
-    "acs": {
-      "title": "Сканирование каналов WiFi-Broadcast (нажмите, чтобы обновить)",
-      "startScan": "Начать сканирование",
-      "scanTips": "Сканирование началось. Пожалуйста, дождитесь завершения сканирования (5~10 секунд).",
-      "getNicFail": "Не удалось получить информацию о сетевой карте!",
-      "acsFail": "Сканирование не удалось!"
-    },
-    "fileManager": {
-      "uploadFile": "Загрузить файлы",
-      "newDirectory": "Создать папку",
-      "create": "Создать",
-      "fileName": "Имя Файла",
-      "fileSize": "Размер",
-      "fileType": "Тип",
-      "creationTime": "Дата создания",
-      "operation": "Действия",
-      "previousDirectory": "Вернуться",
-      "preview": "Просмотр",
-      "play": "Воспроизвести",
-      "download": "Скачать",
-      "delete": "Удалить"
-    },
-    "gsInfo": {
-      "title": "Информация о GS (нажмите, чтобы обновить)"
-    },
-    "droneInfo": {
-      "title": "Информация о Drone (нажмите, чтобы обновить)"
-    },
-    "firmwareUpgrade": {
-      "title": "Загрузка и обновление прошивки",
-      "selectfirmware": "Выберите прошивку",
-      "supportedFormats": "Поддерживаемые форматы файлов: .tgz, .tar.gz",
-      "uploadFirmware": "Загрузить прошивку",
-      "upgrade": "Обновить",
-      "noAvailableFirmware": "Нет доступной прошивки. Сначала загрузите прошивку.",
-      "upgradeTips": "Выполняется обновление, пожалуйста, наберитесь терпения!",
-      "upgradeFail": "Обновление не удалось, попробуйте еще раз!",
-      "sendFirmwareTips": "Загрузка, пожалуйста, наберитесь терпения (процесс может быть очень медленным)!",
-      "sendFail": "Отправка не удалась, попробуйте еще раз!"
-    },
-    "unbrickMode": {
-      "title": "Drone - Прошивка через TFTP + UART (Раскирпичивание)",
-      "uploadRescueFirmware": "Загрузить прошивку в камеру",
-      "startRescueService": "Начать запись прошивки",
-      "stopRescueService": "Остановить запись прошивки",
-      "openRescueTerminal": "Открыть терминал",
-      "Steps": "Шаги:\n1. Скачайте полную прошивку .bin с официального сайта и загрузите ее в GS.\n2. Подключите UART-порт камеры к UART3-порту Radxa Zero3 (PIN3->RX, PIN5->TX, PIN9->GND).\n3. Подключите LAN-кабель камеры к LAN-порту сетевой карты или USB-порту сетевой карты Radxa Zero3\n4. Нажмите \"Начать запись прошивки\", это запустить TFTP-сервер и веб-терминал.\n5. Нажмите Enter в терминале, и удерживая его, подайте питание на камеру. Когда появится консоль U-Boot, отпустите Enter.\n6. Выполните следующие команды построчно:\n ## Вводите команды построчно! Не копируйте и не вставляйте несколько строк одновременно!\n * setenv ipaddr 192.168.1.10; setenv serverip 192.168.1.20\n * mw.b 0x21000000 0xff 0x800000\n * tftpboot 0x21000000 firmware.bin\n * sf probe 0; sf lock 0;\n * sf erasure 0x0 0x800000; sf write 0x21000000 0x0 0x800000\n * reset"
-    },
-    "about": {
-      "selectLanguage": "Выберите язык:"
-    }
+  "common": {
+    "button": "Кнопка",
+    "load": "Загрузка конфигурации",
+    "save": "Сохранить конфигурацию",
+    "apply": "Применять",
+    "saveAndApply": "Сохранить и применить",
+    "cancel": "Отмена",
+    "setting": "Настройка",
+    "download": "Скачать",
+    "delete": "Удалить",
+    "upload": "Загрузить",
+    "preview": "Просмотр",
+    "fileName": "Имя файла",
+    "fileType": "Тип файла",
+    "operation": "Действия",
+    "close": "Закрыть",
+    "loadSuccess": "Загрузка конфигурации прошла успешно!",
+    "loadFail": "Не удалось загрузить конфигурацию, пожалуйста, попробуйте загрузить вручную!",
+    "saveSuccess": "Конфигурация успешно сохранена!",
+    "saveFail": "Не удалось сохранить конфигурацию!",
+    "applySuccess": "Применение успешно!",
+    "applyFail": "Применить не удалось!",
+    "success": "Готово",
+    "fail": "Ошибка",
+    "deleteSuccess": "Удаление успешно!",
+    "deleteFail": "Удаление не удалось!",
+    "getInfoFail": "Не удалось получить информацию, попробуйте еще раз!",
+    "uploadSuccess": "Загрузка прошла успешно",
+    "uploadFail": "Загрузка не удалась, попробуйте еще раз!",
+    "confirmDelete": "Вы уверены, что хотите удалить {{filename}}?"
+  },
+  "tab": {
+    "webButton": "WEB Кнопка",
+    "gsSettings": "GS-Настройки",
+    "droneSettings": "Drone-Настройки",
+    "dvr": "DVR",
+    "configEditor": "Конфиг. файлы",
+    "tools": "Инструменты"
+  },
+  "tools": {
+    "ssh": "SSH",
+    "plotter": "WFB-графики",
+    "keyManager": "Bind-кнопок",
+    "acs": "ACS Сканирование частот",
+    "fileManager": "Файловый менеджер",
+    "gsInfo": "Информация о GS",
+    "droneInfo": "Информация о Drone",
+    "firmwareUpgrade": "Обновление прошивки",
+    "unbrickMode": "Прошивка через TFTP + UART",
+    "about": "О программе..."
+  },
+  "webButton": {
+    "gsButton": "Кнопки Drone",
+    "droneButton": "Кнопки GS",
+    "droneQuickSettings": "Быстрые настройки Drone (вступают в силу немедленно)",
+    "buttonSuccess": "Команда кнопки {{buttonId}} была отправлена",
+    "buttonFail": "Команда кнопки {{buttonId}} не была отправлена"
+  },
+  "droneSettings": {
+    "wfb": "WFB",
+    "wfbTitle": "Drone - Настройка WFB",
+    "majestic": "Majestic",
+    "majesticTitle": "Drone - Настройка Majestic"
+  },
+  "dvr": {
+    "title": "Управление DVR (Нажмите, чтобы обновить)",
+    "fileSize": "Размер",
+    "previewNow": "Просмотр: ",
+    "previewFail": "Просмотр не удался. Возможно, файл был удален или путь указан неверно."
+  },
+  "configEditor": {
+    "title": "Редактор файлов конфигураций",
+    "configFile": "Файлы конфигураций",
+    "edit": "Изменить",
+    "backup": "Backup",
+    "editNow": "Редактирование: {{filename}}",
+    "saveSuccess": "Файл успешно сохранен!",
+    "saveFail": "Сохранить Не удалось!"
+  },
+  "keyManager": {
+    "title": "WFB Bind-кнопок (нажмите, чтобы обновить)",
+    "clickToReload": "Загрузка не удалась, нажмите на заголовок, чтобы перезагрузить!",
+    "applyKey": "Применить",
+    "uploadGsKey": "Загрузить на GS",
+    "downloadGsKey": "Скачать c GS",
+    "uploadDroneKey": "Загрузить на Drone",
+    "downloadDroneKey": "Скачать c Drone",
+    "randomKey": "Сгенерировать",
+    "saveToFile": "Сохранить в файле конфигурации",
+    "keyPassword": "ключи пароль",
+    "derivationKeypair": "Пара ключей для вывода"
+  },
+  "acs": {
+    "title": "Сканирование каналов WiFi-Broadcast (нажмите, чтобы обновить)",
+    "startScan": "Начать сканирование",
+    "scanTips": "Сканирование началось. Пожалуйста, дождитесь завершения сканирования (5~10 секунд).",
+    "getNicFail": "Не удалось получить информацию о сетевой карте!",
+    "acsFail": "Сканирование не удалось!"
+  },
+  "fileManager": {
+    "uploadFile": "Загрузить файлы",
+    "newDirectory": "Создать папку",
+    "create": "Создать",
+    "fileName": "Имя Файла",
+    "fileSize": "Размер",
+    "fileType": "Тип",
+    "creationTime": "Дата создания",
+    "operation": "Действия",
+    "previousDirectory": "Вернуться",
+    "preview": "Просмотр",
+    "play": "Воспроизвести",
+    "download": "Скачать",
+    "delete": "Удалить"
+  },
+  "gsInfo": {
+    "title": "Информация о GS (нажмите, чтобы обновить)"
+  },
+  "droneInfo": {
+    "title": "Информация о Drone (нажмите, чтобы обновить)"
+  },
+  "firmwareUpgrade": {
+    "title": "Загрузка и обновление прошивки",
+    "selectfirmware": "Выберите прошивку",
+    "supportedFormats": "Поддерживаемые форматы файлов: .tgz, .tar.gz",
+    "uploadFirmware": "Загрузить прошивку",
+    "upgrade": "Обновить",
+    "noAvailableFirmware": "Нет доступной прошивки. Сначала загрузите прошивку.",
+    "upgradeTips": "Выполняется обновление, пожалуйста, наберитесь терпения!",
+    "upgradeFail": "Обновление не удалось, попробуйте еще раз!",
+    "sendFirmwareTips": "Загрузка, пожалуйста, наберитесь терпения (процесс может быть очень медленным)!",
+    "sendFail": "Отправка не удалась, попробуйте еще раз!"
+  },
+  "unbrickMode": {
+    "title": "Drone - Прошивка через TFTP + UART (Раскирпичивание)",
+    "uploadRescueFirmware": "Загрузить прошивку в камеру",
+    "startRescueService": "Начать запись прошивки",
+    "stopRescueService": "Остановить запись прошивки",
+    "openRescueTerminal": "Открыть терминал",
+    "Steps": "Шаги:\n1. Скачайте полную прошивку .bin с официального сайта и загрузите ее в GS.\n2. Подключите UART-порт камеры к UART3-порту Radxa Zero3 (PIN3->RX, PIN5->TX, PIN9->GND).\n3. Подключите LAN-кабель камеры к LAN-порту сетевой карты или USB-порту сетевой карты Radxa Zero3\n4. Нажмите \"Начать запись прошивки\", это запустить TFTP-сервер и веб-терминал.\n5. Нажмите Enter в терминале, и удерживая его, подайте питание на камеру. Когда появится консоль U-Boot, отпустите Enter.\n6. Выполните следующие команды построчно:\n ## Вводите команды построчно! Не копируйте и не вставляйте несколько строк одновременно!\n * setenv ipaddr 192.168.1.10; setenv serverip 192.168.1.20\n * mw.b 0x21000000 0xff 0x800000\n * tftpboot 0x21000000 firmware.bin\n * sf probe 0; sf lock 0;\n * sf erasure 0x0 0x800000; sf write 0x21000000 0x0 0x800000\n * reset"
+  },
+  "about": {
+    "selectLanguage": "Выберите язык:"
   }
+}
