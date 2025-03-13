@@ -75,6 +75,7 @@ gs_config:
   gs_config_files:
     - settings_webui.yaml
     - /etc/gs.conf
+    - /etc/alink.conf
     # - /etc/wifibroadcast.cfg
     # - /etc/default/wifibroadcast
   plotter:
