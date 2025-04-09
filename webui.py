@@ -419,7 +419,7 @@ def save_gs_config(filename):
             for k, v in update_content.items():
                 update_command += f''' -e "s/^{k}=.*/{k}='{v}'/g"'''
             update_command += (
-                f" {config_info['gs_config'][filename]['path']} && echo success"
+                f" $(readlink -f {config_info['gs_config'][filename]['path']}) && echo success"
             )
             # print(update_command)
             # exec command
